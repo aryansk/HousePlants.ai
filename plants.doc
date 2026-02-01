@@ -1,0 +1,791 @@
+{
+  "metadata": {
+    "title": "Comprehensive Database of House & Container Plants",
+    "version": "1.0",
+    "description": "An extensive list of plants suitable for home environments, including indoor living spaces and outdoor patios/balconies.",
+    "count": 52,
+    "categories": ["Foliage", "Succulent/Cactus", "Flowering", "Palm", "Fern", "Herb/Edible", "Tree/Shrub"]
+  },
+  "plants": [
+    {
+      "id": 1,
+      "common_name": "Snake Plant",
+      "scientific_name": "Dracaena trifasciata (formerly Sansevieria trifasciata)",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Low to Bright Indirect",
+      "watering_needs": "Low (Allow soil to dry completely)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Mildly toxic to cats and dogs if ingested."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "13°C - 29°C"
+    },
+    {
+      "id": 2,
+      "common_name": "Monstera Deliciosa",
+      "scientific_name": "Monstera deliciosa",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate (Water when top inch is dry)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to cats and dogs (calcium oxalate crystals)."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 27°C"
+    },
+    {
+      "id": 3,
+      "common_name": "ZZ Plant",
+      "scientific_name": "Zamioculcas zamiifolia",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Low to Bright Indirect",
+      "watering_needs": "Low (Drought tolerant)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic if ingested."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 24°C"
+    },
+    {
+      "id": 4,
+      "common_name": "Peace Lily",
+      "scientific_name": "Spathiphyllum wallisii",
+      "category": "Indoor",
+      "type": "Flowering",
+      "light_requirements": "Low to Medium Indirect",
+      "watering_needs": "High (Keep soil moist)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to cats and dogs."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "18°C - 29°C"
+    },
+    {
+      "id": 5,
+      "common_name": "Spider Plant",
+      "scientific_name": "Chlorophytum comosum",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "13°C - 27°C"
+    },
+    {
+      "id": 6,
+      "common_name": "Fiddle Leaf Fig",
+      "scientific_name": "Ficus lyrata",
+      "category": "Indoor",
+      "type": "Tree/Shrub",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate (Consistent moisture)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to cats and dogs."
+      },
+      "care_difficulty": "Hard",
+      "temperature_range": "18°C - 24°C"
+    },
+    {
+      "id": 7,
+      "common_name": "Aloe Vera",
+      "scientific_name": "Aloe barbadensis miller",
+      "category": "Both",
+      "type": "Succulent",
+      "light_requirements": "Bright Direct",
+      "watering_needs": "Low (Allow to dry deeply)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Moderate toxicity to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "13°C - 27°C"
+    },
+    {
+      "id": 8,
+      "common_name": "Golden Pothos",
+      "scientific_name": "Epipremnum aureum",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Low to Bright Indirect",
+      "watering_needs": "Low to Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 29°C"
+    },
+    {
+      "id": 9,
+      "common_name": "Boston Fern",
+      "scientific_name": "Nephrolepis exaltata",
+      "category": "Both",
+      "type": "Fern",
+      "light_requirements": "Medium Indirect",
+      "watering_needs": "High (Requires high humidity)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "15°C - 24°C"
+    },
+    {
+      "id": 10,
+      "common_name": "Rubber Plant",
+      "scientific_name": "Ficus elastica",
+      "category": "Indoor",
+      "type": "Tree/Shrub",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "15°C - 27°C"
+    },
+    {
+      "id": 11,
+      "common_name": "Areca Palm",
+      "scientific_name": "Dypsis lutescens",
+      "category": "Indoor",
+      "type": "Palm",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 24°C"
+    },
+    {
+      "id": 12,
+      "common_name": "Jade Plant",
+      "scientific_name": "Crassula ovata",
+      "category": "Both",
+      "type": "Succulent",
+      "light_requirements": "Bright Direct",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "10°C - 24°C"
+    },
+    {
+      "id": 13,
+      "common_name": "English Ivy",
+      "scientific_name": "Hedera helix",
+      "category": "Both",
+      "type": "Foliage",
+      "light_requirements": "Medium to Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "10°C - 21°C"
+    },
+    {
+      "id": 14,
+      "common_name": "Lavender",
+      "scientific_name": "Lavandula",
+      "category": "Outdoor",
+      "type": "Herb/Edible",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Low (Once established)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to dogs and cats (contains linalool)."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "15°C - 30°C"
+    },
+    {
+      "id": 15,
+      "common_name": "Basil",
+      "scientific_name": "Ocimum basilicum",
+      "category": "Both",
+      "type": "Herb/Edible",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Moderate (Keep moist)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "20°C - 30°C"
+    },
+    {
+      "id": 16,
+      "common_name": "Meyer Lemon Tree",
+      "scientific_name": "Citrus x meyeri",
+      "category": "Both",
+      "type": "Tree/Shrub",
+      "light_requirements": "Full Sun (6-8 hours)",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets (essential oils in skins)."
+      },
+      "care_difficulty": "Hard",
+      "temperature_range": "10°C - 29°C"
+    },
+    {
+      "id": 17,
+      "common_name": "String of Pearls",
+      "scientific_name": "Senecio rowleyanus",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Low (Sensitive to overwatering)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "21°C - 27°C"
+    },
+    {
+      "id": 18,
+      "common_name": "Bird of Paradise",
+      "scientific_name": "Strelitzia nicolai",
+      "category": "Both",
+      "type": "Tree/Shrub",
+      "light_requirements": "Bright Direct to Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 29°C"
+    },
+    {
+      "id": 19,
+      "common_name": "Calathea Orbifolia",
+      "scientific_name": "Goeppertia orbifolia",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Low to Medium Indirect",
+      "watering_needs": "High (Sensitive to tap water chemicals)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Hard",
+      "temperature_range": "18°C - 24°C"
+    },
+    {
+      "id": 20,
+      "common_name": "Geranium",
+      "scientific_name": "Pelargonium",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "10°C - 27°C"
+    },
+    {
+      "id": 21,
+      "common_name": "Heartleaf Philodendron",
+      "scientific_name": "Philodendron hederaceum",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Low to Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "16°C - 29°C"
+    },
+    {
+      "id": 22,
+      "common_name": "Pilea (Chinese Money Plant)",
+      "scientific_name": "Pilea peperomioides",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 24°C"
+    },
+    {
+      "id": 23,
+      "common_name": "Rosemary",
+      "scientific_name": "Salvia rosmarinus",
+      "category": "Outdoor",
+      "type": "Herb/Edible",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Low (Must have good drainage)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Generally safe, but large amounts of oil can cause upset."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "10°C - 27°C"
+    },
+    {
+      "id": 24,
+      "common_name": "Orchid",
+      "scientific_name": "Phalaenopsis",
+      "category": "Indoor",
+      "type": "Flowering",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Low (Water weekly, good drainage)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 29°C"
+    },
+    {
+      "id": 25,
+      "common_name": "African Violet",
+      "scientific_name": "Saintpaulia",
+      "category": "Indoor",
+      "type": "Flowering",
+      "light_requirements": "Medium Indirect",
+      "watering_needs": "Moderate (Bottom water)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 24°C"
+    },
+    {
+      "id": 26,
+      "common_name": "Petunia",
+      "scientific_name": "Petunia",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Full Sun",
+      "watering_needs": "High (Daily in heat)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 30°C"
+    },
+    {
+      "id": 27,
+      "common_name": "Cast Iron Plant",
+      "scientific_name": "Aspidistra elatior",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Low to Medium",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "10°C - 29°C"
+    },
+    {
+      "id": 28,
+      "common_name": "Dumb Cane",
+      "scientific_name": "Dieffenbachia",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Low to Medium Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Highly toxic to pets and humans if ingested."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 27°C"
+    },
+    {
+      "id": 29,
+      "common_name": "Mint",
+      "scientific_name": "Mentha",
+      "category": "Both",
+      "type": "Herb/Edible",
+      "light_requirements": "Sun to Partial Shade",
+      "watering_needs": "High (Keep moist)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets in large quantities."
+      },
+      "care_difficulty": "Easy (Invasive if not potted)",
+      "temperature_range": "13°C - 24°C"
+    },
+    {
+      "id": 30,
+      "common_name": "Hydrangea",
+      "scientific_name": "Hydrangea macrophylla",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Morning Sun / Afternoon Shade",
+      "watering_needs": "High",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets (contains cyanogenic glycosides)."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "10°C - 21°C"
+    },
+    {
+      "id": 31,
+      "common_name": "Swiss Cheese Plant (Adansonii)",
+      "scientific_name": "Monstera adansonii",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 27°C"
+    },
+    {
+      "id": 32,
+      "common_name": "Parlor Palm",
+      "scientific_name": "Chamaedorea elegans",
+      "category": "Indoor",
+      "type": "Palm",
+      "light_requirements": "Low to Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "18°C - 27°C"
+    },
+    {
+      "id": 33,
+      "common_name": "Begonia",
+      "scientific_name": "Begonia maculata",
+      "category": "Indoor",
+      "type": "Flowering",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate (Keep soil slightly damp)",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 22°C"
+    },
+    {
+      "id": 34,
+      "common_name": "Dragon Tree",
+      "scientific_name": "Dracaena marginata",
+      "category": "Indoor",
+      "type": "Tree/Shrub",
+      "light_requirements": "Low to Bright Indirect",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "18°C - 27°C"
+    },
+    {
+      "id": 35,
+      "common_name": "Ponytail Palm",
+      "scientific_name": "Beaucarnea recurvata",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Bright Direct",
+      "watering_needs": "Low (Stores water in trunk)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 29°C"
+    },
+    {
+      "id": 36,
+      "common_name": "Marigold",
+      "scientific_name": "Tagetes",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Mildly toxic (can cause skin irritation)."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "10°C - 30°C"
+    },
+    {
+      "id": 37,
+      "common_name": "Echeveria",
+      "scientific_name": "Echeveria",
+      "category": "Both",
+      "type": "Succulent",
+      "light_requirements": "Bright Direct",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium (Needs lots of sun)",
+      "temperature_range": "13°C - 27°C"
+    },
+    {
+      "id": 38,
+      "common_name": "Fuchsia",
+      "scientific_name": "Fuchsia",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Partial Shade",
+      "watering_needs": "High",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "13°C - 24°C"
+    },
+    {
+      "id": 39,
+      "common_name": "Maidenhair Fern",
+      "scientific_name": "Adiantum",
+      "category": "Indoor",
+      "type": "Fern",
+      "light_requirements": "Low to Medium Indirect",
+      "watering_needs": "High (Cannot dry out)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Hard",
+      "temperature_range": "16°C - 24°C"
+    },
+    {
+      "id": 40,
+      "common_name": "Chrysanthemum",
+      "scientific_name": "Chrysanthemum",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "10°C - 21°C"
+    },
+    {
+      "id": 41,
+      "common_name": "Yucca Cane",
+      "scientific_name": "Yucca elephantipes",
+      "category": "Both",
+      "type": "Tree/Shrub",
+      "light_requirements": "Bright Direct",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "7°C - 32°C"
+    },
+    {
+      "id": 42,
+      "common_name": "Air Plant",
+      "scientific_name": "Tillandsia",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate (Mist/Soak, no soil)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "10°C - 32°C"
+    },
+    {
+      "id": 43,
+      "common_name": "Haworthia (Zebra Plant)",
+      "scientific_name": "Haworthiopsis attenuata",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "18°C - 27°C"
+    },
+    {
+      "id": 44,
+      "common_name": "Prayer Plant",
+      "scientific_name": "Maranta leuconeura",
+      "category": "Indoor",
+      "type": "Foliage",
+      "light_requirements": "Low to Medium Indirect",
+      "watering_needs": "Moderate (High humidity preferred)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "18°C - 27°C"
+    },
+    {
+      "id": 45,
+      "common_name": "Coleus",
+      "scientific_name": "Coleus scutellarioides",
+      "category": "Both",
+      "type": "Foliage",
+      "light_requirements": "Partial Shade to Sun",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 30°C"
+    },
+    {
+      "id": 46,
+      "common_name": "Hoya (Wax Plant)",
+      "scientific_name": "Hoya carnosa",
+      "category": "Indoor",
+      "type": "Succulent",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Low (Let dry between waterings)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "15°C - 29°C"
+    },
+    {
+      "id": 47,
+      "common_name": "Staghorn Fern",
+      "scientific_name": "Platycerium",
+      "category": "Indoor",
+      "type": "Fern",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate (Mist often/Soak)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Hard",
+      "temperature_range": "13°C - 27°C"
+    },
+    {
+      "id": 48,
+      "common_name": "Impatiens",
+      "scientific_name": "Impatiens walleriana",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Shade",
+      "watering_needs": "High",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "10°C - 24°C"
+    },
+    {
+      "id": 49,
+      "common_name": "Norfolk Island Pine",
+      "scientific_name": "Araucaria heterophylla",
+      "category": "Indoor",
+      "type": "Tree/Shrub",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "16°C - 24°C"
+    },
+    {
+      "id": 50,
+      "common_name": "Kalanchoe",
+      "scientific_name": "Kalanchoe blossfeldiana",
+      "category": "Both",
+      "type": "Succulent",
+      "light_requirements": "Bright Direct",
+      "watering_needs": "Low",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets."
+      },
+      "care_difficulty": "Easy",
+      "temperature_range": "10°C - 29°C"
+    },
+    {
+      "id": 51,
+      "common_name": "Bougainvillea",
+      "scientific_name": "Bougainvillea",
+      "category": "Outdoor",
+      "type": "Flowering",
+      "light_requirements": "Full Sun",
+      "watering_needs": "Low to Moderate",
+      "toxicity": {
+        "toxic_to_pets": true,
+        "details": "Toxic to pets (sap)."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "15°C - 38°C"
+    },
+    {
+      "id": 52,
+      "common_name": "Money Tree",
+      "scientific_name": "Pachira aquatica",
+      "category": "Indoor",
+      "type": "Tree/Shrub",
+      "light_requirements": "Bright Indirect",
+      "watering_needs": "Moderate (Deep waterings)",
+      "toxicity": {
+        "toxic_to_pets": false,
+        "details": "Non-toxic."
+      },
+      "care_difficulty": "Medium",
+      "temperature_range": "16°C - 29°C"
+    }
+  ]
+}
