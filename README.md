@@ -964,11 +964,6 @@ furnished to do so, subject to the following conditions:
 - **Reddit**: r/HousePlantsApp
 - **Facebook Group**: HousePlants App Users
 
-### Resources
-- [FAQ](https://houseplants.app/faq)
-- [Tutorial Videos](https://youtube.com/houseplants)
-- [Blog](https://houseplants.app/blog)
-- [Community Forum](https://forum.houseplants.app)
 
 ---
 
@@ -977,18 +972,3 @@ furnished to do so, subject to the following conditions:
 *Made with 💚 by plant lovers, for plant lovers*
 
 ---
-
-### Quick Links
-- [Download on App Store](https://apps.apple.com/houseplants)
-- [View Demo](https://houseplants.app/demo)
-- [Documentation](https://docs.houseplants.app)
-- [Contribute](https://github.com/houseplants/contribute)
-- [Report Bug](https://github.com/houseplants/issues)
-
-### Stats
-![GitHub stars](https://img.shields.io/github/stars/houseplants/app?style=social)
-![GitHub forks](https://img.shields.io/github/forks/houseplants/app?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/houseplants/app?style=social)
-![GitHub last commit](https://img.shields.io/github/last-commit/houseplants/app)
-![GitHub issues](https://img.shields.io/github/issues/houseplants/app)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/houseplants/app)
