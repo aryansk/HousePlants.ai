@@ -8,6 +8,9 @@ An intelligent iOS plant care companion app that helps you nurture your indoor j
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-4.0-purple.svg)
 ![Maintenance](https://img.shields.io/badge/Maintenance-Active-brightgreen.svg)
 
+<img width="1920" height="1080" alt="SkinCare ai" src="https://github.com/user-attachments/assets/ebc916e3-06c1-4f87-b165-80a46f55c63b" />
+
+
 ## 📖 Table of Contents
 - [Core Features](#-core-features)
 - [Technical Overview](#-technical-overview)
