@@ -1,0 +1,403 @@
+{
+  "app_config": {
+    "app_name": "Global Garden",
+    "version": "2.2.0",
+    "features": {
+      "ml_scanner": true,
+      "skincare_lab": true,
+      "ar_placement": true,
+      "sun_seeker_ar": true
+    }
+  },
+  "tools_config": {
+    "sun_seeker": {
+      "measurement_unit": "foot_candles",
+      "ar_overlay_enabled": true,
+      "seasonal_path_display": true,
+      "calibration_needed": true,
+      "light_thresholds": {
+        "low": { "max": 100, "label": "Low Light", "suitable_for": ["cat_fern", "cat_aroid"] },
+        "medium": { "max": 500, "label": "Bright Indirect", "suitable_for": ["cat_aroid", "cat_tree"] },
+        "high": { "max": 1000, "label": "Direct Sun", "suitable_for": ["cat_succulent", "cat_flower"] }
+      }
+    }
+  },
+  "user_profile": {
+    "user_id": "user_8823_botanical",
+    "username": "PlantParent_25",
+    "location_settings": {
+      "city": "Kyoto",
+      "country": "Japan",
+      "climate_zone_detected": "Temperate",
+      "coordinates": { "lat": 35.0116, "lng": 135.7681 }
+    },
+    "preferences": {
+      "difficulty_level": "Intermediate",
+      "pet_safe_only": false
+    },
+    "favorites": ["p_001", "p_005", "p_012"],
+    "my_jungle": [
+      {
+        "plant_id": "p_001",
+        "nickname": "Monty",
+        "date_acquired": "2024-03-12",
+        "last_watered": "2025-11-25"
+      }
+    ]
+  },
+  "plant_categories": [
+    { "id": "cat_aroid", "name": "Aroids & Tropicals", "icon": "🌿" },
+    { "id": "cat_succulent", "name": "Succulents & Cacti", "icon": "🌵" },
+    { "id": "cat_fern", "name": "Ferns", "icon": "🪶" },
+    { "id": "cat_tree", "name": "Trees & Palms", "icon": "🌴" },
+    { "id": "cat_flower", "name": "Flowering", "icon": "🌸" }
+  ],
+  "plant_catalog": [
+    {
+      "id": "p_001",
+      "common_name": "Monstera Deliciosa",
+      "botanical_name": "Monstera deliciosa",
+      "category_id": "cat_aroid",
+      "origin": {
+        "region": "Central America (Mexico & Panama)",
+        "coordinates": { "lat": 19.4326, "lng": -99.1332 }
+      },
+      "images": {
+        "main": "assets/images/monstera_main.jpg",
+        "gallery": ["assets/images/monstera_leaf.jpg", "assets/images/monstera_room.jpg"]
+      },
+      "description": "The 'Swiss Cheese Plant' is famous for its natural leaf holes (fenestrations). A fast-growing climber that brings an instant tropical jungle vibe to any room.",
+      "care_guide": {
+        "difficulty": "Easy",
+        "light": "Bright, indirect light. Can tolerate medium light.",
+        "water": "Water every 1-2 weeks, allowing soil to dry out between waterings.",
+        "humidity": "Prefers high humidity but tolerates normal home conditions.",
+        "soil": "Chunky, well-draining aroid mix.",
+        "temperature_range": "18°C - 30°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic to cats and dogs if ingested."
+      },
+      "ml_recognition_confidence": 0.98
+    },
+    {
+      "id": "p_002",
+      "common_name": "Snake Plant",
+      "botanical_name": "Dracaena trifasciata",
+      "category_id": "cat_succulent",
+      "origin": {
+        "region": "West Africa (Nigeria)",
+        "coordinates": { "lat": 9.0820, "lng": 8.6753 }
+      },
+      "images": {
+        "main": "assets/images/snakeplant_main.jpg",
+        "gallery": []
+      },
+      "description": "The ultimate survivor. Known for its upright, sword-like leaves and architectural look. It is one of the few plants that converts CO2 to Oxygen at night.",
+      "care_guide": {
+        "difficulty": "Very Easy",
+        "light": "Thrives in any light, from low shade to direct sun.",
+        "water": "Water every 3-4 weeks. Let soil completely dry.",
+        "humidity": "No preference.",
+        "soil": "Cactus or succulent potting mix.",
+        "temperature_range": "13°C - 29°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Mildly toxic."
+      },
+      "ml_recognition_confidence": 0.99
+    },
+    {
+      "id": "p_003",
+      "common_name": "Aloe Vera",
+      "botanical_name": "Aloe barbadensis miller",
+      "category_id": "cat_succulent",
+      "origin": {
+        "region": "Arabian Peninsula",
+        "coordinates": { "lat": 21.4735, "lng": 55.9754 }
+      },
+      "images": {
+        "main": "assets/images/aloe_main.jpg",
+        "gallery": []
+      },
+      "description": "A spiky succulent revered for thousands of years for its medicinal gel. A must-have for sunny windowsills.",
+      "care_guide": {
+        "difficulty": "Easy",
+        "light": "Bright, direct sunlight.",
+        "water": "Deep water every 3 weeks. Drought tolerant.",
+        "humidity": "Low humidity preferred.",
+        "soil": "Sandy, well-draining soil.",
+        "temperature_range": "13°C - 27°C"
+      },
+      "skincare_potential": {
+        "enabled": true,
+        "benefits": "Hydrating, soothing for burns, anti-inflammatory.",
+        "diy_recipe": "Harvest lower leaf, scoop gel, mix with Vitamin E oil for a face mask."
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic to pets."
+      },
+      "ml_recognition_confidence": 0.95
+    },
+    {
+      "id": "p_004",
+      "common_name": "Fiddle Leaf Fig",
+      "botanical_name": "Ficus lyrata",
+      "category_id": "cat_tree",
+      "origin": {
+        "region": "Western Africa (Cameroon)",
+        "coordinates": { "lat": 3.8480, "lng": 11.5021 }
+      },
+      "images": {
+        "main": "assets/images/flf_main.jpg",
+        "gallery": []
+      },
+      "description": "The design world's darling. Known for its massive, violin-shaped leaves. It can be finicky and hates being moved once settled.",
+      "care_guide": {
+        "difficulty": "Hard",
+        "light": "Consistent, bright filtered light.",
+        "water": "Water when top 2 inches of soil are dry.",
+        "humidity": "Requires high humidity (40-60%).",
+        "soil": "Nutrient-rich potting soil.",
+        "temperature_range": "18°C - 24°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic sap."
+      },
+      "ml_recognition_confidence": 0.92
+    },
+    {
+      "id": "p_005",
+      "common_name": "Peace Lily",
+      "botanical_name": "Spathiphyllum",
+      "category_id": "cat_flower",
+      "origin": {
+        "region": "Colombia & Venezuela",
+        "coordinates": { "lat": 4.5709, "lng": -74.2973 }
+      },
+      "images": {
+        "main": "assets/images/peacelily_main.jpg",
+        "gallery": []
+      },
+      "description": "Elegant dark green leaves with white 'spathe' flowers. Famous for dramatically drooping when thirsty, making it easy to understand.",
+      "care_guide": {
+        "difficulty": "Medium",
+        "light": "Low to medium indirect light.",
+        "water": "Keep soil consistently moist but not soggy.",
+        "humidity": "High humidity.",
+        "soil": "Peat-based potting mix.",
+        "temperature_range": "18°C - 26°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic to cats."
+      },
+      "ml_recognition_confidence": 0.94
+    },
+    {
+      "id": "p_006",
+      "common_name": "Spider Plant",
+      "botanical_name": "Chlorophytum comosum",
+      "category_id": "cat_fern",
+      "origin": {
+        "region": "South Africa",
+        "coordinates": { "lat": -30.5595, "lng": 22.9375 }
+      },
+      "images": {
+        "main": "assets/images/spiderplant_main.jpg",
+        "gallery": []
+      },
+      "description": "A classic hanging plant that produces adorable 'spiderettes' or pups that can be easily propagated. Very adaptable.",
+      "care_guide": {
+        "difficulty": "Easy",
+        "light": "Bright to moderate indirect light.",
+        "water": "Keep soil slightly moist.",
+        "humidity": "Average home humidity.",
+        "soil": "General potting mix.",
+        "temperature_range": "13°C - 27°C"
+      },
+      "toxicity": {
+        "is_pet_safe": true,
+        "warning": "Safe for pets (cats may find it hallucinogenic/fun to eat)."
+      },
+      "ml_recognition_confidence": 0.96
+    },
+    {
+      "id": "p_007",
+      "common_name": "ZZ Plant",
+      "botanical_name": "Zamioculcas zamiifolia",
+      "category_id": "cat_succulent",
+      "origin": {
+        "region": "Eastern Africa (Kenya/Tanzania)",
+        "coordinates": { "lat": -6.3690, "lng": 34.8888 }
+      },
+      "images": {
+        "main": "assets/images/zz_main.jpg",
+        "gallery": []
+      },
+      "description": "With waxy, shiny leaves that look artificial, the ZZ plant stores water in potato-like rhizomes under the soil. Extremely drought tolerant.",
+      "care_guide": {
+        "difficulty": "Very Easy",
+        "light": "Low to bright indirect light.",
+        "water": "Water only when fully dry (every 3-4 weeks).",
+        "humidity": "Average.",
+        "soil": "Well-draining mix.",
+        "temperature_range": "15°C - 24°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic if ingested."
+      },
+      "ml_recognition_confidence": 0.97
+    },
+    {
+      "id": "p_008",
+      "common_name": "English Ivy",
+      "botanical_name": "Hedera helix",
+      "category_id": "cat_aroid",
+      "origin": {
+        "region": "Europe & Western Asia",
+        "coordinates": { "lat": 51.5074, "lng": -0.1278 }
+      },
+      "images": {
+        "main": "assets/images/ivy_main.jpg",
+        "gallery": []
+      },
+      "description": "A vigorous trailing vine with lobed leaves. Excellent for hanging baskets or training up a trellis.",
+      "care_guide": {
+        "difficulty": "Medium",
+        "light": "Medium to bright light. Avoid direct hot sun.",
+        "water": "Allow topsoil to dry out slightly.",
+        "humidity": "Prefers cooler, moist air.",
+        "soil": "Standard potting mix.",
+        "temperature_range": "10°C - 21°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic."
+      },
+      "ml_recognition_confidence": 0.91
+    },
+    {
+      "id": "p_009",
+      "common_name": "Rubber Plant",
+      "botanical_name": "Ficus elastica",
+      "category_id": "cat_tree",
+      "origin": {
+        "region": "Southeast Asia",
+        "coordinates": { "lat": 1.3521, "lng": 103.8198 }
+      },
+      "images": {
+        "main": "assets/images/rubber_main.jpg",
+        "gallery": []
+      },
+      "description": "A bold statement plant with thick, glossy, dark green (or burgundy) leaves. It can grow into a large tree indoors.",
+      "care_guide": {
+        "difficulty": "Medium",
+        "light": "Bright, indirect light.",
+        "water": "Keep moist in summer, reduce in winter.",
+        "humidity": "Average to high.",
+        "soil": "Well-draining potting soil.",
+        "temperature_range": "15°C - 29°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic sap."
+      },
+      "ml_recognition_confidence": 0.93
+    },
+    {
+      "id": "p_010",
+      "common_name": "Lavender",
+      "botanical_name": "Lavandula",
+      "category_id": "cat_flower",
+      "origin": {
+        "region": "Mediterranean",
+        "coordinates": { "lat": 43.5297, "lng": 5.4474 }
+      },
+      "images": {
+        "main": "assets/images/lavender_main.jpg",
+        "gallery": []
+      },
+      "description": "Famous for its calming fragrance and purple blooms. Difficult to grow indoors unless you have a very sunny spot.",
+      "care_guide": {
+        "difficulty": "Hard (Indoors)",
+        "light": "Direct, intense sunlight (6+ hours).",
+        "water": "Deep watering, then let dry completely.",
+        "humidity": "Low.",
+        "soil": "Sandy, low-nutrient soil.",
+        "temperature_range": "15°C - 30°C"
+      },
+      "skincare_potential": {
+        "enabled": true,
+        "benefits": "Calming, anti-bacterial, sleep aid.",
+        "diy_recipe": "Steep dried buds in hot water for a facial steam."
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic to dogs/cats."
+      },
+      "ml_recognition_confidence": 0.90
+    },
+    {
+      "id": "p_011",
+      "common_name": "Boston Fern",
+      "botanical_name": "Nephrolepis exaltata",
+      "category_id": "cat_fern",
+      "origin": {
+        "region": "Humid Swamps (Florida/Caribbean)",
+        "coordinates": { "lat": 25.7617, "lng": -80.1918 }
+      },
+      "images": {
+        "main": "assets/images/bostonfern_main.jpg",
+        "gallery": []
+      },
+      "description": "A classic fern with arching, feathery fronds. It loves moisture and is often found in bathrooms.",
+      "care_guide": {
+        "difficulty": "Medium",
+        "light": "Bright, indirect light.",
+        "water": "Keep soil constantly moist. Never let dry out.",
+        "humidity": "Very High.",
+        "soil": "Peaty, moisture-retentive soil.",
+        "temperature_range": "15°C - 24°C"
+      },
+      "toxicity": {
+        "is_pet_safe": true,
+        "warning": "Safe for pets."
+      },
+      "ml_recognition_confidence": 0.88
+    },
+    {
+      "id": "p_012",
+      "common_name": "Jade Plant",
+      "botanical_name": "Crassula ovata",
+      "category_id": "cat_succulent",
+      "origin": {
+        "region": "South Africa (Eastern Cape)",
+        "coordinates": { "lat": -32.2968, "lng": 26.4194 }
+      },
+      "images": {
+        "main": "assets/images/jade_main.jpg",
+        "gallery": []
+      },
+      "description": "A long-living succulent that looks like a miniature tree. In some cultures, it is believed to bring good luck and fortune.",
+      "care_guide": {
+        "difficulty": "Easy",
+        "light": "Direct morning sun or bright indirect light.",
+        "water": "Water when topsoil is dry.",
+        "humidity": "Low.",
+        "soil": "Cactus mix.",
+        "temperature_range": "10°C - 24°C"
+      },
+      "toxicity": {
+        "is_pet_safe": false,
+        "warning": "Toxic."
+      },
+      "ml_recognition_confidence": 0.95
+    }
+  ]
+}
