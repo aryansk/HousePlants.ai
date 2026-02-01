@@ -672,25 +672,6 @@ struct MyView: View {
    - Verify data persistence
    - Check performance impact
 
-## 📚 Documentation
-
-### Feature Documentation
-- [Watering System Guide](/docs/features/watering-system.md)
-- [Plant Database Structure](/docs/features/plant-database.md)
-- [Care Tools Reference](/docs/features/care-tools.md)
-- [Data Management](/docs/features/data-management.md)
-
-### Architecture Guides
-- [MVVM Pattern Implementation](/docs/architecture/mvvm-pattern.md)
-- [Data Flow](/docs/architecture/data-flow.md)
-- [State Management](/docs/architecture/state-management.md)
-- [View Composition](/docs/architecture/view-composition.md)
-
-### User Guides
-- [Getting Started](/docs/guides/getting-started.md)
-- [Adding Plants to Your Jungle](/docs/guides/adding-plants.md)
-- [Using Care Tools](/docs/guides/care-tools.md)
-- [Troubleshooting Guide](/docs/guides/troubleshooting.md)
 
 ### API Reference
 ```swift
@@ -894,19 +875,6 @@ Categories:
 └─────────────────┴─────────────────┴─────────────────┘
 ```
 
-## 🐛 Known Issues
-
-### Current Limitations
-- AR features require ARKit-capable devices (iPhone 6S or newer)
-- Some plant images may load slowly on cellular
-- Watering calculations are estimates, not absolute schedules
-- No offline plant addition (requires jason.json)
-
-### Bug Reports
-Please report bugs via:
-- GitHub Issues
-- In-app feedback
-- Email: support@houseplants.app
 
 ## 📄 License
 
@@ -944,25 +912,6 @@ furnished to do so, subject to the following conditions:
   - Plant care communities on Reddit
   - Professional gardening apps
   - Material Design principles for plant apps
-  
-- **Special Thanks**
-  - Beta testers and early adopters
-  - Plant enthusiast community
-  - iOS developer community
-  - Open source Swift contributors
-
-## 📞 Support
-
-### Contact
-- **Email**: support@houseplants.app
-- **Website**: www.houseplants.app
-- **Twitter**: @HousePlantsApp
-- **Instagram**: @houseplants.app
-
-### Community
-- **Discord**: [Join our community](https://discord.gg/houseplants)
-- **Reddit**: r/HousePlantsApp
-- **Facebook Group**: HousePlants App Users
 
 
 ---
