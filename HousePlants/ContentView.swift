@@ -1,21 +1,34 @@
-//
-//  ContentView.swift
-//  HousePlants
-//
-//  Created by Aryan Signh on 27/11/25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var dataLoader = DataLoader()
+    @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if hasCompletedOnboarding {
+                TabView {
+                    PlantListView()
+                        .tabItem {
+                            Label("Discover", systemImage: "leaf.fill")
+                        }
+                    
+                    ToolsView()
+                        .tabItem {
+                            Label("Tools", systemImage: "wrench.and.screwdriver.fill")
+                        }
+
+                    MyJungleView()
+                        .tabItem {
+                            Label("My Jungle", systemImage: "heart.fill")
+                        }
+                }
+                .tint(.green)
+            } else {
+                WelcomeView(isCompleted: $hasCompletedOnboarding)
+            }
         }
-        .padding()
+        .environmentObject(dataLoader)
     }
 }
 
