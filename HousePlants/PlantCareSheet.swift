@@ -195,7 +195,7 @@ struct PlantCareSheet: View {
                 }
                 .padding(.vertical)
             }
-            .background(Color(hex: "F2F7F2"))
+            .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle(plant.commonName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -268,7 +268,7 @@ struct CareInfoRow: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(10)
     }
 }

@@ -2,39 +2,39 @@ import SwiftUI
 
 struct ToolsView: View {
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 Section {
                     NavigationLink(destination: SunSeekerARView()) {
-                        ToolRow(icon: "sun.max.fill", title: "Sun Seeker", description: "Measure light levels for your plants.")
+                        ToolRow(icon: "sun.max.fill", title: "Sun Seeker", description: "Measure light levels for your plants.", color: .orange)
                     }
                     
                     NavigationLink(destination: WaterCalculatorView()) {
-                        ToolRow(icon: "drop.fill", title: "Water Calculator", description: "Calculate watering schedules.")
+                        ToolRow(icon: "drop.fill", title: "Water Calculator", description: "Calculate watering schedules.", color: .blue)
                     }
                     
                     NavigationLink(destination: PlantDoctorView()) {
-                        ToolRow(icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose common plant issues.")
+                        ToolRow(icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose common plant issues.", color: .red)
                     }
                     
                     NavigationLink(destination: SkincareLabView()) {
-                        ToolRow(icon: "flask.fill", title: "Skincare Lab", description: "Discover DIY skincare recipes.")
+                        ToolRow(icon: "flask.fill", title: "Skincare Lab", description: "Discover DIY skincare recipes.", color: .purple)
                     }
                     
                     NavigationLink(destination: PotSizeCalculatorView()) {
-                        ToolRow(icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Pot Size Calculator", description: "Find the perfect pot size.")
+                        ToolRow(icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Pot Size", description: "Find the perfect pot size.", color: .brown)
                     }
                     
                     NavigationLink(destination: MoonPhaseView()) {
-                        ToolRow(icon: "moon.stars.fill", title: "Moon Gardening", description: "Plant by the lunar cycle.")
+                        ToolRow(icon: "moon.stars.fill", title: "Moon Gardening", description: "Plant by the lunar cycle.", color: .indigo)
                     }
                     
                     NavigationLink(destination: FertilizerCalculatorView()) {
-                        ToolRow(icon: "drop.triangle.fill", title: "Fertilizer Calculator", description: "Calculate dosage & frequency.")
+                        ToolRow(icon: "drop.triangle.fill", title: "Fertilizer", description: "Calculate dosage & frequency.", color: .green)
                     }
                     
                     NavigationLink(destination: SoilMixBuilderView()) {
-                        ToolRow(icon: "square.stack.3d.up.fill", title: "Soil Mix Builder", description: "Create custom soil recipes.")
+                        ToolRow(icon: "square.stack.3d.up.fill", title: "Soil Mix", description: "Create custom soil recipes.", color: Color(hex: "8B4513"))
                     }
                 } header: {
                     Text("Available Tools")
@@ -49,17 +49,23 @@ struct ToolRow: View {
     let icon: String
     let title: String
     let description: String
+    let color: Color
     
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
-            Image(systemName: icon)
-                .font(.title)
-                .foregroundStyle(.green)
-                .frame(width: 40)
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(color.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(color)
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
+                    .foregroundStyle(.primary)
                 Text(description)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -183,16 +189,16 @@ struct SunSeekerARView: View {
                             LightGuideRow(title: "Bright Light", desc: "South-facing windows, direct sun.", color: .orange)
                         }
                         .padding()
-                        .background(Color.white)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
                         .cornerRadius(12)
-                        .shadow(radius: 2)
+                        .shadow(color: Color.primary.opacity(0.05), radius: 2)
                         .padding()
                     }
                 }
                 .background(Color(UIColor.systemGroupedBackground))
             }
         }
-        .navigationBarHidden(showCamera)
+        .toolbar(showCamera ? .hidden : .visible, for: .navigationBar)
     }
 }
 
@@ -337,7 +343,7 @@ struct MoonPhaseView: View {
                         .padding(.horizontal)
                 }
                 .padding()
-                .background(Color.white.opacity(0.05))
+                .background(Color.white.opacity(0.1))
                 .cornerRadius(16)
                 .padding()
                 
@@ -354,6 +360,7 @@ struct MoonPhaseView: View {
 struct SkincareLabView: View {
     @EnvironmentObject var dataLoader: DataLoader
     @State private var selectedCategory: String = "All"
+    @Namespace private var animation
     
     var skincarePlants: [Plant] {
         let all = dataLoader.plants.filter { $0.skincarePotential?.enabled == true }
@@ -397,16 +404,27 @@ struct SkincareLabView: View {
                     HStack(spacing: 12) {
                         ForEach(categories, id: \.self) { category in
                             Button(action: {
-                                selectedCategory = category
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    selectedCategory = category
+                                }
                             }) {
                                 Text(category)
                                     .fontWeight(.medium)
                                     .padding(.vertical, 8)
                                     .padding(.horizontal, 16)
-                                    .background(selectedCategory == category ? Color.purple : Color.purple.opacity(0.1))
                                     .foregroundStyle(selectedCategory == category ? .white : .purple)
-                                    .cornerRadius(20)
+                                    .background {
+                                        if selectedCategory == category {
+                                            Capsule()
+                                                .fill(Color.purple)
+                                                .matchedGeometryEffect(id: "categoryBackground", in: animation)
+                                        } else {
+                                            Capsule()
+                                                .fill(Color.purple.opacity(0.1))
+                                        }
+                                    }
                             }
+                            .buttonStyle(BubblingButtonStyle())
                         }
                     }
                     .padding(.horizontal)
@@ -492,9 +510,9 @@ struct RecipeCard: View {
             }
             .padding()
         }
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
     }
 }
 
@@ -541,9 +559,9 @@ struct RecipeDetailView: View {
                     DetailStat(icon: "hourglass", title: "Shelf Life", value: skincare?.shelfLife ?? "--")
                 }
                 .padding()
-                .background(Color.white)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
                 .cornerRadius(16)
-                .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
                 
                 // Ingredients
                 if let ingredients = skincare?.ingredients {
@@ -571,9 +589,9 @@ struct RecipeDetailView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                    .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
                 }
                 
                 // Instructions
@@ -599,9 +617,9 @@ struct RecipeDetailView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                    .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
                 }
                 
                 // Tips & Warnings

@@ -160,9 +160,9 @@ struct DiagnosticWizardView: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 .padding()
-                                .background(Color.white)
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
                                 .cornerRadius(12)
-                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                                .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 1)
                             }
                             .padding(.horizontal)
                         }
@@ -199,9 +199,9 @@ struct PartSelectionCard: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 100)
-            .background(selected ? color : Color.white)
+            .background(selected ? color : Color(UIColor.secondarySystemGroupedBackground))
             .cornerRadius(16)
-            .shadow(color: selected ? color.opacity(0.4) : .black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .shadow(color: selected ? color.opacity(0.4) : Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(selected ? Color.clear : color.opacity(0.2), lineWidth: 1)
@@ -258,9 +258,9 @@ struct SymptomDetailView: View {
                         .cornerRadius(8)
                     }
                     .padding()
-                    .background(Color.white)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(12)
-                    .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 1)
                     .padding(.horizontal)
                 }
             }

@@ -64,6 +64,15 @@ struct WaterCalculatorView: View {
         return "Every \(days)-\(days + 2) days"
     }
     
+    var calculatedMethod: String {
+        switch selectedPlantType {
+        case .fern: return "Mist & Soak"
+        case .succulent: return "Soil Soak (Dry)"
+        case .tropical: return "Soil Soak"
+        case .herb: return "Keep Moist"
+        }
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -127,9 +136,9 @@ struct WaterCalculatorView: View {
                     }
                 }
                 .padding()
-                .background(Color.white)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
                 .cornerRadius(16)
-                .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
                 .padding(.horizontal)
                 
                 // Result Card
@@ -161,7 +170,7 @@ struct WaterCalculatorView: View {
                             Text("Method")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text("Soil Soak")
+                            Text(calculatedMethod)
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)

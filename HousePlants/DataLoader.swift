@@ -33,6 +33,57 @@ class DataLoader: ObservableObject {
             profile.locationSettings.country = country
             self.userProfile = profile
         }
+        
+        if let profileImage = UserDefaults.standard.string(forKey: "profile_image"),
+           var profile = userProfile {
+            profile.profileImage = profileImage
+            self.userProfile = profile
+        }
+        
+        if let savedPrefs = UserDefaults.standard.data(forKey: "userPreferences"),
+           let prefs = try? JSONDecoder().decode(Preferences.self, from: savedPrefs),
+           var profile = userProfile {
+            profile.preferences = prefs
+            self.userProfile = profile
+        }
+    }
+    
+    func updateProfile(username: String, city: String, country: String) {
+        guard var profile = userProfile else { return }
+        profile.username = username
+        profile.locationSettings.city = city
+        profile.locationSettings.country = country
+        self.userProfile = profile
+        saveProfile()
+    }
+    
+    func updatePreferences(difficulty: String, petSafeOnly: Bool, notifyOnSundays: Bool) {
+        guard var profile = userProfile else { return }
+        profile.preferences.difficultyLevel = difficulty
+        profile.preferences.petSafeOnly = petSafeOnly
+        profile.preferences.notifyOnSundays = notifyOnSundays
+        self.userProfile = profile
+        saveProfile()
+    }
+    
+    func updateProfileImage(imageData: Data) {
+        guard var profile = userProfile else { return }
+        profile.profileImage = imageData.base64EncodedString()
+        self.userProfile = profile
+        saveProfile()
+    }
+    
+    private func saveProfile() {
+        guard let profile = userProfile else { return }
+        UserDefaults.standard.set(profile.username, forKey: "username")
+        UserDefaults.standard.set(profile.locationSettings.city, forKey: "city")
+        UserDefaults.standard.set(profile.locationSettings.country, forKey: "country")
+        UserDefaults.standard.set(profile.profileImage, forKey: "profile_image")
+        
+        // Save preferences too
+        if let encoded = try? JSONEncoder().encode(profile.preferences) {
+            UserDefaults.standard.set(encoded, forKey: "userPreferences")
+        }
     }
     
     func loadData() {
@@ -116,6 +167,8 @@ class DataLoader: ObservableObject {
         // Calculate next watering date
         let frequencyDays = profile.myJungle[plantIndex].customWateringFrequencyDays ?? getWateringFrequency(for: plant)
         let nextDate = Calendar.current.date(byAdding: .day, value: frequencyDays, to: now)!
+        profile.myJungle[plantIndex].nextWateringDate = DataLoader.isoFormatter.string(from: nextDate)
+        
         self.userProfile = profile
         self.updateLookup()
         saveMyJungleData()

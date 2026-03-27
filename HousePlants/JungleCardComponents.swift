@@ -106,9 +106,9 @@ struct EnhancedPlantCard: View {
             }
             .padding(12)
         }
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .cornerRadius(20)
+        .shadow(color: Color.primary.opacity(0.04), radius: 10, x: 0, y: 4)
         .contextMenu {
             Button(action: { showCareSheet = true }) {
                 Label("Manage Plant", systemImage: "slider.horizontal.3")
@@ -216,9 +216,9 @@ struct EnhancedJungleListRow: View {
             .buttonStyle(WaterButtonStyle())
         }
         .padding(12)
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
 
@@ -252,8 +252,8 @@ struct PlantSelectionCard: View {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .font(.title2)
                         .foregroundStyle(isSelected ? .green : .white)
-                        .padding(8)
-                        .background(Circle().fill(Color.black.opacity(0.3)))
+                        .padding(10)
+                        .background(Circle().fill(Color(UIColor.secondarySystemGroupedBackground)))
                         .padding(8)
                 }
                 .frame(height: 150)
@@ -264,13 +264,13 @@ struct PlantSelectionCard: View {
                     .lineLimit(1)
                     .padding(12)
             }
-            .background(Color.white)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? Color.green : Color.clear, lineWidth: 3)
             )
-            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.primary.opacity(0.08), radius: 8, x: 0, y: 4)
         }
     }
 }
@@ -320,13 +320,13 @@ struct JungleListRowSelectable: View {
                     .font(.title3)
             }
             .padding(12)
-            .background(Color.white)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? Color.green : Color.clear, lineWidth: 2)
             )
-            .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+            .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
         }
     }
 }

@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var dataLoader = DataLoader()
-    @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+    @AppStorage("darkModeEnabled") var darkModeEnabled: Bool = false
     
     var body: some View {
         Group {
@@ -17,10 +18,15 @@ struct ContentView: View {
                         .tabItem {
                             Label("Tools", systemImage: "wrench.and.screwdriver.fill")
                         }
-
+                    
                     MyJungleView()
                         .tabItem {
                             Label("My Jungle", systemImage: "heart.fill")
+                        }
+                    
+                    ProfileView()
+                        .tabItem {
+                            Label("Profile", systemImage: "person.fill")
                         }
                 }
                 .tint(.green)
@@ -29,8 +35,10 @@ struct ContentView: View {
             }
         }
         .environmentObject(dataLoader)
+        .preferredColorScheme(darkModeEnabled ? .dark : .light)
     }
 }
+
 
 #Preview {
     ContentView()

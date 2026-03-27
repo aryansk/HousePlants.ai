@@ -3,6 +3,7 @@ import SwiftUI
 struct PlantDetailView: View {
     let plant: Plant
     @Environment(\.presentationMode) var presentationMode
+    @State private var selectedCareInfo: (String, String, String, Color)? = nil
     
     var body: some View {
         ScrollView {
@@ -17,16 +18,22 @@ struct PlantDetailView: View {
                                     .fill(Color.gray.opacity(0.1))
                                     .overlay(ProgressView())
                             case .success(let image):
-                                image.resizable().aspectRatio(contentMode: .fill)
+                                image.resizable()
+                                    .scaledToFill()
+                                    .frame(maxWidth: .infinity)
                             case .failure:
                                 Rectangle()
                                     .fill(Color.green.opacity(0.1))
+                                    .frame(maxWidth: .infinity)
                                     .overlay(Image(systemName: "photo").font(.largeTitle).foregroundStyle(.green.opacity(0.3)))
                             @unknown default: EmptyView()
                             }
                         }
                     } else if let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first {
-                        Image(String(imageName)).resizable().aspectRatio(contentMode: .fill)
+                        Image(String(imageName))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
                     }
                     
                     // Gradient shadow for visibility
@@ -38,15 +45,19 @@ struct PlantDetailView: View {
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(plant.commonName)
-                            .font(.system(size: 34, weight: .bold))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundStyle(.white)
+                            .minimumScaleFactor(0.7)
+                            .lineLimit(2)
                         Text(plant.botanicalName)
-                            .font(.headline)
+                            .font(.subheadline)
                             .italic()
                             .foregroundStyle(.white.opacity(0.9))
                     }
-                    .padding(24)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
                 }
+                .frame(maxWidth: .infinity)
                 .frame(height: 350)
                 .clipped()
                 
@@ -67,7 +78,7 @@ struct PlantDetailView: View {
                                 .font(.title3)
                                 .foregroundStyle(.secondary)
                                 .padding(10)
-                                .background(Circle().fill(Color.gray.opacity(0.1)))
+                                .background(Circle().fill(Color(UIColor.secondarySystemGroupedBackground)))
                         }
                     }
                     
@@ -89,11 +100,32 @@ struct PlantDetailView: View {
                             .fontWeight(.bold)
                         
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                            CareItem(icon: "sun.max.fill", title: "Light", value: plant.careGuide.light, color: .orange)
-                            CareItem(icon: "drop.fill", title: "Water", value: plant.careGuide.water, color: .blue)
-                            CareItem(icon: "thermometer.medium", title: "Temperature", value: plant.careGuide.temperatureRange, color: .red)
-                            CareItem(icon: "humidity.fill", title: "Humidity", value: plant.careGuide.humidity, color: .green)
+                            CareItem(icon: "sun.max.fill", title: "Light", value: plant.careGuide.light, color: .orange) {
+                                selectedCareInfo = ("Light Requirements", plant.careGuide.light, "sun.max.fill", .orange)
+                            }
+                            CareItem(icon: "drop.fill", title: "Water", value: plant.careGuide.water, color: .blue) {
+                                selectedCareInfo = ("Watering Schedule", plant.careGuide.water, "drop.fill", .blue)
+                            }
+                            CareItem(icon: "thermometer.medium", title: "Temperature", value: plant.careGuide.temperatureRange, color: .red) {
+                                selectedCareInfo = ("Temperature Range", plant.careGuide.temperatureRange, "thermometer.medium", .red)
+                            }
+                            CareItem(icon: "humidity.fill", title: "Humidity", value: plant.careGuide.humidity, color: .green) {
+                                selectedCareInfo = ("Humidity Levels", plant.careGuide.humidity, "humidity.fill", .green)
+                            }
+                            CareItem(icon: "leaf.fill", title: "Soil", value: plant.careGuide.soil, color: .brown) {
+                                selectedCareInfo = ("Soil & Potting", plant.careGuide.soil, "leaf.fill", .brown)
+                            }
+                            CareItem(icon: "gauge.with.needle.fill", title: "Difficulty", value: plant.careGuide.difficulty, color: .purple) {
+                                selectedCareInfo = ("Care Level", plant.careGuide.difficulty, "gauge.with.needle.fill", .purple)
+                            }
                         }
+                    }
+                    .sheet(item: Binding(
+                        get: { selectedCareInfo.map { CareDetail(id: $0.0, info: $0.1, icon: $0.2, color: $0.3) } },
+                        set: { _ in selectedCareInfo = nil }
+                    )) { detail in
+                        CareDetailView(detail: detail)
+                            .presentationDetents([.medium])
                     }
                     
                     if let propagation = plant.propagation {
@@ -202,42 +234,140 @@ struct CareItem: View {
     let title: String
     let value: String
     let color: Color
+    let action: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.15))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: icon)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(color)
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(color.opacity(0.15))
+                            .frame(width: 32, height: 32)
+                        Image(systemName: icon)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(color)
+                    }
+                    
+                    Text(title)
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.secondary)
                 }
                 
-                Text(title)
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+                Text(value)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.primary.opacity(0.8))
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer(minLength: 0)
             }
-            
-            Text(value)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(.primary.opacity(0.8))
-                .lineLimit(3)
-                .multilineTextAlignment(.leading)
-            
-            Spacer(minLength: 0)
+            .padding(14)
+            .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120, alignment: .topLeading)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(20)
+            .shadow(color: Color.primary.opacity(0.04), radius: 10, x: 0, y: 4)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.gray.opacity(0.05), lineWidth: 1)
+            )
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120, alignment: .topLeading)
-        .background(Color.white)
-        .cornerRadius(20)
-        .shadow(color: .black.opacity(0.04), radius: 10, x: 0, y: 4)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray.opacity(0.05), lineWidth: 1)
-        )
+        .buttonStyle(InteractiveCardButtonStyle())
+    }
+}
+
+// Model for Detail Sheet
+struct CareDetail: Identifiable {
+    let id: String
+    let info: String
+    let icon: String
+    let color: Color
+}
+
+struct CareDetailView: View {
+    @Environment(\.dismiss) var dismiss
+    let detail: CareDetail
+    
+    var proTip: String {
+        switch detail.id {
+        case "Light Requirements": return "Rotate your plant every two weeks to ensure even growth on all sides. Leaning plants usually mean they need more light!"
+        case "Watering Schedule": return "Always check the top inch of soil with your finger before watering. If it's still damp, wait a few days to avoid root rot."
+        case "Temperature Range": return "Keep plants away from cold drafts and heating vents. Drastic temperature swings can cause leaf drop."
+        case "Humidity Levels": return "Grouping plants together naturally increases local humidity. For tropical plants, a pebbles tray with water works wonders!"
+        case "Soil & Potting": return "Make sure your pot has drainage holes! Fresh soil every year helps replenish nutrients and prevents compacting."
+        case "Care Level": return "Don't be discouraged if a plant struggles. Observation is key—the plant will usually 'tell' you what it needs through its leaves."
+        default: return "Consistent observation is the best care strategy."
+        }
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(detail.color.opacity(0.1))
+                        .frame(width: 80, height: 80)
+                    Image(systemName: detail.icon)
+                        .font(.system(size: 34, weight: .bold))
+                        .foregroundStyle(detail.color)
+                }
+                .padding(.top, 30)
+                
+                VStack(spacing: 8) {
+                    Text(detail.id)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("Detailed Guide")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(detail.color)
+                        .textCase(.uppercase)
+                }
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Current Requirement", systemImage: "info.circle.fill")
+                        .font(.headline)
+                        .foregroundStyle(detail.color)
+                    
+                    Text(detail.info)
+                        .font(.body)
+                        .foregroundStyle(.primary.opacity(0.8))
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(detail.color.opacity(0.05))
+                        .cornerRadius(12)
+                }
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Pro Specialist Tip", systemImage: "lightbulb.fill")
+                        .font(.headline)
+                        .foregroundStyle(.orange)
+                    
+                    Text(proTip)
+                        .font(.subheadline)
+                        .italic()
+                        .foregroundStyle(.secondary)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.05))
+                        .cornerRadius(12)
+                }
+                
+                Button(action: { dismiss() }) {
+                    Text("Got it, thanks!")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(detail.color)
+                        .cornerRadius(16)
+                }
+                .padding(.top, 10)
+            }
+            .padding(24)
+        }
     }
 }
 

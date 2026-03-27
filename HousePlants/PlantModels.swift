@@ -93,6 +93,7 @@ struct UserProfile: Codable {
     var preferences: Preferences
     var favorites: [String]
     var myJungle: [MyPlant]
+    var profileImage: String?
     
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
@@ -101,6 +102,7 @@ struct UserProfile: Codable {
         case preferences
         case favorites
         case myJungle = "my_jungle"
+        case profileImage = "profile_image"
     }
 }
 
@@ -123,12 +125,14 @@ struct Coordinates: Codable {
 }
 
 struct Preferences: Codable {
-    let difficultyLevel: String
-    let petSafeOnly: Bool
+    var difficultyLevel: String
+    var petSafeOnly: Bool
+    var notifyOnSundays: Bool
     
     enum CodingKeys: String, CodingKey {
         case difficultyLevel = "difficulty_level"
         case petSafeOnly = "pet_safe_only"
+        case notifyOnSundays = "notify_on_sundays"
     }
 }
 

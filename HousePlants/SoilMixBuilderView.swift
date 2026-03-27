@@ -6,6 +6,8 @@ struct SoilMixBuilderView: View {
     @State private var savedRecipes: [SavedRecipe] = []
     @State private var showSaveAlert = false
     @State private var newRecipeName = ""
+    @State private var showShopAlert = false
+    @Namespace private var animation
     
     enum SoilPreset: String, CaseIterable, Identifiable {
         case aroid = "Aroid Mix"
@@ -112,9 +114,9 @@ struct SoilMixBuilderView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding()
-                .background(Color.white)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
                 .cornerRadius(20)
-                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                .shadow(color: Color.primary.opacity(0.05), radius: 10, x: 0, y: 5)
                 .padding(.horizontal)
                 
                 // Controls
@@ -124,17 +126,28 @@ struct SoilMixBuilderView: View {
                         HStack(spacing: 12) {
                             ForEach(SoilPreset.allCases) { preset in
                                 Button(action: {
-                                    selectedPreset = preset
-                                    applyPreset(preset)
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                        selectedPreset = preset
+                                        applyPreset(preset)
+                                    }
                                 }) {
                                     Text(preset.rawValue)
                                         .fontWeight(.medium)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 20)
-                                        .background(selectedPreset == preset ? Color.brown : Color.brown.opacity(0.1))
                                         .foregroundStyle(selectedPreset == preset ? .white : .brown)
-                                        .cornerRadius(25)
+                                        .background {
+                                            if selectedPreset == preset {
+                                                Capsule()
+                                                    .fill(Color.brown)
+                                                    .matchedGeometryEffect(id: "presetBackground", in: animation)
+                                            } else {
+                                                Capsule()
+                                                    .fill(Color.brown.opacity(0.1))
+                                            }
+                                        }
                                 }
+                                .buttonStyle(BubblingButtonStyle())
                             }
                         }
                         .padding(.horizontal)
@@ -148,14 +161,12 @@ struct SoilMixBuilderView: View {
                         ComponentSlider(title: "Additives (Charcoal)", value: $components.additive, color: .black, icon: "star.fill")
                     }
                     .padding()
-                    .background(Color.white)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(20)
-                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    .shadow(color: Color.primary.opacity(0.05), radius: 10, x: 0, y: 5)
                     .padding(.horizontal)
                     .onChange(of: components) {
                         if selectedPreset != .custom {
-                            // Only switch to custom if values don't match the current preset
-                            // This is a simplification; ideally we'd check against preset values
                             selectedPreset = .custom
                         }
                     }
@@ -173,7 +184,7 @@ struct SoilMixBuilderView: View {
                             .cornerRadius(16)
                     }
                     
-                    Button(action: {}) {
+                    Button(action: { showShopAlert = true }) {
                         Label("Shop Ingredients", systemImage: "cart.fill")
                             .font(.headline)
                             .foregroundStyle(.white)
@@ -207,7 +218,7 @@ struct SoilMixBuilderView: View {
                                     .foregroundStyle(.secondary)
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color(UIColor.secondarySystemGroupedBackground))
                             .cornerRadius(16)
                             .padding(.horizontal)
                         }
@@ -225,6 +236,11 @@ struct SoilMixBuilderView: View {
             Button("Save", action: saveRecipe)
             Button("Cancel", role: .cancel) { }
         }
+        .alert("Shopping", isPresented: $showShopAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Find these soil components at your local nursery or online shop.")
+        }
     }
 }
 
@@ -240,7 +256,7 @@ struct SoilJarView: View {
             ZStack(alignment: .bottom) {
                 // Jar Shape Background
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.5))
+                    .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.5))
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.gray.opacity(0.3), lineWidth: 2)

@@ -5,8 +5,8 @@ import urllib.parse
 import time
 import ssl
 
-jason_path = "/Users/aryan/Desktop/HousePlants/HousePlants/jason.json"
-assets_path = "/Users/aryan/Desktop/HousePlants/HousePlants/Assets.xcassets"
+jason_path = "/Users/aryan/Documents/HousePlants.ai/HousePlants/jason.json"
+assets_path = "/Users/aryan/Documents/HousePlants.ai/HousePlants/Assets.xcassets"
 
 def replace_all_images():
     print(f"Loading plant data from {jason_path}...")
@@ -66,7 +66,7 @@ def replace_all_images():
             # Improved prompt for natural, realistic photos
             prompt = f"natural realistic photograph of {name} houseplant in home setting, natural lighting, authentic indoor plant photography, high quality"
             encoded_prompt = urllib.parse.quote(prompt)
-            url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={i}"
+            url = f"https://gen.pollinations.ai/image/{encoded_prompt}?width=1024&height=1024&seed={i}&nologo=true"
             
             # Create unverified SSL context
             context = ssl._create_unverified_context()

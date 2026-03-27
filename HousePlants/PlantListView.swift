@@ -4,8 +4,6 @@ struct PlantListView: View {
     @EnvironmentObject var dataLoader: DataLoader
     @State private var selectedCategory: String?
     @Namespace private var categoryNamespace
-    @State private var headerAlpha = 0.0
-    @State private var headerOffset: CGFloat = 20
     
     var filteredPlants: [Plant] {
         if let category = selectedCategory {
@@ -17,13 +15,8 @@ struct PlantListView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [Color(hex: "E8F5E9"), Color.white]),
-                    startPoint: .top,
-                    endPoint: .center
-                )
-                .ignoresSafeArea()
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
                 
                 if let errorMessage = dataLoader.errorMessage {
                     VStack(spacing: 16) {
@@ -54,13 +47,13 @@ struct PlantListView: View {
                                                 .fontWeight(.medium)
                                                 .foregroundStyle(.secondary)
                                         }
-                                        Text("Good Morning,")
-                                            .font(.title3)
-                                            .foregroundStyle(.secondary)
-                                        Text(dataLoader.userProfile?.username ?? "Gardener")
+                                        Text("Discover")
                                             .font(.largeTitle)
                                             .fontWeight(.bold)
                                             .foregroundStyle(.primary)
+                                        Text("Find your next houseplant")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
                                     }
                                     Spacer()
                                     Button(action: {
@@ -69,22 +62,14 @@ struct PlantListView: View {
                                         Image(systemName: "bell.fill")
                                             .font(.title3)
                                             .foregroundStyle(.green)
-                                            .padding(12)
-                                            .background(Circle().fill(Color.white))
-                                            .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 4)
+                                            .padding(10)
+                                            .background(Circle().fill(Color(UIColor.secondarySystemGroupedBackground)))
+                                            .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
                                     }
                                     .buttonStyle(NotificationButtonStyle())
                                 }
                                 .padding(.horizontal, 20)
                                 .padding(.top, 8)
-                                .opacity(headerAlpha)
-                                .offset(y: headerOffset)
-                            }
-                            .onAppear {
-                                withAnimation(.easeOut(duration: 0.8)) {
-                                    headerAlpha = 1.0
-                                    headerOffset = 0
-                                }
                             }
                             
                             // Recommended Section
@@ -112,7 +97,6 @@ struct PlantListView: View {
                                                         ModernPlantCard(plant: plant, isFeatured: true)
                                                             .frame(width: 220)
                                                     }
-                                                    .buttonStyle(InteractiveCardButtonStyle())
                                                 }
                                             }
                                             .padding(.horizontal, 20)
@@ -125,20 +109,21 @@ struct PlantListView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 12) {
                                     ModernCategoryPill(title: "All", icon: "leaf", isSelected: selectedCategory == nil, namespace: categoryNamespace) {
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                             selectedCategory = nil
                                         }
                                     }
                                     
                                     ForEach(dataLoader.categories) { category in
                                         ModernCategoryPill(title: category.name, icon: category.icon, isSelected: selectedCategory == category.id, namespace: categoryNamespace) {
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                                 selectedCategory = category.id
                                             }
                                         }
                                     }
                                 }
                                 .padding(.horizontal, 20)
+                                .padding(.vertical, 8)
                             }
                             
                             // Explore All Section
@@ -162,7 +147,6 @@ struct PlantListView: View {
                                         NavigationLink(destination: PlantDetailView(plant: plant)) {
                                             ModernPlantCard(plant: plant, isFeatured: false)
                                         }
-                                        .buttonStyle(InteractiveCardButtonStyle())
                                     }
                                 }
                                 .padding(.horizontal, 20)
@@ -267,9 +251,9 @@ struct ModernPlantCard: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color.primary.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 }
 
@@ -296,25 +280,18 @@ struct ModernCategoryPill: View {
                     .fontWeight(.bold)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.vertical, 10)
             .background {
                 if isSelected {
                     Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [.green, Color(hex: "43A047")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Color.green)
                         .matchedGeometryEffect(id: "pill_bg", in: namespace)
-                        .shadow(color: .green.opacity(0.3), radius: 8, x: 0, y: 4)
                 } else {
                     Capsule()
-                        .fill(Color.white.opacity(0.8))
-                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground))
                 }
             }
+            .shadow(color: Color.primary.opacity(0.04), radius: 2, x: 0, y: 1)
             .foregroundStyle(isSelected ? .white : .primary)
         }
         .buttonStyle(BubblingButtonStyle())
@@ -344,36 +321,9 @@ struct DifficultyBadge: View {
             .padding(.vertical, 5)
             .background(
                 Capsule()
-                    .fill(color.opacity(0.9))
-                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                    .fill(color)
             )
     }
 }
 
-// Color Extension
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
 
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
-    }
-}

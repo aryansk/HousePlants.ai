@@ -57,7 +57,8 @@
         },
         "preferences": {
             "difficulty_level": "Intermediate",
-            "pet_safe_only": false
+            "pet_safe_only": false,
+            "notify_on_sundays": true
         },
         "favorites": [
             "p_001",

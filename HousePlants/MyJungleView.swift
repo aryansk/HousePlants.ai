@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MyJungleView: View {
     @EnvironmentObject var dataLoader: DataLoader
+    @Namespace private var filterNamespace
     @State private var isGridView = true
     @State private var sortOption: SortOption = .name
     @State private var showWateringConfetti = false
@@ -117,7 +118,7 @@ struct MyJungleView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(hex: "F2F7F2").ignoresSafeArea()
+                Color(UIColor.systemGroupedBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -129,6 +130,7 @@ struct MyJungleView: View {
                                 jungleHealth: healthStatus
                             )
                             .padding(.horizontal)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                         }
                         
                         // Search Bar
@@ -140,14 +142,18 @@ struct MyJungleView: View {
                                     .textFieldStyle(.plain)
                                 
                                 if !searchText.isEmpty {
-                                    Button(action: { searchText = "" }) {
+                                    Button(action: {
+                                        withAnimation {
+                                            searchText = ""
+                                        }
+                                    }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .foregroundStyle(.secondary)
                                     }
                                 }
                             }
                             .padding(12)
-                            .background(Color.white)
+                            .background(Color(UIColor.secondarySystemGroupedBackground))
                             .cornerRadius(12)
                         }
                         .padding(.horizontal)
@@ -156,16 +162,33 @@ struct MyJungleView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach([FilterOption.all, .needsWatering, .healthy, .needsAttention], id: \.label) { filter in
-                                    Button(action: { filterOption = filter }) {
+                                    let isSelected = filterOption == filter
+                                    Button(action: {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            filterOption = filter
+                                        }
+                                    }) {
                                         Text(filter.label)
                                             .font(.subheadline)
-                                            .fontWeight(.medium)
+                                            .fontWeight(.bold)
                                             .padding(.horizontal, 16)
-                                            .padding(.vertical, 8)
-                                            .background(filterOption == filter ? Color.green : Color.white)
-                                            .foregroundStyle(filterOption == filter ? .white : .primary)
-                                            .cornerRadius(20)
+                                            .padding(.vertical, 10)
+                                            .foregroundStyle(isSelected ? .white : .primary)
+                                            .background {
+                                                ZStack {
+                                                    if isSelected {
+                                                        Capsule()
+                                                            .fill(Color.green)
+                                                            .matchedGeometryEffect(id: "filter_pill_bg", in: filterNamespace)
+                                                    } else {
+                                                        Capsule()
+                                                            .fill(Color(UIColor.secondarySystemGroupedBackground))
+                                                    }
+                                                }
+                                            }
+                                            .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
                                     }
+                                    .buttonStyle(.plain)
                                 }
                             }
                             .padding(.horizontal)
@@ -176,27 +199,34 @@ struct MyJungleView: View {
                             HStack(spacing: 12) {
                                 QuickActionButton(title: "Water All", icon: "drop.fill", color: .blue) {
                                     dataLoader.waterAllPlants()
-                                    withAnimation {
+                                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
                                         showWateringConfetti = true
                                     }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        showWateringConfetti = false
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                        withAnimation {
+                                            showWateringConfetti = false
+                                        }
                                     }
                                 }
                                 
                                 QuickActionButton(title: isSelectionMode ? "Done" : "Select", icon: isSelectionMode ? "checkmark" : "checkmark.circle", color: .purple) {
-                                    isSelectionMode.toggle()
-                                    if !isSelectionMode {
-                                        selectedPlantIds.removeAll()
+                                    withAnimation(.spring()) {
+                                        isSelectionMode.toggle()
+                                        if !isSelectionMode {
+                                            selectedPlantIds.removeAll()
+                                        }
                                     }
                                 }
                                 
                                 if isSelectionMode && !selectedPlantIds.isEmpty {
                                     QuickActionButton(title: "Remove (\(selectedPlantIds.count))", icon: "trash", color: .red) {
-                                        dataLoader.removePlants(plantIds: Array(selectedPlantIds))
-                                        selectedPlantIds.removeAll()
-                                        isSelectionMode = false
+                                        withAnimation {
+                                            dataLoader.removePlants(plantIds: Array(selectedPlantIds))
+                                            selectedPlantIds.removeAll()
+                                            isSelectionMode = false
+                                        }
                                     }
+                                    .transition(.scale.combined(with: .opacity))
                                 }
                             }
                             .padding(.horizontal)
@@ -212,19 +242,27 @@ struct MyJungleView: View {
                             
                             // View Toggle
                             HStack(spacing: 0) {
-                                Button(action: { isGridView = true }) {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                        isGridView = true
+                                    }
+                                }) {
                                     Image(systemName: "square.grid.2x2.fill")
                                         .padding(8)
                                         .foregroundStyle(isGridView ? .green : .secondary)
-                                        .background(isGridView ? Color.white : Color.clear)
+                                        .background(isGridView ? Color(UIColor.secondarySystemGroupedBackground) : Color.clear)
                                         .clipShape(Circle())
                                 }
                                 
-                                Button(action: { isGridView = false }) {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                        isGridView = false
+                                    }
+                                }) {
                                     Image(systemName: "list.bullet")
                                         .padding(8)
                                         .foregroundStyle(!isGridView ? .green : .secondary)
-                                        .background(!isGridView ? Color.white : Color.clear)
+                                        .background(!isGridView ? Color(UIColor.secondarySystemGroupedBackground) : Color.clear)
                                         .clipShape(Circle())
                                 }
                             }
@@ -248,48 +286,54 @@ struct MyJungleView: View {
                                     .multilineTextAlignment(.center)
                             }
                             .padding(.top, 40)
+                            .transition(.opacity)
                         } else {
-                            if isGridView {
-                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
-                                    ForEach(myPlants) { plant in
-                                        if isSelectionMode {
-                                            PlantSelectionCard(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
-                                                if selectedPlantIds.contains(plant.id) {
-                                                    selectedPlantIds.remove(plant.id)
-                                                } else {
-                                                    selectedPlantIds.insert(plant.id)
+                            Group {
+                                if isGridView {
+                                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
+                                        ForEach(myPlants) { plant in
+                                            if isSelectionMode {
+                                                PlantSelectionCard(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
+                                                    if selectedPlantIds.contains(plant.id) {
+                                                        selectedPlantIds.remove(plant.id)
+                                                    } else {
+                                                        selectedPlantIds.insert(plant.id)
+                                                    }
                                                 }
+                                                .transition(.scale)
+                                            } else {
+                                                NavigationLink(destination: PlantDetailView(plant: plant)) {
+                                                    EnhancedPlantCard(plant: plant)
+                                                }
+                                                .buttonStyle(ScaleButtonStyle())
                                             }
-                                        } else {
-                                            NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                EnhancedPlantCard(plant: plant)
-                                            }
-                                            .buttonStyle(PlainButtonStyle())
                                         }
                                     }
-                                }
-                                .padding(.horizontal)
-                            } else {
-                                LazyVStack(spacing: 12) {
-                                    ForEach(myPlants) { plant in
-                                        if isSelectionMode {
-                                            JungleListRowSelectable(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
-                                                if selectedPlantIds.contains(plant.id) {
-                                                    selectedPlantIds.remove(plant.id)
-                                                } else {
-                                                    selectedPlantIds.insert(plant.id)
+                                    .padding(.horizontal)
+                                } else {
+                                    LazyVStack(spacing: 12) {
+                                        ForEach(myPlants) { plant in
+                                            if isSelectionMode {
+                                                JungleListRowSelectable(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
+                                                    if selectedPlantIds.contains(plant.id) {
+                                                        selectedPlantIds.remove(plant.id)
+                                                    } else {
+                                                        selectedPlantIds.insert(plant.id)
+                                                    }
                                                 }
+                                                .transition(.move(edge: .leading))
+                                            } else {
+                                                NavigationLink(destination: PlantDetailView(plant: plant)) {
+                                                    EnhancedJungleListRow(plant: plant)
+                                                }
+                                                .buttonStyle(ScaleButtonStyle())
                                             }
-                                        } else {
-                                            NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                EnhancedJungleListRow(plant: plant)
-                                            }
-                                            .buttonStyle(PlainButtonStyle())
                                         }
                                     }
+                                    .padding(.horizontal)
                                 }
-                                .padding(.horizontal)
                             }
+                            .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.95)), removal: .opacity))
                         }
                     }
                     .padding(.vertical)
@@ -338,9 +382,9 @@ struct StatsDashboard: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            StatCard(title: "Total Plants", value: "\(totalPlants)", icon: "leaf.fill", color: .green)
-            StatCard(title: "To Water", value: "\(plantsToWater)", icon: "drop.fill", color: .blue)
-            StatCard(title: "Health", value: jungleHealth, icon: "heart.fill", color: .red)
+            StatCard(title: "Total Plants", value: "\(totalPlants)", icon: "leaf.fill", color: .green, delay: 0.1)
+            StatCard(title: "To Water", value: "\(plantsToWater)", icon: "drop.fill", color: .blue, delay: 0.2)
+            StatCard(title: "Health", value: jungleHealth, icon: "heart.fill", color: .red, delay: 0.3)
         }
     }
 }
@@ -350,12 +394,15 @@ struct StatCard: View {
     let value: String
     let icon: String
     let color: Color
+    var delay: Double = 0
+    @State private var isVisible = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
                     .foregroundStyle(color)
+                    .scaleEffect(isVisible ? 1.0 : 0.5)
                 Spacer()
             }
             
@@ -369,9 +416,16 @@ struct StatCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity)
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+        .scaleEffect(isVisible ? 1.0 : 0.9)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(delay)) {
+                isVisible = true
+            }
+        }
     }
 }
 
@@ -394,6 +448,15 @@ struct QuickActionButton: View {
             .foregroundStyle(color)
             .cornerRadius(20)
         }
+        .buttonStyle(ScaleButtonStyle())
+    }
+}
+
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
@@ -438,8 +501,8 @@ struct JungleListRow: View {
                 .font(.caption)
         }
         .padding(12)
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
