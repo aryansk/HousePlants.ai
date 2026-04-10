@@ -3,82 +3,280 @@ import SwiftUI
 struct ToolsView: View {
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    NavigationLink(destination: SunSeekerARView()) {
-                        ToolRow(icon: "sun.max.fill", title: "Sun Seeker", description: "Measure light levels for your plants.", color: .orange)
-                    }
+            ZStack {
+                Color.claudeBackground.ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    ClaudeHeader(
+                        title: "Tools",
+                        subtitle: "Advanced aids for your interior ecosystem"
+                    )
                     
-                    NavigationLink(destination: WaterCalculatorView()) {
-                        ToolRow(icon: "drop.fill", title: "Water Calculator", description: "Calculate watering schedules.", color: .blue)
+                    GeometryReader { geometry in
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 28) {
+                            // Featured Highlight
+                            FeaturedToolCard()
+                                .padding(.horizontal, 20)
+                            
+                            // Category: Essential Care
+                            ToolSection(title: "Essential Care") {
+                                VStack(spacing: 12) {
+                                    ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "AR light meter to find the perfect spot for your plants.", color: .orange)
+                                    
+                                    ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue)
+                                    
+                                    ToolNavigationLink(destination: FertilizerCalculatorView(), icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition for every growth stage.", color: .green)
+                                    
+                                    ToolNavigationLink(destination: SoilMixBuilderView(), icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates for species.", color: Color(hex: "8B4513"))
+                                    
+                                    ToolNavigationLink(destination: SeasonalCareCalendarView(), icon: "calendar.badge.clock", title: "Seasonal Care", description: "Month-by-month care timeline for every season.", color: Color(hex: "4CAF50"))
+                                }
+                            }
+                            
+                            // Category: Health & Growth
+                            ToolSection(title: "Health & Growth") {
+                                VStack(spacing: 12) {
+                                    ToolNavigationLink(destination: PlantDoctorView(), icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with symptom lookup.", color: .red)
+                                    
+                                    ToolNavigationLink(destination: PotSizeCalculatorView(), icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size for root expansion.", color: .brown)
+                                    
+                                    ToolNavigationLink(destination: ToxicityCheckerView(), icon: "shield.checkered", title: "Toxicity Checker", description: "Verify pet and child safety for every plant.", color: Color(hex: "2ECC71"))
+                                    
+                                    ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"))
+                                }
+                            }
+                            
+                            // Category: Deep Exploration
+                            ToolSection(title: "Exploration") {
+                                VStack(spacing: 12) {
+                                     ToolNavigationLink(destination: SkincareLabView(), icon: "flask.fill", title: "Skincare Lab", description: "Botanical remedies from your garden.", color: .purple)
+                                    
+                                    ToolNavigationLink(destination: CelestialMoonPhaseView(), icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting with lunar cycles.", color: .indigo)
+                                    
+                                    ToolNavigationLink(destination: OriginExplorerView(), icon: "globe.americas.fill", title: "Origin Explorer", description: "Interactive map of where your plants call home.", color: .teal)
+                                }
+                            }
+                            }
+                            .frame(width: geometry.size.width)
+                            .padding(.top, 12)
+                            .padding(.bottom, 40)
+                        }
                     }
-                    
-                    NavigationLink(destination: PlantDoctorView()) {
-                        ToolRow(icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose common plant issues.", color: .red)
-                    }
-                    
-                    NavigationLink(destination: SkincareLabView()) {
-                        ToolRow(icon: "flask.fill", title: "Skincare Lab", description: "Discover DIY skincare recipes.", color: .purple)
-                    }
-                    
-                    NavigationLink(destination: PotSizeCalculatorView()) {
-                        ToolRow(icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Pot Size", description: "Find the perfect pot size.", color: .brown)
-                    }
-                    
-                    NavigationLink(destination: MoonPhaseView()) {
-                        ToolRow(icon: "moon.stars.fill", title: "Moon Gardening", description: "Plant by the lunar cycle.", color: .indigo)
-                    }
-                    
-                    NavigationLink(destination: FertilizerCalculatorView()) {
-                        ToolRow(icon: "drop.triangle.fill", title: "Fertilizer", description: "Calculate dosage & frequency.", color: .green)
-                    }
-                    
-                    NavigationLink(destination: SoilMixBuilderView()) {
-                        ToolRow(icon: "square.stack.3d.up.fill", title: "Soil Mix", description: "Create custom soil recipes.", color: Color(hex: "8B4513"))
-                    }
-                } header: {
-                    Text("Available Tools")
                 }
             }
-            .navigationTitle("Tools")
+            .toolbar(.hidden, for: .navigationBar)
+            .toolbar(.visible, for: .tabBar)
         }
     }
 }
 
-struct ToolRow: View {
+// MARK: - Supporting Components
+
+// MARK: - Featured Tool Data
+
+struct FeaturedToolInfo: Identifiable {
+    let id: Int
+    let icon: String
+    let title: String
+    let description: String
+    let ctaLabel: String
+    let gradientColors: [Color]
+}
+
+private let allFeaturedTools: [FeaturedToolInfo] = [
+    FeaturedToolInfo(id: 0, icon: "sun.max.fill", title: "Sun Seeker AI", description: "Find the perfect light intensity for your plants using your camera and augmented reality.", ctaLabel: "Start Measuring", gradientColors: [Color.claudeAccent, Color(hex: "E69173")]),
+    FeaturedToolInfo(id: 1, icon: "drop.fill", title: "Watering Guide", description: "Build custom watering schedules tuned to your home's micro-climate and each plant's needs.", ctaLabel: "Build Schedule", gradientColors: [Color(hex: "2980B9"), Color(hex: "6DD5FA")]),
+    FeaturedToolInfo(id: 2, icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition plans for every growth stage — from seedling to mature specimen.", ctaLabel: "Plan Nutrition", gradientColors: [Color(hex: "27AE60"), Color(hex: "A8E063")]),
+    FeaturedToolInfo(id: 3, icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates optimized for your species' native growing conditions.", ctaLabel: "Mix Substrate", gradientColors: [Color(hex: "8B4513"), Color(hex: "D2691E")]),
+    FeaturedToolInfo(id: 4, icon: "calendar.badge.clock", title: "Seasonal Care", description: "A month-by-month care calendar so you never miss a beat through every season.", ctaLabel: "View Calendar", gradientColors: [Color(hex: "4CAF50"), Color(hex: "81C784")]),
+    FeaturedToolInfo(id: 5, icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with an interactive symptom checker and treatment guide.", ctaLabel: "Start Diagnosis", gradientColors: [Color(hex: "E74C3C"), Color(hex: "F1948A")]),
+    FeaturedToolInfo(id: 6, icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size and timing for stress-free root expansion.", ctaLabel: "Calculate Size", gradientColors: [Color(hex: "795548"), Color(hex: "A1887F")]),
+    FeaturedToolInfo(id: 7, icon: "shield.checkered", title: "Toxicity Checker", description: "Instantly verify which plants are safe around your pets and children.", ctaLabel: "Check Safety", gradientColors: [Color(hex: "2ECC71"), Color(hex: "58D68D")]),
+    FeaturedToolInfo(id: 8, icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection through cuttings, division, and more.", ctaLabel: "Start Propagating", gradientColors: [Color(hex: "8E44AD"), Color(hex: "BB8FCE")]),
+    FeaturedToolInfo(id: 9, icon: "flask.fill", title: "Skincare Lab", description: "Discover botanical skincare remedies you can craft from your own houseplant garden.", ctaLabel: "Explore Recipes", gradientColors: [Color(hex: "9B59B6"), Color(hex: "D7BDE2")]),
+    FeaturedToolInfo(id: 10, icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting, pruning, and watering with lunar cycles for optimal growth.", ctaLabel: "View Phases", gradientColors: [Color(hex: "3F51B5"), Color(hex: "7986CB")]),
+    FeaturedToolInfo(id: 11, icon: "globe.americas.fill", title: "Origin Explorer", description: "Explore the native habitats of your houseplants on an interactive world map.", ctaLabel: "Explore Origins", gradientColors: [Color(hex: "009688"), Color(hex: "4DB6AC")])
+]
+
+struct FeaturedToolCard: View {
+    /// Determines which tool is featured based on the current ISO week of the year.
+    private var currentTool: FeaturedToolInfo {
+        let weekOfYear = Calendar.current.component(.weekOfYear, from: Date())
+        let index = weekOfYear % allFeaturedTools.count
+        return allFeaturedTools[index]
+    }
+    
+    var body: some View {
+        let tool = currentTool
+        
+        NavigationLink(destination: destinationView(for: tool.id)) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 48, height: 48)
+                        Image(systemName: tool.icon)
+                            .font(.system(size: 24))
+                            .foregroundColor(.white)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("FEATURED TOOL")
+                            .font(.claudeSans(size: 11, weight: .bold))
+                            .foregroundColor(.white.opacity(0.8))
+                            .tracking(1)
+                        
+                        Text(tool.title)
+                            .font(.claudeSerif(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    Spacer()
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+                
+                Text(tool.description)
+                    .font(.claudeSans(size: 14))
+                    .foregroundColor(.white.opacity(0.9))
+                    .lineLimit(2)
+                
+                HStack {
+                    Text(tool.ctaLabel)
+                        .font(.claudeSans(size: 14, weight: .bold))
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .bold))
+                }
+                .foregroundColor(.white)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 16)
+                .background(Color.white.opacity(0.2))
+                .cornerRadius(12)
+            }
+            .padding(24)
+            .background(
+                LinearGradient(colors: tool.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .cornerRadius(24)
+            .shadow(color: tool.gradientColors.first?.opacity(0.25) ?? Color.claudeAccent.opacity(0.25), radius: 15, x: 0, y: 10)
+        }
+        .buttonStyle(InteractiveCardButtonStyle())
+    }
+    
+    /// Maps a tool ID to its destination view.
+    @ViewBuilder
+    private func destinationView(for id: Int) -> some View {
+        switch id {
+        case 0:  SunSeekerARView()
+        case 1:  WaterCalculatorView()
+        case 2:  FertilizerCalculatorView()
+        case 3:  SoilMixBuilderView()
+        case 4:  SeasonalCareCalendarView()
+        case 5:  PlantDoctorView()
+        case 6:  PotSizeCalculatorView()
+        case 7:  ToxicityCheckerView()
+        case 8:  PropagationStationView()
+        case 9:  SkincareLabView()
+        case 10: CelestialMoonPhaseView()
+        case 11: OriginExplorerView()
+        default: SunSeekerARView()
+        }
+    }
+}
+
+struct ToolSection<Content: View>: View {
+    let title: String
+    let content: Content
+    
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(title)
+                .font(.claudeSans(size: 13, weight: .bold))
+                .foregroundStyle(Color.claudeSecondaryText)
+                .textCase(.uppercase)
+                .tracking(1.5)
+                .padding(.horizontal, 24)
+            
+            content
+                .padding(.horizontal, 20)
+        }
+    }
+}
+
+struct ToolNavigationLink<Destination: View>: View {
+    let destination: Destination
     let icon: String
     let title: String
     let description: String
     let color: Color
     
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
+        NavigationLink(destination: destination) {
+            ToolCardView(icon: icon, title: title, description: description, color: color)
+        }
+        .buttonStyle(InteractiveCardButtonStyle())
+    }
+}
+
+struct ToolCardView: View {
+    let icon: String
+    let title: String
+    let description: String
+    let color: Color
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 14)
                     .fill(color.opacity(0.1))
-                    .frame(width: 44, height: 44)
+                    .frame(width: 52, height: 52)
+                
                 Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundStyle(color)
+                    .font(.system(size: 22))
+                    .foregroundColor(color)
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                    .font(.claudeSerif(size: 18, weight: .bold))
+                    .foregroundColor(.claudePrimaryText)
+                
                 Text(description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.claudeSans(size: 13))
+                    .foregroundColor(.claudeSecondaryText)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
             }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.claudeBorder)
         }
-        .padding(.vertical, 8)
+        .padding(16)
+        .background(Color.claudeSecondaryBackground)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.claudeBorder, lineWidth: 1)
+        )
     }
 }
 
 struct SunSeekerARView: View {
+    @Environment(\.dismiss) var dismiss
     @State private var isScanning = false
     @State private var lightLevel: Double = 0.5
     @State private var showCamera = false
+    @State private var showInfoSheet = false
     
     var lightStatus: (String, Color) {
         if lightLevel < 0.3 {
@@ -91,7 +289,9 @@ struct SunSeekerARView: View {
     }
     
     var body: some View {
-        VStack {
+        ZStack {
+            Color.claudeBackground.ignoresSafeArea()
+            
             if showCamera {
                 ZStack {
                     Color.black
@@ -108,97 +308,161 @@ struct SunSeekerARView: View {
                     // Overlay
                     VStack {
                         HStack {
-                            Button("Close") {
-                                showCamera = false
+                            Button(action: { showCamera = false }) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(12)
+                                    .background(Circle().fill(Color.white.opacity(0.2)))
                             }
-                            .padding()
-                            .background(Color.black.opacity(0.5))
-                            .foregroundStyle(.white)
-                            .cornerRadius(8)
                             Spacer()
                         }
-                        .padding()
+                        .padding(24)
                         
                         Spacer()
                         
                         // Meter
-                        VStack(spacing: 20) {
-                            Text(lightStatus.0)
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundStyle(lightStatus.1)
-                                .padding()
-                                .background(Color.black.opacity(0.7))
-                                .cornerRadius(12)
+                        VStack(spacing: 24) {
+                            VStack(spacing: 8) {
+                                Text(lightStatus.0.uppercased())
+                                    .font(.claudeSans(size: 14, weight: .bold))
+                                    .foregroundColor(lightStatus.1)
+                                    .tracking(2)
+                                
+                                Text("\(Int(lightLevel * 100))%")
+                                    .font(.system(size: 48, weight: .black, design: .rounded))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.vertical, 20)
+                            .padding(.horizontal, 40)
+                            .background(BlurView(style: .systemThinMaterialDark).cornerRadius(24))
                             
-                            VStack {
-                                Text("Simulated Light Level")
-                                    .foregroundStyle(.white)
-                                    .font(.caption)
+                            VStack(spacing: 12) {
+                                Text("Simulated Photon Intensity")
+                                    .font(.claudeSans(size: 13))
+                                    .foregroundStyle(.white.opacity(0.6))
                                 Slider(value: $lightLevel)
                                     .tint(lightStatus.1)
                             }
-                            .padding()
-                            .background(Color.black.opacity(0.5))
-                            .cornerRadius(12)
-                            .padding()
+                            .padding(20)
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(20)
+                            .padding(.horizontal, 30)
                         }
-                        .padding(.bottom, 50)
+                        .padding(.bottom, 60)
                     }
                 }
                 .edgesIgnoringSafeArea(.all)
             } else {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        Image(systemName: "sun.max.circle.fill")
-                            .font(.system(size: 80))
-                            .foregroundStyle(.orange)
-                            .padding(.top)
+                VStack(spacing: 0) {
+                    ClaudeHeader(
+                        title: "Sun Seeker",
+                        subtitle: "Measure the photons. Find the sanctuary.",
+                        trailingActions: AnyView(
+                            Button(action: { showInfoSheet = true }) {
+                                Image(systemName: "info.circle")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(.claudePrimaryText.opacity(0.8))
+                                    .frame(width: 44, height: 44)
+                                    .background(Circle().fill(Color.orange.opacity(0.1)))
+                            }
+                        ),
+                        showBackButton: true
+                    )
+                    
+                    GeometryReader { geometry in
+                        ScrollView(showsIndicators: false) {
+                            VStack(alignment: .leading, spacing: 20) {
+                                VStack(spacing: 32) {
+                                    VStack(spacing: 16) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.orange.opacity(0.1))
+                                                .frame(width: 120, height: 120)
+                                            
+                                            // Radiance effect
+                                            ForEach(0..<3) { i in
+                                                Circle()
+                                                    .stroke(Color.orange.opacity(0.2), lineWidth: 2)
+                                                    .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
+                                                    .scaleEffect(isScanning ? 1.1 : 1.0)
+                                                    .opacity(isScanning ? 0.3 : 0.1)
+                                                    .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: isScanning)
+                                            }
+                                            
+                                            Image(systemName: "sun.max.fill")
+                                                .font(.system(size: 60))
+                                                .foregroundColor(.orange)
+                                                .shadow(color: .orange.opacity(0.3), radius: 10)
+                                                .onAppear { isScanning = true }
+                                        }
+                                    }
+                                    .padding(.top, 24)
                         
-                        Text("Sun Seeker")
-                            .font(.title)
-                            .fontWeight(.bold)
-                        
-                        Text("Use your camera to measure light intensity in your room. Find the perfect spot for your plants.")
+                        Text("Use your camera to measure light intensity in real-time. We'll tell you which plants will thrive in each corner of your home.")
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal)
+                            .font(.claudeSans(size: 15))
+                            .foregroundColor(.claudeSecondaryText)
+                            .padding(.horizontal, 32)
                         
-                        Button(action: {
-                            showCamera = true
-                        }) {
+                        Button(action: { showCamera = true }) {
                             HStack {
                                 Image(systemName: "camera.fill")
-                                Text("Start Light Meter")
+                                Text("Launch Light Meter")
                             }
-                            .font(.headline)
-                            .foregroundStyle(.white)
+                            .font(.claudeSans(size: 16, weight: .bold))
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(12)
+                            .padding(.vertical, 18)
+                            .background(Color.claudeAccent)
+                            .cornerRadius(18)
+                            .shadow(color: Color.claudeAccent.opacity(0.3), radius: 10, x: 0, y: 5)
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 24)
                         
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Light Guide")
-                                .font(.headline)
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("The Light Spectrum")
+                                .font(.claudeSans(size: 14, weight: .bold))
+                                .foregroundColor(.claudeSecondaryText)
+                                .textCase(.uppercase)
+                                .tracking(1.5)
                             
-                            LightGuideRow(title: "Low Light", desc: "North-facing windows, corners away from windows.", color: .blue)
-                            LightGuideRow(title: "Medium Light", desc: "East/West windows, filtered light.", color: .green)
-                            LightGuideRow(title: "Bright Light", desc: "South-facing windows, direct sun.", color: .orange)
+                            VStack(spacing: 0) {
+                                LightGuideRow(title: "Low Light", desc: "North windows or deep room corners.", color: .blue)
+                                Divider().padding(.leading, 60)
+                                LightGuideRow(title: "Medium Light", desc: "East/West windows with filtered light.", color: .green)
+                                Divider().padding(.leading, 60)
+                                LightGuideRow(title: "Bright Light", desc: "South windows or direct sun exposure.", color: .orange)
+                            }
+                            .background(Color.claudeSecondaryBackground)
+                            .cornerRadius(20)
+                            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
                         }
-                        .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(12)
-                        .shadow(color: Color.primary.opacity(0.05), radius: 2)
-                        .padding()
-                    }
+                        .padding(.horizontal, 24)
+                        } // end Inner VStack (304)
+                        } // end Outer Content VStack (291)
+                        .frame(width: geometry.size.width)
+                        .padding(.bottom, 40)
+                    } // end ScrollView (290)
                 }
-                .background(Color(UIColor.systemGroupedBackground))
-            }
+                }
+            } // end else (289)
+        } // end outer ZStack (225)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showInfoSheet) {
+            SunSeekerInfoSheet()
         }
-        .toolbar(showCamera ? .hidden : .visible, for: .navigationBar)
+    }
+}
+
+struct BlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        UIVisualEffectView(effect: UIBlurEffect(style: style))
+    }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+        uiView.effect = UIBlurEffect(style: style)
     }
 }
 
@@ -208,27 +472,37 @@ struct LightGuideRow: View {
     let color: Color
     
     var body: some View {
-        HStack(alignment: .top) {
-            Circle()
-                .fill(color)
-                .frame(width: 12, height: 12)
-                .padding(.top, 4)
+        HStack(alignment: .center, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.1))
+                    .frame(width: 36, height: 36)
+                Circle()
+                    .fill(color)
+                    .frame(width: 12, height: 12)
+            }
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .fontWeight(.bold)
+                    .font(.claudeSans(size: 15, weight: .bold))
+                    .foregroundColor(.claudePrimaryText)
                 Text(desc)
-                    .font(.caption)
+                    .font(.claudeSans(size: 13))
                     .foregroundStyle(.secondary)
             }
+            Spacer()
         }
+        .padding(16)
     }
 }
 
+
 struct PotSizeCalculatorView: View {
+    @Environment(\.dismiss) var dismiss
     @State private var currentDiameter: Double = 4
     @State private var isRootBound = false
     @State private var growthRate = 1 // 0: Slow, 1: Moderate, 2: Fast
+    @State private var showInfoSheet = false
     
     var recommendedSize: Double {
         var increase = 1.0
@@ -239,430 +513,144 @@ struct PotSizeCalculatorView: View {
     }
     
     var body: some View {
-        Form {
-            Section(header: Text("Current Pot")) {
-                HStack {
-                    Text("Diameter")
-                    Spacer()
-                    Text("\(Int(currentDiameter)) inches")
-                        .foregroundStyle(.secondary)
-                }
-                Slider(value: $currentDiameter, in: 2...20, step: 1) {
-                    Text("Diameter")
-                }
-                
-                Toggle("Is the plant root-bound?", isOn: $isRootBound)
-            }
-            
-            Section(header: Text("Plant Details")) {
-                Picker("Growth Rate", selection: $growthRate) {
-                    Text("Slow").tag(0)
-                    Text("Moderate").tag(1)
-                    Text("Fast").tag(2)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-            }
-            
-            Section(header: Text("Recommendation")) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("New Pot Size")
-                            .font(.headline)
-                        Text("Recommended diameter")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Text("\(Int(recommendedSize)) inches")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.green)
-                }
-                
-                Text(isRootBound ? "Since your plant is root-bound, give it some extra space to expand." : "A moderate increase will prevent waterlogging.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .navigationTitle("Pot Calculator")
-    }
-}
-
-struct MoonPhaseView: View {
-    // Simulated Moon Phase for Demo
-    let phaseName = "Waxing Gibbous"
-    let illumination = "78%"
-    let advice = "Great time for planting above-ground crops and leafy greens."
-    
-    var body: some View {
         ZStack {
-            Color(hex: "0B0F19").ignoresSafeArea()
+            Color.claudeBackground.ignoresSafeArea()
             
-            VStack(spacing: 30) {
-                // Moon Graphic
-                ZStack {
-                    Circle()
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 200, height: 200)
-                    
-                    Circle()
-                        .fill(
-                            RadialGradient(gradient: Gradient(colors: [.white, .gray]), center: .center, startRadius: 50, endRadius: 100)
-                        )
-                        .frame(width: 180, height: 180)
-                        .shadow(color: .white.opacity(0.5), radius: 20, x: 0, y: 0)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white.opacity(0.1), lineWidth: 2)
-                        )
-                }
-                .padding(.top, 40)
+            VStack(spacing: 0) {
+                ClaudeHeader(
+                    title: "Repotting Helper",
+                    subtitle: "Find the perfect pot size",
+                    trailingActions: AnyView(
+                        Button(action: { showInfoSheet = true }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 22))
+                                .foregroundColor(.claudePrimaryText.opacity(0.8))
+                                .frame(width: 44, height: 44)
+                                .background(Circle().fill(Color.brown.opacity(0.1)))
+                        }
+                    ),
+                    showBackButton: true
+                )
                 
-                VStack(spacing: 8) {
-                    Text(phaseName)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    
-                    Text("Illumination: \(illumination)")
-                        .font(.subheadline)
-                        .foregroundStyle(.gray)
-                }
-                
-                VStack(spacing: 16) {
-                    Text("Gardening Advice")
-                        .font(.headline)
-                        .foregroundStyle(.green)
-                        .textCase(.uppercase)
-                        .tracking(2)
-                    
-                    Text(advice)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white.opacity(0.9))
-                        .padding(.horizontal)
-                }
-                .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(16)
-                .padding()
-                
-                Spacer()
-            }
-        }
-        .navigationTitle("Moon Phase")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-
-
-struct SkincareLabView: View {
-    @EnvironmentObject var dataLoader: DataLoader
-    @State private var selectedCategory: String = "All"
-    @Namespace private var animation
-    
-    var skincarePlants: [Plant] {
-        let all = dataLoader.plants.filter { $0.skincarePotential?.enabled == true }
-        if selectedCategory == "All" {
-            return all
-        }
-        return all.filter { plant in
-            plant.skincarePotential?.categories?.contains(selectedCategory) ?? false
-        }
-    }
-    
-    var categories: [String] {
-        let allCategories = dataLoader.plants
-            .compactMap { $0.skincarePotential?.categories }
-            .flatMap { $0 }
-        return ["All"] + Array(Set(allCategories)).sorted()
-    }
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "flask.fill")
-                            .font(.system(size: 32))
-                            .foregroundStyle(.purple)
-                        Text("Skincare Lab")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                    }
-                    Text("Discover natural remedies from your garden.")
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal)
-                .padding(.top)
-                
-                // Category Filter
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(categories, id: \.self) { category in
-                            Button(action: {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                    selectedCategory = category
+                GeometryReader { geometry in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 24) {
+                        // Pot Growth Visualization
+                        VStack(spacing: 20) {
+                            PotGrowthView(current: currentDiameter, recommended: recommendedSize)
+                                .frame(height: 200)
+                                .shadow(color: Color.brown.opacity(0.1), radius: 20, x: 0, y: 10)
+                            
+                            HStack(alignment: .center) {
+                                Text("REC. DIAMETER: ")
+                                    .font(.claudeSans(size: 11, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .tracking(1.5)
+                                Text("\(Int(recommendedSize))\"")
+                                    .font(.claudeSerif(size: 16, weight: .bold))
+                                    .foregroundColor(.claudePrimaryText)
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 20)
+                            .background(Color.claudeSecondaryBackground)
+                            .cornerRadius(12)
+                        }
+                        .padding(.top, 10)
+                        
+                        VStack(alignment: .leading, spacing: 20) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("CURRENT POT")
+                                    .font(.claudeSans(size: 12, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .tracking(1)
+                            
+                                HStack {
+                                    Text("\(Int(currentDiameter))\"")
+                                        .font(.claudeSerif(size: 24, weight: .bold))
+                                        .frame(width: 60)
+                                    Slider(value: $currentDiameter, in: 2...20, step: 1)
+                                        .tint(.brown)
                                 }
-                            }) {
-                                Text(category)
-                                    .fontWeight(.medium)
-                                    .padding(.vertical, 8)
-                                    .padding(.horizontal, 16)
-                                    .foregroundStyle(selectedCategory == category ? .white : .purple)
-                                    .background {
-                                        if selectedCategory == category {
-                                            Capsule()
-                                                .fill(Color.purple)
-                                                .matchedGeometryEffect(id: "categoryBackground", in: animation)
-                                        } else {
-                                            Capsule()
-                                                .fill(Color.purple.opacity(0.1))
-                                        }
-                                    }
+                                .padding(20)
+                                .background(Color.claudeSecondaryBackground)
+                                .cornerRadius(20)
+                                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
                             }
-                            .buttonStyle(BubblingButtonStyle())
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                
-                if skincarePlants.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "leaf.circle")
-                            .font(.system(size: 50))
-                            .foregroundStyle(.secondary)
-                        Text("No recipes found for this category.")
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 40)
-                } else {
-                    LazyVStack(spacing: 20) {
-                        ForEach(skincarePlants) { plant in
-                            NavigationLink(destination: RecipeDetailView(plant: plant)) {
-                                RecipeCard(plant: plant)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-            }
-            .padding(.bottom, 40)
-        }
-        .background(Color(UIColor.systemGroupedBackground))
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-struct RecipeCard: View {
-    let plant: Plant
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(plant.commonName)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                    
-                    if let benefits = plant.skincarePotential?.benefits {
-                        Text(benefits)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    HStack(spacing: 8) {
-                        if let difficulty = plant.skincarePotential?.difficulty {
-                            Label(difficulty, systemImage: "chart.bar.fill")
-                                .font(.caption)
-                                .foregroundStyle(.purple)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.purple.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                        
-                        if let time = plant.skincarePotential?.prepTime {
-                            Label(time, systemImage: "clock.fill")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.orange.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.top, 4)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 4)
-            }
-            .padding()
-        }
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
-    }
-}
-
-struct RecipeDetailView: View {
-    let plant: Plant
-    
-    var skincare: SkincarePotential? {
-        plant.skincarePotential
-    }
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header Section
-                VStack(alignment: .center, spacing: 16) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.purple.opacity(0.1))
-                            .frame(width: 80, height: 80)
-                        Image(systemName: "flask.fill")
-                            .font(.system(size: 40))
-                            .foregroundStyle(.purple)
-                    }
-                    
-                    VStack(spacing: 8) {
-                        Text(plant.commonName)
-                            .font(.title)
-                            .fontWeight(.bold)
-                        
-                        if let skinTypes = skincare?.skinTypes {
-                            Text("Best for: " + skinTypes.joined(separator: ", "))
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical)
-                
-                // Quick Stats
-                HStack(spacing: 20) {
-                    DetailStat(icon: "clock.fill", title: "Time", value: skincare?.prepTime ?? "--")
-                    DetailStat(icon: "chart.bar.fill", title: "Level", value: skincare?.difficulty ?? "--")
-                    DetailStat(icon: "hourglass", title: "Shelf Life", value: skincare?.shelfLife ?? "--")
-                }
-                .padding()
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(16)
-                .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
-                
-                // Ingredients
-                if let ingredients = skincare?.ingredients {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Ingredients")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        ForEach(ingredients, id: \.name) { ingredient in
-                            HStack {
-                                Text("•")
-                                    .foregroundStyle(.purple)
-                                Text(ingredient.amount)
-                                    .fontWeight(.medium)
-                                Text(ingredient.name)
-                                Spacer()
-                                if let purpose = ingredient.purpose {
-                                    Text(purpose)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                            
+                            Toggle(isOn: $isRootBound) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Root Bound?")
+                                        .font(.claudeSans(size: 16, weight: .bold))
+                                    Text("Visible roots escaping drainage holes")
+                                        .font(.claudeSans(size: 13))
+                                        .foregroundColor(.claudeSecondaryText)
                                 }
                             }
-                            .padding(.vertical, 4)
-                            Divider()
-                        }
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
-                }
-                
-                // Instructions
-                if let instructions = skincare?.instructions {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Instructions")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        ForEach(Array(instructions.enumerated()), id: \.offset) { index, step in
-                            HStack(alignment: .top, spacing: 16) {
-                                Text("\(index + 1)")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                                    .frame(width: 28, height: 28)
-                                    .background(Circle().fill(Color.purple))
+                            .padding(20)
+                            .background(Color.claudeSecondaryBackground)
+                            .cornerRadius(20)
+                            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
+                            .tint(Color.claudeAccent)
+                            
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("GROWTH RATE")
+                                    .font(.claudeSans(size: 12, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .tracking(1)
                                 
-                                Text(step)
-                                    .font(.body)
-                                    .fixedSize(horizontal: false, vertical: true)
+                                Picker("Growth Rate", selection: $growthRate) {
+                                    Text("Slow").tag(0)
+                                    Text("Moderate").tag(1)
+                                    Text("Fast").tag(2)
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                                .padding(4)
+                                .background(Color.claudeSecondaryBackground)
+                                .cornerRadius(12)
                             }
-                            .padding(.vertical, 4)
-                        }
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
-                }
-                
-                // Tips & Warnings
-                VStack(spacing: 16) {
-                    if let tips = skincare?.tips {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Label("Pro Tips", systemImage: "lightbulb.fill")
-                                .font(.headline)
-                                .foregroundStyle(.orange)
                             
-                            ForEach(tips, id: \.self) { tip in
-                                Text("• " + tip)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                            VStack(alignment: .center, spacing: 16) {
+                                Text("RECOMMENDATION")
+                                    .font(.claudeSans(size: 12, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .tracking(2)
+                                
+                                Text("\(Int(recommendedSize))\"")
+                                    .font(.system(size: 72, weight: .black, design: .serif))
+                                    .foregroundColor(Color.claudeAccent)
+                                
+                                Text("Ideal Diameter")
+                                    .font(.claudeSans(size: 16, weight: .bold))
+                                    .foregroundColor(.claudePrimaryText)
+                                
+                                Text(isRootBound ? "Your plant is feeling cramped. A two-inch increase will give those roots the sanctuary they deserve." : "A modest one-inch increase provides space without risking waterlogged soil.")
+                                    .font(.claudeSans(size: 14))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
                             }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 28)
+                                    .fill(Color.claudeSecondaryBackground)
+                                    .shadow(color: Color.black.opacity(0.04), radius: 20, x: 0, y: 10)
+                            )
+                            .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color.claudeBorder, lineWidth: 1))
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.orange.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    
-                    if let warning = skincare?.warnings {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Label("Caution", systemImage: "exclamationmark.triangle.fill")
-                                .font(.headline)
-                                .foregroundStyle(.red)
-                            
-                            Text(warning)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(12)
+                        .frame(width: geometry.size.width)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+                        .padding(.bottom, 40)
                     }
                 }
             }
-            .padding()
         }
-        .background(Color(UIColor.systemGroupedBackground))
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showInfoSheet) {
+            RepottingHelperInfoSheet()
+        }
     }
 }
 
@@ -672,18 +660,163 @@ struct DetailStat: View {
     let value: String
     
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.headline)
+                .font(.system(size: 18))
                 .foregroundStyle(.purple)
             Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.claudeSans(size: 12, weight: .bold))
+                .foregroundColor(.claudeSecondaryText)
             Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
+                .font(.claudeSans(size: 14, weight: .medium))
+                .foregroundColor(.claudePrimaryText)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
     }
 }
+
+struct PotGrowthView: View {
+    let current: Double
+    let recommended: Double
+    
+    var body: some View {
+        ZStack {
+            // Container
+            RoundedRectangle(cornerRadius: 35)
+                .fill(Color.white.opacity(0.05))
+                .background(BlurView(style: .systemThinMaterial).clipShape(RoundedRectangle(cornerRadius: 35)))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 35)
+                        .stroke(Color.claudeBorder, lineWidth: 1)
+                )
+            
+            // Outer Pot (Recommended)
+            Circle()
+                .stroke(Color.claudeAccent.opacity(0.3), lineWidth: 4)
+                .frame(width: CGFloat(recommended * 10), height: CGFloat(recommended * 10))
+                .animation(.spring(response: 0.5, dampingFraction: 0.7), value: recommended)
+            
+            // Inner Pot (Current)
+            Circle()
+                .fill(Color.brown.opacity(0.6))
+                .frame(width: CGFloat(current * 10), height: CGFloat(current * 10))
+                .overlay(
+                    Circle()
+                        .stroke(Color.brown, lineWidth: 2)
+                )
+                .animation(.spring(response: 0.5, dampingFraction: 0.7), value: current)
+            
+            // Legend
+            VStack {
+                Spacer()
+                Text("GROWTH CAPACITY")
+                    .font(.claudeSans(size: 9, weight: .bold))
+                    .foregroundColor(.claudeSecondaryText)
+                    .tracking(1)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(width: 160)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Sun Seeker Info Sheet
+struct SunSeekerInfoSheet: View {
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.claudeBackground.ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("How the Sun Seeker Works")
+                                .font(.claudeSerif(size: 32, weight: .bold))
+                                .foregroundColor(.claudePrimaryText)
+                            
+                            Text("Use your camera to measure light intensity in different areas of your home and find the perfect spot for every plant.")
+                                .font(.claudeSans(size: 16))
+                                .foregroundColor(.claudeSecondaryText)
+                                .lineSpacing(4)
+                        }
+                        
+                        VStack(spacing: 16) {
+                            InfoRow(icon: "camera.fill", title: "Light Meter", text: "Point your camera at any spot and get a real-time reading of light intensity, measured as a percentage of full sun exposure.", color: .orange)
+                            
+                            InfoRow(icon: "circle.fill", title: "Low Light (0-30%)", text: "North-facing windows and deep corners. Perfect for snake plants, ZZ plants, pothos, and peace lilies.", color: .blue)
+                            
+                            InfoRow(icon: "circle.fill", title: "Medium Light (30-70%)", text: "East or west-facing windows with filtered light. Ideal for most tropical houseplants and ferns.", color: .green)
+                            
+                            InfoRow(icon: "circle.fill", title: "Bright Light (70-100%)", text: "South-facing windows or direct sun. Best for succulents, cacti, herbs, and sun-loving tropicals.", color: .orange)
+                        }
+                    }
+                    .padding(24)
+                }
+            }
+            .navigationBarItems(trailing: Button("Done") { dismiss() })
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Guide")
+                        .font(.claudeSans(size: 16, weight: .bold))
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Repotting Helper Info Sheet
+struct RepottingHelperInfoSheet: View {
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.claudeBackground.ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("How the Repotting Helper Works")
+                                .font(.claudeSerif(size: 32, weight: .bold))
+                                .foregroundColor(.claudePrimaryText)
+                            
+                            Text("Calculate the ideal new pot size based on your current pot diameter, root condition, and the plant's growth rate.")
+                                .font(.claudeSans(size: 16))
+                                .foregroundColor(.claudeSecondaryText)
+                                .lineSpacing(4)
+                        }
+                        
+                        VStack(spacing: 16) {
+                            InfoRow(icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Size Calculation", text: "We recommend going up 1-2 inches in diameter. Too large a jump can lead to waterlogged soil and root rot.", color: .brown)
+                            
+                            InfoRow(icon: "arrow.triangle.branch", title: "Root Bound Signs", text: "Roots circling the pot, poking from drainage holes, or pushing the plant upward all indicate it's time to repot.", color: .green)
+                            
+                            InfoRow(icon: "chart.line.uptrend.xyaxis", title: "Growth Rate Factor", text: "Fast growers like pothos may need a larger size jump, while slow growers like snake plants prefer a snugger fit.", color: .blue)
+                            
+                            InfoRow(icon: "calendar", title: "Best Timing", text: "Spring is the ideal repotting season when plants are actively growing and can recover quickly from root disturbance.", color: .orange)
+                        }
+                    }
+                    .padding(24)
+                }
+            }
+            .navigationBarItems(trailing: Button("Done") { dismiss() })
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Guide")
+                        .font(.claudeSans(size: 16, weight: .bold))
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    ToolsView()
+}
+

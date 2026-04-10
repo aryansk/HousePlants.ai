@@ -30,85 +30,99 @@ struct EnhancedPlantCard: View {
         }
     }
     
-    var healthColor: Color {
-        let health = myPlant?.healthScore ?? 80
-        if health >= 80 { return .green }
-        else if health >= 60 { return .yellow }
-        else { return .red }
-    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Plant Image
             ZStack(alignment: .topTrailing) {
-                if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFill()
+                GeometryReader { geo in
+                    Group {
+                        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image.resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                case .failure:
+                                    Color.green.opacity(0.1)
+                                        .overlay(Image(systemName: "photo").foregroundStyle(.green.opacity(0.3)))
+                                case .empty:
+                                    Rectangle().fill(Color.gray.opacity(0.1)).overlay(ProgressView())
+                                @unknown default: EmptyView()
+                                }
+                            }
                         } else {
-                            Color.gray.opacity(0.1)
+                            let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
+                            Image(String(imageName))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
                         }
                     }
-                } else if let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first {
-                    Image(String(imageName))
-                        .resizable()
-                        .scaledToFill()
-                } else {
-                    Color.green.opacity(0.2)
+                    .frame(width: geo.size.width, height: geo.size.height)
                 }
+                .frame(height: 160)
+                .clipped()
                 
                 // Health indicator badge
-                if myPlant?.healthScore != nil {
-                    Circle()
-                        .fill(healthColor)
-                        .frame(width: 12, height: 12)
+                if let health = myPlant?.healthScore {
+                    HealthRing(health: health)
+                        .frame(width: 34, height: 34)
+                        .padding(10)
+                        .background(Circle().fill(Color.claudeBackground.opacity(0.6)).blur(radius: 4))
                         .padding(8)
                 }
             }
-            .frame(height: 150)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 // Plant name
                 Text(plant.commonName)
-                    .font(.headline)
+                    .font(.claudeSerif(size: 18, weight: .bold))
                     .lineLimit(1)
+                    .foregroundStyle(Color.claudePrimaryText)
                 
                 // Watering status
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Image(systemName: wateringStatus.icon)
-                        .font(.caption)
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(wateringStatus.color)
                     Text(wateringStatus.text)
-                        .font(.caption)
+                        .font(.claudeSans(size: 12, weight: .bold))
                         .foregroundStyle(wateringStatus.color)
-                        .fontWeight(.medium)
+                        .textCase(.uppercase)
                 }
                 
                 // Quick water button
                 Button(action: {
-                    dataLoader.waterPlant(plantId: plant.id)
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        dataLoader.waterPlant(plantId: plant.id)
+                    }
                 }) {
                     HStack {
                         Image(systemName: "drop.fill")
-                            .font(.caption)
+                            .font(.system(size: 12))
                         Text("Water")
-                            .font(.caption)
-                            .fontWeight(.medium)
+                            .font(.claudeSans(size: 13, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundStyle(.blue)
-                    .cornerRadius(8)
+                    .padding(.vertical, 12)
+                    .background(
+                        Capsule()
+                            .fill(wateringStatus.color.opacity(0.12))
+                    )
+                    .foregroundStyle(wateringStatus.color)
                 }
-                .buttonStyle(WaterButtonStyle())
+                .buttonStyle(BubblingButtonStyle())
             }
-            .padding(12)
+            .padding(16)
         }
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(20)
-        .shadow(color: Color.primary.opacity(0.04), radius: 10, x: 0, y: 4)
+        .background(Color.claudeSecondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(Color.claudeBorder, lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
         .contextMenu {
             Button(action: { showCareSheet = true }) {
                 Label("Manage Plant", systemImage: "slider.horizontal.3")
@@ -121,7 +135,6 @@ struct EnhancedPlantCard: View {
             PlantCareSheet(plant: plant)
                 .environmentObject(dataLoader)
         }
-        .buttonStyle(InteractiveCardButtonStyle(scale: 0.98))
     }
 }
 
@@ -158,44 +171,48 @@ struct EnhancedJungleListRow: View {
         HStack(spacing: 16) {
             // Image
             ZStack(alignment: .bottomTrailing) {
-                if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFill()
-                        } else {
-                            Color.gray.opacity(0.1)
+                Group {
+                    if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
+                        AsyncImage(url: url) { phase in
+                            if let image = phase.image {
+                                image.resizable().aspectRatio(contentMode: .fill)
+                            } else {
+                                Color.gray.opacity(0.1)
+                            }
                         }
+                    } else {
+                        let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
+                        Image(String(imageName))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
                     }
-                } else if let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first {
-                    Image(String(imageName))
-                        .resizable()
-                        .scaledToFill()
-                } else {
-                    Color.green.opacity(0.2)
                 }
+                .frame(width: 80, height: 80)
+                .clipped()
                 
                 // Health indicator
                 if let health = myPlant?.healthScore {
                     let healthColor: Color = health >= 80 ? .green : (health >= 60 ? .yellow : .red)
                     Circle()
                         .fill(healthColor)
-                        .frame(width: 10, height: 10)
+                        .frame(width: 12, height: 12)
+                        .overlay(Circle().stroke(Color.claudeBackground, lineWidth: 2))
                         .padding(4)
                 }
             }
-            .frame(width: 70, height: 70)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(plant.commonName)
-                    .font(.headline)
+                    .font(.claudeSerif(size: 20, weight: .bold))
+                    .foregroundStyle(Color.claudePrimaryText)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Image(systemName: "drop.fill")
                         .font(.caption2)
                         .foregroundStyle(wateringStatus.color)
                     Text(wateringStatus.text)
-                        .font(.caption)
+                        .font(.claudeSans(size: 13, weight: .medium))
                         .foregroundStyle(wateringStatus.color)
                 }
             }
@@ -204,21 +221,58 @@ struct EnhancedJungleListRow: View {
             
             // Quick water button
             Button(action: {
-                dataLoader.waterPlant(plantId: plant.id)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    dataLoader.waterPlant(plantId: plant.id)
+                }
             }) {
-                Image(systemName: "drop.fill")
-                    .font(.body)
-                    .foregroundStyle(.white)
-                    .padding(10)
-                    .background(Color.blue)
-                    .clipShape(Circle())
+                ZStack {
+                    Circle()
+                        .fill(wateringStatus.color.opacity(0.12))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "drop.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(wateringStatus.color)
+                }
             }
             .buttonStyle(WaterButtonStyle())
         }
-        .padding(12)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+        .padding(14)
+        .background(Color.claudeSecondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(Color.claudeBorder, lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.02), radius: 8, x: 0, y: 3)
+    }
+}
+
+struct HealthRing: View {
+    let health: Int
+    
+    var color: Color {
+        if health >= 80 { return .green }
+        else if health >= 60 { return .yellow }
+        else { return .red }
+    }
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(color.opacity(0.2), lineWidth: 3)
+            
+            Circle()
+                .trim(from: 0, to: CGFloat(health) / 100.0)
+                .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            
+            Text("\(health)")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
+        }
+        .background(Circle().fill(Color.claudeBackground.opacity(0.8)))
     }
 }
 
@@ -232,46 +286,53 @@ struct PlantSelectionCard: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .topTrailing) {
-                    if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                        AsyncImage(url: url) { phase in
-                            if let image = phase.image {
-                                image.resizable().scaledToFill()
+                    GeometryReader { geo in
+                        Group {
+                            if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
+                                AsyncImage(url: url) { phase in
+                                    if let image = phase.image {
+                                        image.resizable().aspectRatio(contentMode: .fill)
+                                    } else {
+                                        Color.gray.opacity(0.1)
+                                    }
+                                }
                             } else {
-                                Color.gray.opacity(0.1)
+                                let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
+                                Image(String(imageName))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
                             }
                         }
-                    } else if let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first {
-                        Image(String(imageName))
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        Color.green.opacity(0.2)
+                        .frame(width: geo.size.width, height: geo.size.height)
                     }
+                    .frame(height: 150)
+                    .clipped()
                     
                     // Selection indicator
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundStyle(isSelected ? .green : .white)
+                        .font(.title3)
+                        .foregroundStyle(isSelected ? Color.claudeAccent : .secondary.opacity(0.5))
                         .padding(10)
-                        .background(Circle().fill(Color(UIColor.secondarySystemGroupedBackground)))
+                        .background(Circle().fill(Color.claudeBackground).blur(radius: 2))
                         .padding(8)
                 }
-                .frame(height: 150)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 
                 Text(plant.commonName)
-                    .font(.headline)
+                    .font(.claudeSerif(size: 17, weight: .bold))
                     .lineLimit(1)
-                    .padding(12)
+                    .padding(14)
+                    .foregroundStyle(Color.claudePrimaryText)
             }
-            .background(Color(UIColor.secondarySystemGroupedBackground))
-            .cornerRadius(16)
+            .background(Color.claudeSecondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.green : Color.clear, lineWidth: 3)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(isSelected ? Color.claudeAccent : Color.claudeBorder, lineWidth: 2)
             )
-            .shadow(color: Color.primary.opacity(0.08), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(isSelected ? 0.08 : 0.02), radius: 10, x: 0, y: 5)
         }
+        .buttonStyle(BubblingButtonStyle())
     }
 }
 
@@ -286,48 +347,52 @@ struct JungleListRowSelectable: View {
             HStack(spacing: 16) {
                 // Image
                 ZStack {
-                    if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                        AsyncImage(url: url) { phase in
-                            if let image = phase.image {
-                                image.resizable().scaledToFill()
-                            } else {
-                                Color.gray.opacity(0.1)
+                    Group {
+                        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
+                            AsyncImage(url: url) { phase in
+                                if let image = phase.image {
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                } else {
+                                    Color.gray.opacity(0.1)
+                                }
                             }
+                        } else {
+                            let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
+                            Image(String(imageName))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
                         }
-                    } else if let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first {
-                        Image(String(imageName))
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        Color.green.opacity(0.2)
                     }
+                    .frame(width: 70, height: 70)
+                    .clipped()
                 }
-                .frame(width: 60, height: 60)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(plant.commonName)
-                        .font(.headline)
+                        .font(.claudeSerif(size: 19, weight: .bold))
+                        .foregroundStyle(Color.claudePrimaryText)
                     Text(plant.botanicalName)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.claudeSans(size: 13))
+                        .foregroundStyle(Color.claudeSecondaryText)
                 }
                 
                 Spacer()
                 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? .green : .secondary)
-                    .font(.title3)
+                    .foregroundStyle(isSelected ? Color.claudeAccent : .secondary.opacity(0.5))
+                    .font(.title2)
             }
-            .padding(12)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
-            .cornerRadius(16)
+            .padding(14)
+            .background(Color.claudeSecondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.green : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(isSelected ? Color.claudeAccent : Color.clear, lineWidth: 2)
             )
-            .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+            .shadow(color: Color.black.opacity(isSelected ? 0.04 : 0.02), radius: 8, x: 0, y: 2)
         }
+        .buttonStyle(BubblingButtonStyle())
     }
 }
 

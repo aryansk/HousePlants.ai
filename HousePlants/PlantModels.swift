@@ -188,6 +188,7 @@ struct Plant: Codable, Identifiable {
     let mlRecognitionConfidence: Double
     let skincarePotential: SkincarePotential?
     let propagation: Propagation?
+    let botanistQuote: BotanistQuote?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -200,11 +201,18 @@ struct Plant: Codable, Identifiable {
         case mlRecognitionConfidence = "ml_recognition_confidence"
         case skincarePotential = "skincare_potential"
         case propagation
+        case botanistQuote = "botanist_quote"
     }
+}
+
+struct BotanistQuote: Codable {
+    let quote: String
+    let botanist: String
 }
 
 struct Origin: Codable {
     let region: String
+    let countries: [String]?
     let coordinates: Coordinates
 }
 
@@ -236,7 +244,7 @@ struct Toxicity: Codable {
     }
 }
 
-struct RecipeIngredient: Codable {
+struct RecipeIngredient: Codable, Hashable {
     let name: String
     let amount: String
     let purpose: String? // What this ingredient does
@@ -277,4 +285,82 @@ struct Propagation: Codable {
     let methods: [String]
     let difficulty: String
     let instructions: [String]
+}
+
+extension Plant {
+    var effectivePropagation: Propagation {
+        if let propagation = self.propagation {
+            return propagation
+        }
+        
+        // Return fallback propagation based on category
+        switch categoryId {
+        case "cat_aroid":
+            return Propagation(
+                methods: ["Stem Cuttings", "Water Propagation"],
+                difficulty: "Easy",
+                instructions: [
+                    "Identify a node (point where leaf meets stem) on a healthy vine.",
+                    "Cut 1/4 inch below the node using clean, sharp shears.",
+                    "Place the cutting in a glass of water, ensuring the node is submerged.",
+                    "Wait for roots to reach 2 inches long (2-4 weeks) before potting in soil."
+                ]
+            )
+        case "cat_succulent":
+            return Propagation(
+                methods: ["Leaf Cuttings", "Division", "Offsets"],
+                difficulty: "Easy",
+                instructions: [
+                    "Gently twist a healthy leaf from the stem until it snaps off cleanly.",
+                    "Lay the leaf on a dry paper towel for 2-3 days until the end calluses over.",
+                    "Place on top of well-draining succulent soil and mist occasionally.",
+                    "A tiny new plantlet will emerge from the leaf base in 4-6 weeks."
+                ]
+            )
+        case "cat_fern":
+            return Propagation(
+                methods: ["Division"],
+                difficulty: "Moderate",
+                instructions: [
+                    "Spring is the best time. Remove the fern from its pot carefully.",
+                    "Use a clean knife or your fingers to separate the root ball into 2-3 sections.",
+                    "Ensure each division has several healthy fronds and a good root system.",
+                    "Repot into fresh, moisture-retentive fern mix and keep highly humid."
+                ]
+            )
+        case "cat_tree":
+            return Propagation(
+                methods: ["Stem Cuttings", "Air Layering"],
+                difficulty: "Hard",
+                instructions: [
+                    "Take a 6-inch cutting from a semi-hardwood branch in late spring.",
+                    "Remove lower leaves and dip the cut end in rooting hormone powder.",
+                    "Insert into a pot with sterile rooting medium (perlite and peat).",
+                    "Cover with a plastic bag to maintain high humidity and wait 2-3 months."
+                ]
+            )
+        case "cat_flower":
+            return Propagation(
+                methods: ["Stem Cuttings", "Seeds"],
+                difficulty: "Moderate",
+                instructions: [
+                    "Select a healthy, non-flowering shoot about 4 inches long.",
+                    "Make a clean cut just below a node and remove the lower leaves.",
+                    "Place in moist seed-starting mix and provide bright, indirect light.",
+                    "Maintain consistent moisture and warmth until new growth appears."
+                ]
+            )
+        default:
+            return Propagation(
+                methods: ["Consult Species-Specific Guide"],
+                difficulty: "Variable",
+                instructions: [
+                    "Specific propagation steps for this species are under research.",
+                    "Suggested: Search for \(botanicalName) propagation methods.",
+                    "Generally, stem cuttings or division work for most houseplants.",
+                    "Ensure you use sterile tools to prevent disease transmission."
+                ]
+            )
+        }
+    }
 }

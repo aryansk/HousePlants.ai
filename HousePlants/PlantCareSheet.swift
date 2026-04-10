@@ -23,8 +23,9 @@ struct PlantCareSheet: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 24) {
                     // Plant Image
                     ZStack {
                         if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
@@ -192,8 +193,10 @@ struct PlantCareSheet: View {
                         }
                         .padding(.horizontal)
                     }
+                    }
+                    .frame(width: geometry.size.width)
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle(plant.commonName)

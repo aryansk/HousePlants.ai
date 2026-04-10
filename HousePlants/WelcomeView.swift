@@ -70,27 +70,17 @@ struct WelcomeView: View {
     
     private var backgroundView: some View {
         ZStack {
-            Color(UIColor.systemBackground)
+            Color.claudeBackground
             
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.green.opacity(0.15),
-                    Color.emerald.opacity(0.1),
-                    Color(UIColor.systemBackground)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            
-            // Decorative shapes with glassmorphism
+            // Subtle texture or just plain background
             Circle()
-                .fill(Color.green.opacity(0.1))
+                .fill(Color.claudeAccent.opacity(0.05))
                 .frame(width: 400, height: 400)
                 .offset(x: 200, y: -300)
                 .blur(radius: 80)
             
             Circle()
-                .fill(Color.emerald.opacity(0.15))
+                .fill(Color.claudeSecondaryText.opacity(0.05))
                 .frame(width: 300, height: 300)
                 .offset(x: -150, y: 400)
                 .blur(radius: 60)
@@ -101,8 +91,8 @@ struct WelcomeView: View {
         VStack(spacing: 20) {
             HStack {
                 Text(currentStep.title)
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .foregroundColor(Color.green)
+                    .font(.claudeSerif(size: 34, weight: .bold))
+                    .foregroundColor(Color.claudePrimaryText)
                 
                 Spacer()
                 
@@ -121,7 +111,7 @@ struct WelcomeView: View {
             HStack(spacing: 8) {
                 ForEach(OnboardingStep.allCases.dropLast(), id: \.self) { step in
                     Capsule()
-                        .fill(currentStep.rawValue >= step.rawValue ? Color.green : Color.gray.opacity(0.2))
+                        .fill(currentStep.rawValue >= step.rawValue ? Color.claudeAccent : Color.claudeBorder)
                         .frame(height: 6)
                         .frame(maxWidth: .infinity)
                         .animation(.spring(), value: currentStep)
@@ -139,9 +129,9 @@ struct WelcomeView: View {
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.title3.bold())
-                        .foregroundColor(.green)
+                        .foregroundColor(Color.claudeAccent)
                         .frame(width: 56, height: 56)
-                        .background(Circle().stroke(Color.green.opacity(0.3), lineWidth: 2))
+                        .background(Circle().stroke(Color.claudeAccent.opacity(0.3), lineWidth: 2))
                 }
                 .buttonStyle(BubblingButtonStyle())
             }
@@ -161,8 +151,7 @@ struct WelcomeView: View {
                 .frame(height: 56)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(LinearGradient(colors: [Color.green, Color.emerald], startPoint: .leading, endPoint: .trailing))
-                        .shadow(color: Color.green.opacity(0.3), radius: 10, x: 0, y: 5)
+                        .fill(Color.claudeAccent)
                 )
             }
             .buttonStyle(BubblingButtonStyle())
@@ -209,7 +198,8 @@ struct IntroStepView: View {
                 
                 VStack(spacing: 12) {
                     Text("Cultivate Your\nPrivate Oasis")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.claudeSerif(size: 32, weight: .bold))
+                        .foregroundStyle(Color.claudePrimaryText)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 20)
                     
@@ -234,8 +224,9 @@ struct ProfileStepView: View {
     var showError: Bool
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 25) {
+        GeometryReader { geometry in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 25) {
                 Image("onboarding_2")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -249,11 +240,19 @@ struct ProfileStepView: View {
                     .foregroundColor(.secondary)
                     .padding(.bottom, 10)
                 
-                CustomField(title: "Preferred Name", placeholder: "e.g. Robin", text: $username, icon: "person")
+                ClaudeTextField(title: "Preferred Name", placeholder: "e.g. Robin", text: $username, icon: "person")
                 
-                HStack(spacing: 15) {
-                    CustomField(title: "City", placeholder: "London", text: $city, icon: "mappin.circle")
-                    CustomField(title: "Country", placeholder: "UK", text: $country, icon: "globe")
+                HStack(alignment: .top, spacing: 15) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        ClaudeCitySearchField(title: "City", placeholder: "London", text: $city, icon: "mappin.circle") { cityName, countryName in
+                            city = cityName
+                            country = countryName
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    ClaudeTextField(title: "Country", placeholder: "UK", text: $country, icon: "globe")
+                        .frame(maxWidth: .infinity)
                 }
                 
                 if showError {
@@ -262,8 +261,10 @@ struct ProfileStepView: View {
                         .foregroundColor(.red)
                         .padding(.top, 10)
                 }
+                }
+                .frame(width: geometry.size.width, alignment: .leading)
+                .padding(30)
             }
-            .padding(30)
         }
     }
 }
@@ -276,8 +277,9 @@ struct ExperienceStepView: View {
     let levels = ["Beginner", "Enthusiast", "Botany Pro"]
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 30) {
+        GeometryReader { geometry in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 30) {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("What's your skill level?")
                         .font(.headline)
@@ -290,13 +292,12 @@ struct ExperienceStepView: View {
                                     .font(.subheadline.bold())
                                     .padding(.vertical, 12)
                                     .padding(.horizontal, 16)
-                                    .background(difficulty == level ? Color.green : Color(UIColor.secondarySystemGroupedBackground))
-                                    .foregroundColor(difficulty == level ? .white : .primary)
+                                    .background(difficulty == level ? Color.claudeAccent : Color.claudeSecondaryBackground)
+                                    .foregroundColor(difficulty == level ? .white : Color.claudePrimaryText)
                                     .cornerRadius(12)
-                                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(difficulty == level ? Color.green : Color.gray.opacity(0.2), lineWidth: 1)
+                                            .stroke(difficulty == level ? Color.claudeAccent : Color.claudeBorder, lineWidth: 1)
                                     )
                             }
                         }
@@ -316,7 +317,7 @@ struct ExperienceStepView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    .toggleStyle(SwitchToggleStyle(tint: .green))
+                    .toggleStyle(SwitchToggleStyle(tint: Color.claudeAccent))
                     
                     Toggle(isOn: $notifyOnSundays) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -327,10 +328,12 @@ struct ExperienceStepView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    .toggleStyle(SwitchToggleStyle(tint: .green))
+                    .toggleStyle(SwitchToggleStyle(tint: Color.claudeAccent))
                 }
+                }
+                .frame(width: geometry.size.width, alignment: .leading)
+                .padding(30)
             }
-            .padding(30)
         }
     }
 }
@@ -356,15 +359,16 @@ struct FinalStepView: View {
                     .font(.system(size: 80))
                     .foregroundColor(.white)
                     .padding(20)
-                    .background(Color.green)
+                    .background(Color.claudeAccent)
                     .clipShape(Circle())
                     .offset(x: -15, y: 15)
-                    .shadow(radius: 10)
+                    .shadow(color: Color.claudeAccent.opacity(0.3), radius: 10, x: 0, y: 5)
             }
             
             VStack(spacing: 12) {
                 Text("All Set!")
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .font(.claudeSerif(size: 40, weight: .bold))
+                    .foregroundStyle(Color.claudePrimaryText)
                 
                 Text("Your personalized plant care journey\nis ready to begin.")
                     .font(.body)
@@ -389,40 +393,6 @@ struct FinalStepView: View {
                     .shadow(radius: 10, y: 5)
             }
             .padding(.bottom, 50)
-        }
-    }
-}
-
-// MARK: - Helper Components
-
-struct CustomField: View {
-    let title: String
-    let placeholder: String
-    @Binding var text: String
-    let icon: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.subheadline.bold())
-                .foregroundColor(.primary)
-            
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(.green)
-                    .frame(width: 20)
-                
-                TextField(placeholder, text: $text)
-                    .font(.body)
-            }
-            .padding()
-            .background(Color(UIColor.secondarySystemGroupedBackground))
-            .cornerRadius(14)
-            .shadow(color: Color.primary.opacity(0.04), radius: 8, x: 0, y: 4)
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-            )
         }
     }
 }

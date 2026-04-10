@@ -29,7 +29,7 @@ struct ContentView: View {
                             Label("Profile", systemImage: "person.fill")
                         }
                 }
-                .tint(.green)
+                .tint(Color.claudeAccent)
             } else {
                 WelcomeView(isCompleted: $hasCompletedOnboarding)
             }

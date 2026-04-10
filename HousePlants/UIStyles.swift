@@ -1,5 +1,44 @@
 import SwiftUI
 
+// MARK: - Claude Theme
+struct ClaudeTheme {
+    static func dynamicColor(light: String, dark: String) -> Color {
+        Color(UIColor { traitCollection in
+            return traitCollection.userInterfaceStyle == .dark ? UIColor(Color(hex: dark)) : UIColor(Color(hex: light))
+        })
+    }
+    
+    struct Colors {
+        static let background = dynamicColor(light: "FBF7F1", dark: "1A1A17")
+        static let secondaryBackground = dynamicColor(light: "F3EFE9", dark: "22221E")
+        static let tertiaryBackground = dynamicColor(light: "EBE7E0", dark: "2B2B26")
+        static let primaryText = dynamicColor(light: "29211D", dark: "F5F2ED")
+        static let secondaryText = dynamicColor(light: "72655E", dark: "A69D92")
+        static let accent = dynamicColor(light: "D97757", dark: "E69173")
+        static let border = dynamicColor(light: "E5E1D9", dark: "2D2D28")
+    }
+}
+
+extension Color {
+    static let claudeBackground = ClaudeTheme.Colors.background
+    static let claudeSecondaryBackground = ClaudeTheme.Colors.secondaryBackground
+    static let claudePrimaryText = ClaudeTheme.Colors.primaryText
+    static let claudeSecondaryText = ClaudeTheme.Colors.secondaryText
+    static let claudeAccent = ClaudeTheme.Colors.accent
+    static let claudeBorder = ClaudeTheme.Colors.border
+}
+
+extension Font {
+    static func claudeSerif(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        // Fallback to system serif if Georgia isn't available, though it usually is on iOS
+        return .custom("Georgia", size: size).weight(weight)
+    }
+    
+    static func claudeSans(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        return .system(size: size, weight: weight, design: .default)
+    }
+}
+
 // MARK: - Interactive Button Styles
 
 struct BubblingButtonStyle: ButtonStyle {

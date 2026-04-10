@@ -116,228 +116,303 @@ struct MyJungleView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
-                Color(UIColor.systemGroupedBackground).ignoresSafeArea()
+                Color.claudeBackground.ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Stats Dashboard
-                        if dataLoader.userProfile != nil {
-                            StatsDashboard(
-                                totalPlants: myPlants.count,
-                                plantsToWater: plantsNeedingWater,
-                                jungleHealth: healthStatus
+                    VStack(alignment: .leading, spacing: 0) {
+                        ClaudeHeader(
+                            title: "My Jungle",
+                            subtitle: "Managing \(myPlants.count) plants",
+                            trailingActions: AnyView(
+                                Menu {
+                                    Picker("Sort By", selection: $sortOption) {
+                                        Text("Name").tag(SortOption.name)
+                                        Text("Difficulty").tag(SortOption.difficulty)
+                                        Text("Last Watered").tag(SortOption.lastWatered)
+                                        Text("Health").tag(SortOption.health)
+                                    }
+                                } label: {
+                                    Image(systemName: "arrow.up.arrow.down.circle")
+                                        .font(.title3)
+                                        .foregroundStyle(Color.claudeAccent)
+                                        .padding(10)
+                                        .background(Circle().fill(Color.claudeSecondaryBackground))
+                                        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+                                }
                             )
-                            .padding(.horizontal)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                        }
+                        )
                         
-                        // Search Bar
-                        HStack {
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundStyle(.secondary)
-                                TextField("Search plants...", text: $searchText)
-                                    .textFieldStyle(.plain)
+                        GeometryReader { geometry in
+                            ScrollView {
+                                VStack(spacing: 24) {
+                                // Stats Dashboard
+                                if dataLoader.userProfile != nil {
+                                    VStack(alignment: .leading, spacing: 16) {
+                                        StatsDashboard(
+                                            totalPlants: myPlants.count,
+                                            plantsToWater: plantsNeedingWater,
+                                            jungleHealth: healthStatus
+                                        )
+                                        
+                                        JungleInsightCard()
+                                    }
+                                    .padding(.horizontal)
+                                    .transition(.move(edge: .top).combined(with: .opacity))
+                                }
                                 
-                                if !searchText.isEmpty {
-                                    Button(action: {
-                                        withAnimation {
-                                            searchText = ""
-                                        }
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
+                                // Search Bar
+                                HStack {
+                                    HStack {
+                                        Image(systemName: "magnifyingglass")
                                             .foregroundStyle(.secondary)
-                                    }
-                                }
-                            }
-                            .padding(12)
-                            .background(Color(UIColor.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                        
-                        // Filter Pills
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach([FilterOption.all, .needsWatering, .healthy, .needsAttention], id: \.label) { filter in
-                                    let isSelected = filterOption == filter
-                                    Button(action: {
-                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                            filterOption = filter
-                                        }
-                                    }) {
-                                        Text(filter.label)
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 10)
-                                            .foregroundStyle(isSelected ? .white : .primary)
-                                            .background {
-                                                ZStack {
-                                                    if isSelected {
-                                                        Capsule()
-                                                            .fill(Color.green)
-                                                            .matchedGeometryEffect(id: "filter_pill_bg", in: filterNamespace)
-                                                    } else {
-                                                        Capsule()
-                                                            .fill(Color(UIColor.secondarySystemGroupedBackground))
-                                                    }
+                                        TextField("Search plants...", text: $searchText)
+                                            .textFieldStyle(.plain)
+                                        
+                                        if !searchText.isEmpty {
+                                            Button(action: {
+                                                withAnimation {
+                                                    searchText = ""
                                                 }
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundStyle(.secondary)
                                             }
-                                            .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
-                        // Quick Actions
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                QuickActionButton(title: "Water All", icon: "drop.fill", color: .blue) {
-                                    dataLoader.waterAllPlants()
-                                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
-                                        showWateringConfetti = true
-                                    }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                                        withAnimation {
-                                            showWateringConfetti = false
                                         }
                                     }
+                                    .padding(12)
+                                    .background(Color.claudeSecondaryBackground)
+                                    .cornerRadius(12)
+                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.claudeBorder, lineWidth: 1))
                                 }
+                                .padding(.horizontal)
                                 
-                                QuickActionButton(title: isSelectionMode ? "Done" : "Select", icon: isSelectionMode ? "checkmark" : "checkmark.circle", color: .purple) {
-                                    withAnimation(.spring()) {
-                                        isSelectionMode.toggle()
-                                        if !isSelectionMode {
-                                            selectedPlantIds.removeAll()
-                                        }
-                                    }
-                                }
-                                
-                                if isSelectionMode && !selectedPlantIds.isEmpty {
-                                    QuickActionButton(title: "Remove (\(selectedPlantIds.count))", icon: "trash", color: .red) {
-                                        withAnimation {
-                                            dataLoader.removePlants(plantIds: Array(selectedPlantIds))
-                                            selectedPlantIds.removeAll()
-                                            isSelectionMode = false
-                                        }
-                                    }
-                                    .transition(.scale.combined(with: .opacity))
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
-                        // Main Content Header
-                        HStack {
-                            Text("Your Collection")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            
-                            Spacer()
-                            
-                            // View Toggle
-                            HStack(spacing: 0) {
-                                Button(action: {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                        isGridView = true
-                                    }
-                                }) {
-                                    Image(systemName: "square.grid.2x2.fill")
-                                        .padding(8)
-                                        .foregroundStyle(isGridView ? .green : .secondary)
-                                        .background(isGridView ? Color(UIColor.secondarySystemGroupedBackground) : Color.clear)
-                                        .clipShape(Circle())
-                                }
-                                
-                                Button(action: {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                        isGridView = false
-                                    }
-                                }) {
-                                    Image(systemName: "list.bullet")
-                                        .padding(8)
-                                        .foregroundStyle(!isGridView ? .green : .secondary)
-                                        .background(!isGridView ? Color(UIColor.secondarySystemGroupedBackground) : Color.clear)
-                                        .clipShape(Circle())
-                                }
-                            }
-                            .padding(4)
-                            .background(Color.gray.opacity(0.1))
-                            .clipShape(Capsule())
-                        }
-                        .padding(.horizontal)
-                        
-                        // Plants List/Grid
-                        if myPlants.isEmpty {
-                            VStack(spacing: 16) {
-                                Image(systemName: "leaf")
-                                    .font(.system(size: 60))
-                                    .foregroundStyle(.green.opacity(0.3))
-                                Text(searchText.isEmpty ? "Your jungle is empty!" : "No plants found")
-                                    .font(.headline)
-                                Text(searchText.isEmpty ? "Start your collection by discovering new plants." : "Try a different search or filter")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(.top, 40)
-                            .transition(.opacity)
-                        } else {
-                            Group {
-                                if isGridView {
-                                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
-                                        ForEach(myPlants) { plant in
-                                            if isSelectionMode {
-                                                PlantSelectionCard(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
-                                                    if selectedPlantIds.contains(plant.id) {
-                                                        selectedPlantIds.remove(plant.id)
-                                                    } else {
-                                                        selectedPlantIds.insert(plant.id)
+                                // Filter Pills
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach([FilterOption.all, .needsWatering, .healthy, .needsAttention], id: \.label) { filter in
+                                            let isSelected = filterOption == filter
+                                            Button(action: {
+                                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                    filterOption = filter
+                                                }
+                                            }) {
+                                                Text(filter.label)
+                                                    .font(.subheadline)
+                                                    .fontWeight(.bold)
+                                                    .padding(.horizontal, 16)
+                                                    .padding(.vertical, 10)
+                                                    .foregroundStyle(isSelected ? .white : .primary)
+                                                    .background {
+                                                        ZStack {
+                                                            if isSelected {
+                                                                Capsule()
+                                                                    .fill(Color.claudeAccent)
+                                                                    .matchedGeometryEffect(id: "filter_pill_bg", in: filterNamespace)
+                                                            } else {
+                                                                Capsule()
+                                                                    .fill(Color.claudeSecondaryBackground)
+                                                                    .overlay(Capsule().stroke(Color.claudeBorder, lineWidth: 1))
+                                                            }
+                                                        }
                                                     }
-                                                }
-                                                .transition(.scale)
-                                            } else {
-                                                NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                    EnhancedPlantCard(plant: plant)
-                                                }
-                                                .buttonStyle(ScaleButtonStyle())
                                             }
+                                            .buttonStyle(.plain)
                                         }
                                     }
                                     .padding(.horizontal)
+                                }
+                                
+                                // Quick Actions
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        Button(action: {
+                                            dataLoader.waterAllPlants()
+                                            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                                                showWateringConfetti = true
+                                            }
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                                withAnimation {
+                                                    showWateringConfetti = false
+                                                }
+                                            }
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "drop.fill")
+                                                Text("Water All")
+                                                    .fontWeight(.bold)
+                                            }
+                                            .padding(.horizontal, 20)
+                                            .padding(.vertical, 14)
+                                            .background(
+                                                LinearGradient(colors: [.blue, .blue.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                            )
+                                            .foregroundStyle(.white)
+                                            .clipShape(Capsule())
+                                            .shadow(color: .blue.opacity(0.3), radius: 8, x: 0, y: 4)
+                                        }
+                                        .buttonStyle(ScaleButtonStyle())
+                                        
+                                        QuickActionButton(title: isSelectionMode ? "Done" : "Select", icon: isSelectionMode ? "checkmark" : "checkmark.circle", color: .purple) {
+                                            withAnimation(.spring()) {
+                                                isSelectionMode.toggle()
+                                                if !isSelectionMode {
+                                                    selectedPlantIds.removeAll()
+                                                }
+                                            }
+                                        }
+                                        
+                                        if isSelectionMode && !selectedPlantIds.isEmpty {
+                                            QuickActionButton(title: "Remove (\(selectedPlantIds.count))", icon: "trash", color: .red) {
+                                                withAnimation {
+                                                    dataLoader.removePlants(plantIds: Array(selectedPlantIds))
+                                                    selectedPlantIds.removeAll()
+                                                    isSelectionMode = false
+                                                }
+                                            }
+                                            .transition(.scale.combined(with: .opacity))
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                                
+                                // View Toggle Header
+                                HStack {
+                                    Text("Your Collection")
+                                        .font(.claudeSerif(size: 20, weight: .bold))
+                                        .foregroundStyle(Color.claudePrimaryText)
+                                    
+                                    Spacer()
+                                    
+                                    HStack(spacing: 0) {
+                                        Button(action: {
+                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                isGridView = true
+                                            }
+                                        }) {
+                                            Image(systemName: "square.grid.2x2.fill")
+                                                .padding(8)
+                                                .foregroundStyle(isGridView ? Color.claudeAccent : Color.claudeSecondaryText)
+                                                .background(isGridView ? Color.claudeSecondaryBackground : Color.clear)
+                                                .clipShape(Circle())
+                                        }
+                                        
+                                        Button(action: {
+                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                isGridView = false
+                                            }
+                                        }) {
+                                            Image(systemName: "list.bullet")
+                                                .padding(8)
+                                                .foregroundStyle(!isGridView ? Color.claudeAccent : Color.claudeSecondaryText)
+                                                .background(!isGridView ? Color.claudeSecondaryBackground : Color.clear)
+                                                .clipShape(Circle())
+                                        }
+                                    }
+                                    .padding(4)
+                                    .background(Color.gray.opacity(0.1))
+                                    .clipShape(Capsule())
+                                }
+                                .padding(.horizontal)
+                                
+                                // Plants List/Grid
+                                if myPlants.isEmpty {
+                                    EmptyJungleView(isSearching: !searchText.isEmpty)
+                                        .padding(.top, 40)
                                 } else {
-                                    LazyVStack(spacing: 12) {
-                                        ForEach(myPlants) { plant in
-                                            if isSelectionMode {
-                                                JungleListRowSelectable(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
-                                                    if selectedPlantIds.contains(plant.id) {
-                                                        selectedPlantIds.remove(plant.id)
-                                                    } else {
-                                                        selectedPlantIds.insert(plant.id)
+                                    VStack(alignment: .leading, spacing: 24) {
+                                        // Pending Tasks Section
+                                        if filterOption == .all && searchText.isEmpty {
+                                            let pendingPlants = myPlants.filter { plant in
+                                                guard let myPlant = dataLoader.myJungleLookup[plant.id] else { return false }
+                                                return dataLoader.needsWatering(myPlant: myPlant) || (myPlant.healthScore ?? 80) < 60
+                                            }
+                                            
+                                            if !pendingPlants.isEmpty {
+                                                VStack(alignment: .leading, spacing: 12) {
+                                                    HStack {
+                                                        Text("Needs Attention")
+                                                            .font(.claudeSerif(size: 18, weight: .bold))
+                                                            .foregroundStyle(Color.claudePrimaryText)
+                                                        
+                                                        Circle()
+                                                            .fill(.red)
+                                                            .frame(width: 8, height: 8)
+                                                        
+                                                        Spacer()
+                                                    }
+                                                    .padding(.horizontal)
+                                                    
+                                                    ScrollView(.horizontal, showsIndicators: false) {
+                                                        HStack(spacing: 16) {
+                                                            ForEach(pendingPlants) { plant in
+                                                                NavigationLink(destination: PlantDetailView(plant: plant)) {
+                                                                    EnhancedPlantCard(plant: plant)
+                                                                        .frame(width: 160)
+                                                                }
+                                                                .buttonStyle(ScaleButtonStyle())
+                                                            }
+                                                        }
+                                                        .padding(.horizontal)
                                                     }
                                                 }
-                                                .transition(.move(edge: .leading))
-                                            } else {
-                                                NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                    EnhancedJungleListRow(plant: plant)
-                                                }
-                                                .buttonStyle(ScaleButtonStyle())
+                                                .transition(.opacity.combined(with: .move(edge: .top)))
                                             }
                                         }
+                                        Group {
+                                            if isGridView {
+                                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
+                                                    ForEach(myPlants) { plant in
+                                                        if isSelectionMode {
+                                                            PlantSelectionCard(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
+                                                                if selectedPlantIds.contains(plant.id) {
+                                                                    selectedPlantIds.remove(plant.id)
+                                                                } else {
+                                                                    selectedPlantIds.insert(plant.id)
+                                                                }
+                                                            }
+                                                            .transition(.scale)
+                                                        } else {
+                                                            NavigationLink(destination: PlantDetailView(plant: plant)) {
+                                                                EnhancedPlantCard(plant: plant)
+                                                            }
+                                                            .buttonStyle(ScaleButtonStyle())
+                                                        }
+                                                    }
+                                                }
+                                                .padding(.horizontal)
+                                            } else {
+                                                LazyVStack(spacing: 12) {
+                                                    ForEach(myPlants) { plant in
+                                                        if isSelectionMode {
+                                                            JungleListRowSelectable(plant: plant, isSelected: selectedPlantIds.contains(plant.id)) {
+                                                                if selectedPlantIds.contains(plant.id) {
+                                                                    selectedPlantIds.remove(plant.id)
+                                                                } else {
+                                                                    selectedPlantIds.insert(plant.id)
+                                                                }
+                                                            }
+                                                            .transition(.move(edge: .leading))
+                                                        } else {
+                                                            NavigationLink(destination: PlantDetailView(plant: plant)) {
+                                                                EnhancedJungleListRow(plant: plant)
+                                                            }
+                                                            .buttonStyle(ScaleButtonStyle())
+                                                        }
+                                                    }
+                                                }
+                                                .padding(.horizontal)
+                                            }
+                                        }
+                                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.95)), removal: .opacity))
                                     }
-                                    .padding(.horizontal)
                                 }
+                                }
+                                .frame(width: geometry.size.width)
+                                .padding(.vertical)
                             }
-                            .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.95)), removal: .opacity))
                         }
                     }
-                    .padding(.vertical)
-                }
                 
                 if showWateringConfetti {
                     VStack {
@@ -354,22 +429,8 @@ struct MyJungleView: View {
                     .zIndex(100)
                 }
             }
-            .navigationTitle("My Jungle")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Picker("Sort By", selection: $sortOption) {
-                            Text("Name").tag(SortOption.name)
-                            Text("Difficulty").tag(SortOption.difficulty)
-                            Text("Last Watered").tag(SortOption.lastWatered)
-                            Text("Health").tag(SortOption.health)
-                        }
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down.circle")
-                            .foregroundStyle(.green)
-                    }
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
+            .toolbar(.visible, for: .tabBar)
         }
     }
 }
@@ -398,32 +459,145 @@ struct StatCard: View {
     @State private var isVisible = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 12) {
+            ZStack(alignment: .center) {
+                Circle()
+                    .fill(color.opacity(0.1))
+                    .frame(width: 36, height: 36)
+                
                 Image(systemName: icon)
+                    .font(.body)
                     .foregroundStyle(color)
                     .scaleEffect(isVisible ? 1.0 : 0.5)
-                Spacer()
             }
             
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.claudeSerif(size: 24, weight: .black))
+                    .foregroundStyle(Color.claudePrimaryText)
+                
+                    Text(title)
+                        .font(.claudeSans(size: 11, weight: .medium))
+                        .tracking(1)
+                        .textCase(.uppercase)
+                        .foregroundStyle(Color.claudeSecondaryText)
+            }
         }
-        .padding(12)
-        .frame(maxWidth: .infinity)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.claudeSecondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 4)
         .scaleEffect(isVisible ? 1.0 : 0.9)
         .opacity(isVisible ? 1.0 : 0.0)
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(delay)) {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(delay)) {
                 isVisible = true
+            }
+        }
+    }
+}
+
+struct JungleInsightCard: View {
+    @State private var isAnimating = false
+    
+    let insights = [
+        "Spring is here! Increase watering frequency as plants start their growing season.",
+        "Rotate your plants 90 degrees every week to ensure even sunlight distribution.",
+        "Dust the leaves of your large-leaf plants with a damp cloth for better photosynthesis.",
+        "Check under leaves for any unwanted guests—early detection of pests is key!",
+        "Group humidity-loving plants together to create a microclimate for them.",
+        "Using filtered water or letting tap water sit overnight can help sensitive plants."
+    ]
+    
+    var dailyInsight: String {
+        let calendar = Calendar.current
+        let dayOfYear = calendar.ordinality(of: .day, in: .year, for: Date()) ?? 0
+        return insights[dayOfYear % insights.count]
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.claudeAccent.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                
+                Image(systemName: "lightbulb.fill")
+                    .foregroundStyle(Color.claudeAccent)
+                    .symbolEffect(.pulse, options: .repeating, value: isAnimating)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Jungle Insight")
+                    .font(.claudeSans(size: 12, weight: .bold))
+                    .foregroundStyle(Color.claudeAccent)
+                    .textCase(.uppercase)
+                
+                Text(dailyInsight)
+                    .font(.claudeSerif(size: 14))
+                    .foregroundStyle(Color.claudePrimaryText)
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.claudeSecondaryBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(
+                            LinearGradient(colors: [Color.claudeAccent.opacity(0.3), .clear], startPoint: .topLeading, endPoint: .bottomTrailing),
+                            lineWidth: 1
+                        )
+                )
+        )
+        .onAppear { isAnimating = true }
+    }
+}
+
+struct EmptyJungleView: View {
+    let isSearching: Bool
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            ZStack {
+                Circle()
+                    .fill(Color.claudeAccent.opacity(0.05))
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: isSearching ? "doc.text.magnifyingglass" : "leaf.arrow.triangle.circlepath")
+                    .font(.system(size: 50))
+                    .foregroundStyle(Color.claudeAccent.opacity(0.4))
+            }
+            
+            VStack(spacing: 8) {
+                Text(isSearching ? "No matches found" : "Your Jungle is Quiet")
+                    .font(.claudeSerif(size: 22, weight: .bold))
+                
+                Text(isSearching ? "Try adjusting your search terms or filters." : "Every great garden starts with a single leaf. Add your first plant to begin.")
+                    .font(.claudeSans(size: 15))
+                    .foregroundStyle(Color.claudeSecondaryText)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+            
+            if !isSearching {
+                Button(action: {
+                    // This could trigger a tab switch or show discovery sheet
+                }) {
+                    Text("Discover Plants")
+                        .font(.claudeSans(size: 16, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 14)
+                        .background(Color.claudeAccent)
+                        .clipShape(Capsule())
+                        .shadow(color: Color.claudeAccent.opacity(0.3), radius: 10, x: 0, y: 5)
+                }
             }
         }
     }

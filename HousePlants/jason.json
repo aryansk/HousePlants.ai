@@ -109,6 +109,7 @@
             "category_id": "cat_aroid",
             "origin": {
                 "region": "Central America (Mexico & Panama)",
+                "countries": ["Mexico", "Panama", "Costa Rica", "Guatemala", "Honduras"],
                 "coordinates": {
                     "lat": 19.4326,
                     "lng": -99.1332
@@ -116,6 +117,10 @@
             },
             "images": {
                 "main": "p_001_main"
+            },
+            "botanist_quote": {
+                "quote": "The giant perforated leaves are like green shields protecting the secrets of the forest floor. Few species capture the imagination like the Monstera.",
+                "botanist": "Frederik Michael Liebmann (1849)"
             },
             "description": "The 'Swiss Cheese Plant' is famous for its natural leaf holes (fenestrations). A fast-growing climber that brings an instant tropical jungle vibe to any room.",
             "care_guide": {
@@ -152,6 +157,7 @@
             "category_id": "cat_succulent",
             "origin": {
                 "region": "West Africa (Nigeria)",
+                "countries": ["Nigeria", "Democratic Republic of the Congo", "Benin", "Cameroon"],
                 "coordinates": {
                     "lat": 9.082,
                     "lng": 8.6753
@@ -159,6 +165,10 @@
             },
             "images": {
                 "main": "p_002_main"
+            },
+            "botanist_quote": {
+                "quote": "A plant of extraordinary resilience, its stiff, sword-like leaves are a masterclass in architectural survival.",
+                "botanist": "David Prain (1903)"
             },
             "description": "The ultimate survivor. Known for its upright, sword-like leaves and architectural look. It is one of the few plants that converts CO2 to Oxygen at night.",
             "care_guide": {
@@ -195,6 +205,7 @@
             "category_id": "cat_succulent",
             "origin": {
                 "region": "Arabian Peninsula",
+                "countries": ["Saudi Arabia", "Oman", "Yemen", "United Arab Emirates"],
                 "coordinates": {
                     "lat": 21.4735,
                     "lng": 55.9754
@@ -202,6 +213,10 @@
             },
             "images": {
                 "main": "p_003_main"
+            },
+            "botanist_quote": {
+                "quote": "The healing gel within these spiky leaves is a gift of nature that has served humanity for millennia.",
+                "botanist": "Carl Linnaeus (1753)"
             },
             "description": "A spiky succulent revered for thousands of years for its medicinal gel. A must-have for sunny windowsills.",
             "care_guide": {
@@ -284,6 +299,7 @@
             "category_id": "cat_tree",
             "origin": {
                 "region": "Western Africa (Cameroon)",
+                "countries": ["Cameroon", "Nigeria", "Gabon", "Equatorial Guinea"],
                 "coordinates": {
                     "lat": 3.848,
                     "lng": 11.5021

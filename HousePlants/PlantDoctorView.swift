@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PlantDoctorView: View {
+    @State private var showInfoSheet = false
     // Expanded Symptom Database
     let symptoms = [
         // Leaves
@@ -51,131 +52,252 @@ struct PlantDoctorView: View {
     ]
     
     var body: some View {
-        List {
-            Section {
-                NavigationLink(destination: DiagnosticWizardView(allSymptoms: symptoms)) {
-                    HStack {
-                        Image(systemName: "wand.and.stars")
-                            .font(.title)
-                            .foregroundStyle(.purple)
-                        VStack(alignment: .leading) {
-                            Text("Start Diagnostic Wizard")
-                                .font(.headline)
-                                .foregroundStyle(.purple)
-                            Text("Step-by-step help")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-            }
+        ZStack {
+            Color.claudeBackground.ignoresSafeArea()
             
-            Section(header: Text("Browse by Symptom")) {
-                ForEach(symptoms) { symptom in
-                    NavigationLink(destination: SymptomDetailView(symptom: symptom)) {
-                        HStack {
-                            Image(systemName: symptom.icon)
-                                .foregroundStyle(symptom.color)
-                                .frame(width: 30)
-                            Text(symptom.name)
-                                .fontWeight(.medium)
+            VStack(spacing: 0) {
+                ClaudeHeader(
+                    title: "Plant Doctor",
+                    subtitle: "Diagnose and treat your plants",
+                    trailingActions: AnyView(
+                        Button(action: { showInfoSheet = true }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 22))
+                                .foregroundColor(.claudePrimaryText.opacity(0.8))
+                                .frame(width: 44, height: 44)
+                                .background(Circle().fill(Color.purple.opacity(0.1)))
                         }
-                        .padding(.vertical, 4)
+                    ),
+                    showBackButton: true
+                )
+                
+                GeometryReader { geometry in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 32) {
+                        
+                        // Hero Diagnostic Wizard Link
+                        NavigationLink(destination: DiagnosticWizardView(allSymptoms: symptoms)) {
+                            HStack(spacing: 20) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.2))
+                                        .frame(width: 56, height: 56)
+                                    Image(systemName: "wand.and.stars")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Start Discovery Wizard")
+                                        .font(.claudeSerif(size: 20, weight: .bold))
+                                        .foregroundColor(.white)
+                                    Text("Step-by-step assistance to identify issues")
+                                        .font(.claudeSans(size: 14))
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                                Spacer()
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                            .padding(24)
+                            .background(
+                                LinearGradient(colors: [Color.purple, Color(hex: "9D50BB")], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                            .cornerRadius(24)
+                            .shadow(color: Color.purple.opacity(0.2), radius: 15, x: 0, y: 10)
+                        }
+                        .buttonStyle(InteractiveCardButtonStyle())
+                        .padding(.horizontal, 20)
+                        
+                        // Browse Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Browse by Symptom")
+                                .font(.claudeSans(size: 13, weight: .bold))
+                                .foregroundColor(.claudeSecondaryText)
+                                .textCase(.uppercase)
+                                .tracking(1.5)
+                            
+                            VStack(spacing: 12) {
+                                ForEach(PlantPart.allCases, id: \.self) { part in
+                                    let partSymptoms = symptoms.filter { $0.part == part }
+                                    if !partSymptoms.isEmpty {
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            HStack {
+                                                Image(systemName: partIcon(for: part))
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.claudeSecondaryText)
+                                                Text(part.rawValue)
+                                                    .font(.claudeSans(size: 11, weight: .bold))
+                                                    .foregroundColor(.claudeSecondaryText)
+                                            }
+                                            
+                                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                                ForEach(partSymptoms) { symptom in
+                                                    NavigationLink(destination: SymptomDetailView(symptom: symptom)) {
+                                                        VStack(alignment: .leading, spacing: 12) {
+                                                            Image(systemName: symptom.icon)
+                                                                .font(.system(size: 20))
+                                                                .foregroundColor(symptom.color)
+                                                            
+                                                            Text(symptom.name)
+                                                                .font(.claudeSans(size: 14, weight: .bold))
+                                                                .foregroundColor(.claudePrimaryText)
+                                                                .multilineTextAlignment(.leading)
+                                                        }
+                                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                                        .padding(16)
+                                                        .background(Color.claudeSecondaryBackground)
+                                                        .cornerRadius(18)
+                                                        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.claudeBorder, lineWidth: 1))
+                                                    }
+                                                    .buttonStyle(InteractiveCardButtonStyle())
+                                                }
+                                            }
+                                        }
+                                        .padding(.bottom, 8)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        }
+                        .frame(width: geometry.size.width)
+                        .padding(.top, 12)
+                        .padding(.bottom, 40)
                     }
                 }
             }
         }
-        .navigationTitle("Plant Doctor")
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showInfoSheet) {
+            PlantDoctorInfoSheet()
+        }
+    }
+    
+    func partIcon(for part: PlantPart) -> String {
+        switch part {
+        case .leaves: return "leaf.fill"
+        case .stems: return "laurel.leading"
+        case .wholePlant: return "tree.fill"
+        case .pests: return "ant.fill"
+        }
     }
 }
 
 // MARK: - Diagnostic Wizard
 struct DiagnosticWizardView: View {
+    @Environment(\.dismiss) var dismiss
     let allSymptoms: [Symptom]
     @State private var selectedPart: PlantPart?
     
     var filteredSymptoms: [Symptom] {
-        guard let part = selectedPart else { return [] }
-        return allSymptoms.filter { $0.part == part }
+        guard let selectedPart else { return [] }
+        return allSymptoms.filter { $0.part == selectedPart }
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
+        ZStack {
+            Color.claudeBackground.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
                 // Header
-                VStack(spacing: 8) {
-                    Image(systemName: "stethoscope")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.purple)
-                    Text("Diagnostic Wizard")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    Text("Where do you see the problem?")
-                        .foregroundStyle(.secondary)
+                HStack {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.claudeSecondaryText)
+                            .padding(10)
+                            .background(Circle().fill(Color.claudeSecondaryBackground))
+                    }
+                    Spacer()
+                    Text("DIAGNOSTIC WIZARD")
+                        .font(.claudeSans(size: 12, weight: .bold))
+                        .foregroundColor(.claudeSecondaryText)
+                        .tracking(1.5)
+                    Spacer()
+                    Spacer().frame(width: 34) // Balance
                 }
-                .padding(.top)
+                .padding(24)
                 
-                // Part Selection Grid
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    PartSelectionCard(part: .leaves, icon: "leaf.fill", color: .green, selected: selectedPart == .leaves) {
-                        selectedPart = .leaves
-                    }
-                    PartSelectionCard(part: .stems, icon: "laurel.leading", color: .brown, selected: selectedPart == .stems) {
-                        selectedPart = .stems
-                    }
-                    PartSelectionCard(part: .wholePlant, icon: "tree.fill", color: .orange, selected: selectedPart == .wholePlant) {
-                        selectedPart = .wholePlant
-                    }
-                    PartSelectionCard(part: .pests, icon: "ant.fill", color: .red, selected: selectedPart == .pests) {
-                        selectedPart = .pests
-                    }
-                }
-                .padding()
-                
-                if selectedPart != nil {
-                    Divider()
-                    
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Select Symptom")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        ForEach(filteredSymptoms) { symptom in
-                            NavigationLink(destination: SymptomDetailView(symptom: symptom)) {
-                                HStack {
-                                    Image(systemName: symptom.icon)
-                                        .font(.title2)
-                                        .foregroundStyle(symptom.color)
-                                        .frame(width: 40)
-                                    
-                                    Text(symptom.name)
-                                        .font(.body)
-                                        .foregroundStyle(.primary)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding()
-                                .background(Color(UIColor.secondarySystemGroupedBackground))
-                                .cornerRadius(12)
-                                .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 1)
-                            }
-                            .padding(.horizontal)
+                GeometryReader { geometry in
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 40) {
+                        VStack(spacing: 12) {
+                            Text("Where is the sign?")
+                                .font(.claudeSerif(size: 32, weight: .bold))
+                                .foregroundColor(.claudePrimaryText)
+                            Text("Selective diagnosis for better accuracy")
+                                .font(.claudeSans(size: 16))
+                                .foregroundColor(.claudeSecondaryText)
                         }
+                        
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                            PartSelectionCard(part: .leaves, icon: "leaf.fill", color: .green, selected: selectedPart == .leaves) {
+                                withAnimation(.spring()) { selectedPart = .leaves }
+                            }
+                            PartSelectionCard(part: .stems, icon: "laurel.leading", color: .brown, selected: selectedPart == .stems) {
+                                withAnimation(.spring()) { selectedPart = .stems }
+                            }
+                            PartSelectionCard(part: .wholePlant, icon: "tree.fill", color: .orange, selected: selectedPart == .wholePlant) {
+                                withAnimation(.spring()) { selectedPart = .wholePlant }
+                            }
+                            PartSelectionCard(part: .pests, icon: "ant.fill", color: .red, selected: selectedPart == .pests) {
+                                withAnimation(.spring()) { selectedPart = .pests }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        if selectedPart != nil {
+                            VStack(alignment: .leading, spacing: 20) {
+                                Divider()
+                                
+                                Text("SELECT OBSERVATION")
+                                    .font(.claudeSans(size: 11, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .tracking(2)
+                                
+                                VStack(spacing: 12) {
+                                    ForEach(filteredSymptoms) { symptom in
+                                        NavigationLink(destination: SymptomDetailView(symptom: symptom)) {
+                                            HStack(spacing: 16) {
+                                                Image(systemName: symptom.icon)
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(symptom.color)
+                                                    .frame(width: 44, height: 44)
+                                                    .background(symptom.color.opacity(0.1))
+                                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                                
+                                                Text(symptom.name)
+                                                    .font(.claudeSans(size: 16, weight: .bold))
+                                                    .foregroundColor(.claudePrimaryText)
+                                                
+                                                Spacer()
+                                                
+                                                Image(systemName: "chevron.right")
+                                                    .font(.system(size: 12, weight: .bold))
+                                                    .foregroundColor(.claudeBorder)
+                                            }
+                                            .padding(12)
+                                            .background(Color.claudeSecondaryBackground)
+                                            .cornerRadius(16)
+                                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
+                                        }
+                                        .buttonStyle(InteractiveCardButtonStyle())
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                        }
+                        .frame(width: geometry.size.width)
+                        .padding(.bottom, 40)
                     }
-                    .padding(.bottom)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .animation(.spring(), value: selectedPart)
                 }
             }
         }
-        .background(Color(UIColor.systemGroupedBackground))
-        .navigationTitle("Diagnosis")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
     }
 }
 
@@ -213,62 +335,100 @@ struct PartSelectionCard: View {
 // MARK: - Models & Detail View
 
 struct SymptomDetailView: View {
+    @Environment(\.dismiss) var dismiss
     let symptom: Symptom
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+        ZStack {
+            Color.claudeBackground.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header with back button
                 HStack {
-                    Image(systemName: symptom.icon)
-                        .font(.system(size: 40))
-                        .foregroundStyle(symptom.color)
-                    Text(symptom.name)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(symptom.color.opacity(0.1))
-                
-                Text("Possible Causes")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
-                
-                ForEach(symptom.possibleCauses) { cause in
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(cause.title)
-                            .font(.headline)
-                        
-                        Text(cause.description)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                        
-                        HStack(alignment: .top) {
-                            Image(systemName: "wrench.fill")
-                                .foregroundStyle(.green)
-                                .font(.caption)
-                                .padding(.top, 2)
-                            Text(cause.fix)
-                                .font(.callout)
-                                .fontWeight(.medium)
+                    Button(action: { dismiss() }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .bold))
+                            Text("Back")
+                                .font(.claudeSans(size: 14, weight: .medium))
                         }
-                        .padding(12)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(8)
+                        .foregroundColor(.claudePrimaryText)
                     }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(12)
-                    .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 1)
-                    .padding(.horizontal)
+                    .buttonStyle(.plain)
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+                
+                GeometryReader { geometry in
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 20) {
+                        // Symptom Title Banner
+                        HStack(spacing: 14) {
+                            Image(systemName: symptom.icon)
+                                .font(.system(size: 36))
+                                .foregroundStyle(symptom.color)
+                            Text(symptom.name)
+                                .font(.claudeSerif(size: 30, weight: .bold))
+                                .foregroundStyle(Color.claudePrimaryText)
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(symptom.color.opacity(0.08))
+                        )
+                        .padding(.horizontal, 20)
+                        
+                        // Section Label
+                        Text("Possible Causes")
+                            .font(.claudeSans(size: 11, weight: .bold))
+                            .foregroundColor(.claudeSecondaryText)
+                            .textCase(.uppercase)
+                            .tracking(2)
+                            .padding(.horizontal, 20)
+                        
+                        // Cause Cards
+                        VStack(spacing: 16) {
+                            ForEach(symptom.possibleCauses) { cause in
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text(cause.title)
+                                        .font(.claudeSans(size: 18, weight: .bold))
+                                        .foregroundColor(.claudePrimaryText)
+                                    
+                                    Text(cause.description)
+                                        .font(.claudeSans(size: 15))
+                                        .foregroundStyle(.secondary)
+                                    
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "lightbulb.fill")
+                                            .foregroundColor(.orange)
+                                        Text(cause.fix)
+                                            .font(.claudeSans(size: 14))
+                                            .foregroundColor(.claudePrimaryText)
+                                    }
+                                    .padding(12)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color.orange.opacity(0.1))
+                                    .cornerRadius(12)
+                                }
+                                .padding(20)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.claudeSecondaryBackground)
+                                .cornerRadius(18)
+                                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.claudeBorder, lineWidth: 1))
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        }
+                        .frame(width: geometry.size.width)
+                        .padding(.bottom, 40)
+                    }
                 }
             }
-            .padding(.bottom)
         }
-        .background(Color(UIColor.systemGroupedBackground))
-        .navigationTitle(symptom.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
     }
 }
 
@@ -293,6 +453,53 @@ struct Cause: Identifiable {
     let title: String
     let description: String
     let fix: String
+}
+
+// MARK: - Info Sheet View
+struct PlantDoctorInfoSheet: View {
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.claudeBackground.ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("How the Plant Doctor Works")
+                                .font(.claudeSerif(size: 32, weight: .bold))
+                                .foregroundColor(.claudePrimaryText)
+                            
+                            Text("Identify problems by browsing symptoms or using the guided diagnostic wizard to narrow down exactly what's ailing your plant.")
+                                .font(.claudeSans(size: 16))
+                                .foregroundColor(.claudeSecondaryText)
+                                .lineSpacing(4)
+                        }
+                        
+                        VStack(spacing: 16) {
+                            InfoRow(icon: "wand.and.stars", title: "Diagnostic Wizard", text: "Start by selecting the affected plant part — leaves, stems, or whole plant — then match visual symptoms for an accurate diagnosis.", color: .purple)
+                            
+                            InfoRow(icon: "leaf.fill", title: "Symptom Browser", text: "Browse the full symptom library organized by plant part. Each symptom lists possible causes and actionable treatment steps.", color: .green)
+                            
+                            InfoRow(icon: "ant.fill", title: "Pest Identification", text: "From spider mites to fungus gnats, learn to identify common houseplant pests and get effective, organic treatment advice.", color: .red)
+                            
+                            InfoRow(icon: "lightbulb.fill", title: "Treatment Tips", text: "Every diagnosis includes a recommended fix with specific steps you can take immediately to save your plant.", color: .orange)
+                        }
+                    }
+                    .padding(24)
+                }
+            }
+            .navigationBarItems(trailing: Button("Done") { dismiss() })
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Guide")
+                        .font(.claudeSans(size: 16, weight: .bold))
+                }
+            }
+        }
+    }
 }
 
 #Preview {
