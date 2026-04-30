@@ -12,6 +12,8 @@ struct ProfileView: View {
     
     // Photo management
     @State private var selectedItem: PhotosPickerItem? = nil
+    @State private var showAvatarPicker = false
+    let cuteAvatars = ["avatar_cactus", "avatar_monstera", "avatar_succulent", "avatar_fern"]
     
     private var profileImage: UIImage? {
         guard let base64 = dataLoader.userProfile?.profileImage,
@@ -41,195 +43,205 @@ struct ProfileView: View {
                     )
                     
                     Form {
-                    Section {
-                        HStack(spacing: 20) {
-                            PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
-                                ZStack(alignment: .bottomTrailing) {
-                                    if let image = profileImage {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 80, height: 80)
-                                            .clipShape(Circle())
-                                    } else {
-                                        Circle()
-                                            .fill(LinearGradient(colors: [.green.opacity(0.8), .mint.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                            .frame(width: 80, height: 80)
+                        Section {
+                            HStack(spacing: 20) {
+                                PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
+                                    ZStack(alignment: .bottomTrailing) {
+                                        if let image = profileImage {
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 80, height: 80)
+                                                .clipShape(Circle())
+                                        } else {
+                                            Circle()
+                                                .fill(LinearGradient(colors: [.green.opacity(0.8), .mint.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                .frame(width: 80, height: 80)
                                         
-                                        Text(String(username.prefix(1)).uppercased())
-                                            .font(.claudeSerif(size: 32, weight: .bold))
-                                            .foregroundStyle(.white)
-                                    }
+                                            Text(String(username.prefix(1)).uppercased())
+                                                .font(.claudeSerif(size: 32, weight: .bold))
+                                                .foregroundStyle(.white)
+                                        }
                                     
-                                    Image(systemName: "camera.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(.white)
-                                        .padding(6)
-                                        .background(Color.claudeAccent)
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                        .offset(x: 4, y: 4)
+                                        Image(systemName: "camera.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(.white)
+                                            .padding(6)
+                                            .background(Color.claudeAccent)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                            .offset(x: 4, y: 4)
+                                    }
                                 }
-                            }
-                            .buttonStyle(.plain)
-                            .onChange(of: selectedItem) { oldItem, newItem in
-                                Task {
-                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                        withAnimation {
-                                            dataLoader.updateProfileImage(imageData: data)
+                                .buttonStyle(.plain)
+                                .onChange(of: selectedItem) { oldItem, newItem in
+                                    Task {
+                                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                            withAnimation {
+                                                dataLoader.updateProfileImage(imageData: data)
+                                            }
                                         }
                                     }
                                 }
-                            }
                             
-                            VStack(alignment: .leading, spacing: 4) {
-                                if dataLoader.isProfileComplete {
-                                    Text(username)
-                                        .font(.claudeSerif(size: 20, weight: .bold))
-                                        .foregroundStyle(Color.claudePrimaryText)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    if dataLoader.isProfileComplete {
+                                        Text(username)
+                                            .font(.claudeSerif(size: 20, weight: .bold))
+                                            .foregroundStyle(Color.claudePrimaryText)
                                     
-                                    HStack {
-                                        Image(systemName: "location.fill")
-                                            .font(.caption)
-                                        Text(city)
-                                            .font(.subheadline)
-                                    }
-                                    .foregroundStyle(.secondary)
-                                } else {
-                                    Text("Anonymous Gardener")
-                                        .font(.claudeSerif(size: 20, weight: .bold))
-                                        .foregroundStyle(Color.claudePrimaryText)
+                                        HStack {
+                                            Image(systemName: "location.fill")
+                                                .font(.caption)
+                                            Text(city)
+                                                .font(.subheadline)
+                                        }
+                                        .foregroundStyle(.secondary)
+                                    } else {
+                                        Text("Anonymous Gardener")
+                                            .font(.claudeSerif(size: 20, weight: .bold))
+                                            .foregroundStyle(Color.claudePrimaryText)
                                     
-                                    NavigationLink(destination: EditProfileView()) {
-                                        Text("Complete your profile →")
-                                            .font(.subheadline.bold())
-                                            .foregroundStyle(Color.claudeAccent)
+                                        NavigationLink(destination: EditProfileView()) {
+                                            Text("Complete your profile →")
+                                                .font(.subheadline.bold())
+                                                .foregroundStyle(Color.claudeAccent)
+                                        }
+                                        .buttonStyle(.plain)
                                     }
-                                    .buttonStyle(.plain)
-                                }
                                 
-                                HStack(spacing: 12) {
-                                    StatView(label: "Plants", value: "\(dataLoader.userProfile?.myJungle.count ?? 0)")
-                                    StatView(label: "Badges", value: dataLoader.isProfileComplete ? "8" : "0")
-                                    StatView(label: "Level", value: dataLoader.isProfileComplete ? "Expert" : "Seedling")
+                                    HStack(spacing: 12) {
+                                        StatView(label: "Plants", value: "\(dataLoader.userProfile?.myJungle.count ?? 0)")
+                                        StatView(label: "Badges", value: dataLoader.isProfileComplete ? "8" : "0")
+                                        StatView(label: "Level", value: dataLoader.isProfileComplete ? "Expert" : "Seedling")
+                                    }
+                                    .padding(.top, 4)
+                                
+                                    Button(action: { showAvatarPicker = true }) {
+                                        HStack {
+                                            Image(systemName: "sparkles")
+                                            Text("Choose Cartoon Avatar")
+                                        }
+                                        .font(.caption.bold())
+                                        .foregroundColor(Color.claudeAccent)
+                                    }
+                                    .padding(.top, 4)
                                 }
-                                .padding(.top, 4)
                             }
+                            .padding(.vertical, 10)
                         }
-                        .padding(.vertical, 10)
-                    }
-                    .listRowBackground(Color.clear)
+                        .listRowBackground(Color.clear)
                     
-                    if !dataLoader.isProfileComplete {
-                        Section {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("Personalize Your Experience")
-                                    .font(.headline)
-                                    .foregroundStyle(Color.claudePrimaryText)
-                                
-                                Text("Add your name and location to get localized plant care tips and a more personal touch.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(Color.claudeSecondaryText)
-                                
-                                NavigationLink(destination: EditProfileView()) {
-                                    Text("Add My Details")
+                        if !dataLoader.isProfileComplete {
+                            Section {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Personalize Your Experience")
                                         .font(.headline)
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(Color.claudeAccent)
-                                        .cornerRadius(12)
+                                        .foregroundStyle(Color.claudePrimaryText)
+                                
+                                    Text("Add your name and location to get localized plant care tips and a more personal touch.")
+                                        .font(.subheadline)
+                                        .foregroundStyle(Color.claudeSecondaryText)
+                                
+                                    NavigationLink(destination: EditProfileView()) {
+                                        Text("Add My Details")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 12)
+                                            .background(Color.claudeAccent)
+                                            .cornerRadius(12)
+                                    }
                                 }
+                                .padding(.vertical, 8)
                             }
-                            .padding(.vertical, 8)
                         }
-                    }
                     
-                    Section(header: Text("Account").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                        NavigationLink(destination: EditProfileView()) {
-                            Label("Edit Profile", systemImage: "person.crop.circle.fill")
-                                .foregroundStyle(.blue)
-                        }
+                        Section(header: Text("Account").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
+                            NavigationLink(destination: EditProfileView()) {
+                                Label("Edit Profile", systemImage: "person.crop.circle.fill")
+                                    .foregroundStyle(.blue)
+                            }
                         
-                        NavigationLink(destination: PlantPreferencesView()) {
-                            Label("Plant Preferences", systemImage: "leaf.fill")
-                                .foregroundStyle(.green)
-                        }
+                            NavigationLink(destination: PlantPreferencesView()) {
+                                Label("Plant Preferences", systemImage: "leaf.fill")
+                                    .foregroundStyle(.green)
+                            }
                         
-                        NavigationLink(destination: AchievementsView()) {
-                            Label("Achievements", systemImage: "trophy.fill")
-                                .foregroundStyle(.orange)
+                            NavigationLink(destination: AchievementsView()) {
+                                Label("Achievements", systemImage: "trophy.fill")
+                                    .foregroundStyle(.orange)
+                            }
                         }
-                    }
                     
-                    Section(header: Text("Settings").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                        Toggle(isOn: $notificationsEnabled) {
-                            Label("Watering Reminders", systemImage: "bell.fill")
-                        }
-                        .tint(Color.claudeAccent)
+                        Section(header: Text("Settings").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
+                            Toggle(isOn: $notificationsEnabled) {
+                                Label("Watering Reminders", systemImage: "bell.fill")
+                            }
+                            .tint(Color.claudeAccent)
                         
-                        Toggle(isOn: $darkModeEnabled) {
-                            Label("Dark Mode", systemImage: "moon.fill")
-                        }
-                        .tint(Color.claudeAccent)
+                            Toggle(isOn: $darkModeEnabled) {
+                                Label("Dark Mode", systemImage: "moon.fill")
+                            }
+                            .tint(Color.claudeAccent)
                         
-                        Toggle(isOn: $hapticFeedback) {
-                            Label("Haptic Feedback", systemImage: "iphone.radiowaves.left.and.right")
+                            Toggle(isOn: $hapticFeedback) {
+                                Label("Haptic Feedback", systemImage: "iphone.radiowaves.left.and.right")
+                            }
+                            .tint(Color.claudeAccent)
                         }
-                        .tint(Color.claudeAccent)
-                    }
                     
-                    Section(header: Text("Support").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                        Link(destination: URL(string: "https://houseplants.ai")!) {
-                            Label("Help Center", systemImage: "questionmark.circle.fill")
-                        }
+                        Section(header: Text("Support").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
+                            Link(destination: URL(string: "https://houseplants.ai")!) {
+                                Label("Help Center", systemImage: "questionmark.circle.fill")
+                            }
                         
-                        Link(destination: URL(string: "https://houseplants.ai/privacy")!) {
-                            Label("Privacy Policy", systemImage: "shield.fill")
-                        }
+                            Link(destination: URL(string: "https://houseplants.ai/privacy")!) {
+                                Label("Privacy Policy", systemImage: "shield.fill")
+                            }
                         
-                        Link(destination: URL(string: "https://houseplants.ai/terms")!) {
-                            Label("Terms of Service", systemImage: "doc.text.fill")
-                        }
+                            Link(destination: URL(string: "https://houseplants.ai/terms")!) {
+                                Label("Terms of Service", systemImage: "doc.text.fill")
+                            }
                         
-                        HStack {
-                            Label("Version", systemImage: "info.circle.fill")
-                            Spacer()
-                            Text("1.2.0")
-                                .foregroundStyle(.secondary)
+                            HStack {
+                                Label("Version", systemImage: "info.circle.fill")
+                                Spacer()
+                                Text("1.2.0")
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                    }
                     
-                    Section(header: Text("App Experience").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                        Button(action: {
-                            withAnimation { hasCompletedOnboarding = false }
-                        }) {
-                            Label("Restart Onboarding", systemImage: "arrow.clockwise.circle.fill")
-                                .foregroundColor(Color.claudeAccent)
+                        Section(header: Text("App Experience").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
+                            Button(action: {
+                                withAnimation { hasCompletedOnboarding = false }
+                            }) {
+                                Label("Restart Onboarding", systemImage: "arrow.clockwise.circle.fill")
+                                    .foregroundColor(Color.claudeAccent)
+                            }
                         }
-                    }
                     
-                    Section(header: Text("Data Management").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                        Button(role: .destructive) {
-                            showDeleteDataAlert = true
-                        } label: {
-                            Label("Delete All My Data", systemImage: "trash.fill")
+                        Section(header: Text("Data Management").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
+                            Button(role: .destructive) {
+                                showDeleteDataAlert = true
+                            } label: {
+                                Label("Delete All My Data", systemImage: "trash.fill")
+                            }
                         }
-                    }
                     
-                    Section {
-                        Button(role: .destructive) {
-                            showLogoutAlert = true
-                        } label: {
-                            Text("Log Out")
-                                .frame(maxWidth: .infinity)
-                                .fontWeight(.semibold)
+                        Section {
+                            Button(role: .destructive) {
+                                showLogoutAlert = true
+                            } label: {
+                                Text("Log Out")
+                                    .frame(maxWidth: .infinity)
+                                    .fontWeight(.semibold)
+                            }
                         }
                     }
+                    .scrollContentBackground(.hidden)
                 }
-                .scrollContentBackground(.hidden)
             }
-        }
             .toolbar(.hidden, for: .navigationBar)
             .toolbar(.visible, for: .tabBar)
             .alert("Log Out", isPresented: $showLogoutAlert) {
@@ -248,6 +260,45 @@ struct ProfileView: View {
             } message: {
                 Text("This will permanently erase all your data including your profile, plant collection, watering history, preferences, and notifications. This action cannot be undone.")
             }
+            .sheet(isPresented: $showAvatarPicker) {
+                NavigationStack {
+                    ZStack {
+                        Color.claudeBackground.ignoresSafeArea()
+                        ScrollView {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 24) {
+                                ForEach(cuteAvatars, id: \.self) { avatar in
+                                    Button(action: {
+                                        if let image = UIImage(named: avatar), let data = image.pngData() {
+                                            withAnimation {
+                                                dataLoader.updateProfileImage(imageData: data)
+                                            }
+                                        }
+                                        showAvatarPicker = false
+                                    }) {
+                                        Image(avatar)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 120, height: 120)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.claudeBorder, lineWidth: 3))
+                                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                    }
+                                }
+                            }
+                            .padding(.top, 30)
+                            .padding(.horizontal)
+                        }
+                    }
+                    .navigationTitle("Select Avatar")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { showAvatarPicker = false }
+                        }
+                    }
+                }
+                .presentationDetents([.medium])
+            }
         }
     }
     
@@ -260,7 +311,8 @@ struct ProfileView: View {
         // Remove all stored user data from UserDefaults
         let keysToRemove = [
             "username", "city", "country", "profile_image",
-            "userPreferences", "myJungleExtendedData",
+            "userPreferences", "user_favorites", "myJungleExtendedData",
+            "current_streak", "last_streak_date", "streak_history",
             "appNotifications", "hasCompletedOnboarding",
             "notificationsEnabled", "darkModeEnabled", "hapticFeedback"
         ]
@@ -418,7 +470,7 @@ struct PlantPreferencesView: View {
     @State private var petSafeOnly = false
     @State private var notifyOnSundays = true
     
-    let difficulties = ["Beginner", "Intermediate", "Expert"]
+    let difficulties = ["Beginner", "Enthusiast", "Botany Pro"]
     
     var body: some View {
             ZStack {

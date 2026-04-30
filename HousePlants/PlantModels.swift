@@ -94,6 +94,9 @@ struct UserProfile: Codable {
     var favorites: [String]
     var myJungle: [MyPlant]
     var profileImage: String?
+    var currentStreak: Int?
+    var lastStreakDate: String?
+    var streakHistory: [String]?
     
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
@@ -103,6 +106,9 @@ struct UserProfile: Codable {
         case favorites
         case myJungle = "my_jungle"
         case profileImage = "profile_image"
+        case currentStreak = "current_streak"
+        case lastStreakDate = "last_streak_date"
+        case streakHistory = "streak_history"
     }
 }
 
@@ -151,7 +157,9 @@ struct MyPlant: Codable, Identifiable {
     var notes: String? // User notes
     var locationInHome: String? // e.g., "Living Room", "Kitchen"
     var customWateringFrequencyDays: Int? // Override default watering frequency
-    
+    var lastFertilized: String? // ISO date string
+    var lastMisted: String? // ISO date string
+
     enum CodingKeys: String, CodingKey {
         case plantId = "plant_id"
         case nickname
@@ -164,6 +172,8 @@ struct MyPlant: Codable, Identifiable {
         case notes
         case locationInHome = "location_in_home"
         case customWateringFrequencyDays = "custom_watering_frequency_days"
+        case lastFertilized = "last_fertilized"
+        case lastMisted = "last_misted"
     }
 }
 

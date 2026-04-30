@@ -2,32 +2,29 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var dataLoader = DataLoader()
+    @State private var tabSelection = TabSelection()
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("darkModeEnabled") var darkModeEnabled: Bool = false
-    
+
     var body: some View {
         Group {
             if hasCompletedOnboarding {
-                TabView {
+                TabView(selection: $tabSelection.selectedTab) {
                     PlantListView()
-                        .tabItem {
-                            Label("Discover", systemImage: "leaf.fill")
-                        }
-                    
+                        .tabItem { Label("Discover", systemImage: "leaf.fill") }
+                        .tag(0)
+
                     ToolsView()
-                        .tabItem {
-                            Label("Tools", systemImage: "wrench.and.screwdriver.fill")
-                        }
-                    
+                        .tabItem { Label("Tools", systemImage: "wrench.and.screwdriver.fill") }
+                        .tag(1)
+
                     MyJungleView()
-                        .tabItem {
-                            Label("My Jungle", systemImage: "heart.fill")
-                        }
-                    
+                        .tabItem { Label("My Jungle", systemImage: "heart.fill") }
+                        .tag(2)
+
                     ProfileView()
-                        .tabItem {
-                            Label("Profile", systemImage: "person.fill")
-                        }
+                        .tabItem { Label("Profile", systemImage: "person.fill") }
+                        .tag(3)
                 }
                 .tint(Color.claudeAccent)
             } else {
@@ -35,10 +32,10 @@ struct ContentView: View {
             }
         }
         .environmentObject(dataLoader)
+        .environment(tabSelection)
         .preferredColorScheme(darkModeEnabled ? .dark : .light)
     }
 }
-
 
 #Preview {
     ContentView()

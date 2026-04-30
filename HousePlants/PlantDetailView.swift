@@ -39,23 +39,25 @@ struct PlantDetailView: View {
                         
                         VStack(alignment: .leading, spacing: 20) {
                             // Info & Badges Section
-                            HStack(spacing: 8) {
-                                ClaudeBadge(text: plant.careGuide.difficulty, icon: "gauge.medium", color: .green, isGlassy: false)
-                                if !plant.toxicity.isPetSafe {
-                                    ClaudeBadge(text: "Toxic", icon: "exclamationmark.triangle.fill", color: .red, isGlassy: false)
-                                } else {
-                                    ClaudeBadge(text: "Pet Safe", icon: "pawprint.fill", color: .blue, isGlassy: false)
-                                }
-                                
-                                Button(action: {
-                                    if plant.origin.countries != nil {
-                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                        showOriginCountries = true
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ClaudeBadge(text: plant.careGuide.difficulty, icon: "gauge.medium", color: .green, isGlassy: false)
+                                    if !plant.toxicity.isPetSafe {
+                                        ClaudeBadge(text: "Toxic", icon: "exclamationmark.triangle.fill", color: .red, isGlassy: false)
+                                    } else {
+                                        ClaudeBadge(text: "Pet Safe", icon: "pawprint.fill", color: .blue, isGlassy: false)
                                     }
-                                }) {
-                                    ClaudeBadge(text: plant.origin.region, icon: "mappin.and.ellipse", color: .orange, isGlassy: false)
+                                    
+                                    Button(action: {
+                                        if plant.origin.countries != nil {
+                                            HapticManager.shared.playImpact(style: .light)
+                                            showOriginCountries = true
+                                        }
+                                    }) {
+                                        ClaudeBadge(text: plant.origin.region, icon: "mappin.and.ellipse", color: .orange, isGlassy: false)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                             .padding(.top, 8)
                             
@@ -110,7 +112,7 @@ struct PlantDetailView: View {
                                 
                                 Button(action: {
                                     if plant.origin.countries != nil {
-                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        HapticManager.shared.playImpact(style: .medium)
                                         showOriginCountries = true
                                     }
                                 }) {
@@ -454,7 +456,7 @@ struct PlantDetailView: View {
     
     private var favoriteButton: some View {
         Button(action: {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            HapticManager.shared.playImpact(style: .medium)
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 dataLoader.toggleFavorite(plantId: plant.id)
             }

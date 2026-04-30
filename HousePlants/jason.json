@@ -109,7 +109,13 @@
             "category_id": "cat_aroid",
             "origin": {
                 "region": "Central America (Mexico & Panama)",
-                "countries": ["Mexico", "Panama", "Costa Rica", "Guatemala", "Honduras"],
+                "countries": [
+                    "Mexico",
+                    "Panama",
+                    "Costa Rica",
+                    "Guatemala",
+                    "Honduras"
+                ],
                 "coordinates": {
                     "lat": 19.4326,
                     "lng": -99.1332
@@ -157,7 +163,12 @@
             "category_id": "cat_succulent",
             "origin": {
                 "region": "West Africa (Nigeria)",
-                "countries": ["Nigeria", "Democratic Republic of the Congo", "Benin", "Cameroon"],
+                "countries": [
+                    "Nigeria",
+                    "Democratic Republic of the Congo",
+                    "Benin",
+                    "Cameroon"
+                ],
                 "coordinates": {
                     "lat": 9.082,
                     "lng": 8.6753
@@ -205,7 +216,12 @@
             "category_id": "cat_succulent",
             "origin": {
                 "region": "Arabian Peninsula",
-                "countries": ["Saudi Arabia", "Oman", "Yemen", "United Arab Emirates"],
+                "countries": [
+                    "Saudi Arabia",
+                    "Oman",
+                    "Yemen",
+                    "United Arab Emirates"
+                ],
                 "coordinates": {
                     "lat": 21.4735,
                     "lng": 55.9754
@@ -299,7 +315,12 @@
             "category_id": "cat_tree",
             "origin": {
                 "region": "Western Africa (Cameroon)",
-                "countries": ["Cameroon", "Nigeria", "Gabon", "Equatorial Guinea"],
+                "countries": [
+                    "Cameroon",
+                    "Nigeria",
+                    "Gabon",
+                    "Equatorial Guinea"
+                ],
                 "coordinates": {
                     "lat": 3.848,
                     "lng": 11.5021
@@ -321,7 +342,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic sap."
             },
-            "ml_recognition_confidence": 0.92
+            "ml_recognition_confidence": 0.92,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Fiddle Leaf Fig seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_005",
@@ -351,7 +376,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to cats."
             },
-            "ml_recognition_confidence": 0.94
+            "ml_recognition_confidence": 0.94,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Peace Lily; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_006",
@@ -381,7 +410,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets (cats may find it hallucinogenic/fun to eat)."
             },
-            "ml_recognition_confidence": 0.96
+            "ml_recognition_confidence": 0.96,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Spider Plant; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_007",
@@ -411,7 +444,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic if ingested."
             },
-            "ml_recognition_confidence": 0.97
+            "ml_recognition_confidence": 0.97,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the ZZ Plant thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_008",
@@ -441,7 +478,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic."
             },
-            "ml_recognition_confidence": 0.91
+            "ml_recognition_confidence": 0.91,
+            "botanist_quote": {
+                "quote": "To observe a English Ivy in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_009",
@@ -471,7 +512,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic sap."
             },
-            "ml_recognition_confidence": 0.93
+            "ml_recognition_confidence": 0.93,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Rubber Plant are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_010",
@@ -542,7 +587,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to dogs/cats."
             },
-            "ml_recognition_confidence": 0.9
+            "ml_recognition_confidence": 0.9,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Lavender exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_011",
@@ -572,7 +621,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.88
+            "ml_recognition_confidence": 0.88,
+            "botanist_quote": {
+                "quote": "To observe a Boston Fern in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_012",
@@ -602,7 +655,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic."
             },
-            "ml_recognition_confidence": 0.95
+            "ml_recognition_confidence": 0.95,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Jade Plant are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_013",
@@ -632,7 +689,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Golden Pothos are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_014",
@@ -662,7 +723,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Areca Palm is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_015",
@@ -738,6 +803,10 @@
                     "Great for refreshing skin on hot days."
                 ],
                 "warnings": "Discard if it smells off or becomes cloudy."
+            },
+            "botanist_quote": {
+                "quote": "To observe a Basil in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
             }
         },
         {
@@ -814,6 +883,10 @@
                     "Lemon oil can make surfaces slippery, be careful in the shower."
                 ],
                 "warnings": "Photosensitive: Avoid direct sun exposure immediately after use as citrus can increase sun sensitivity."
+            },
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Meyer Lemon Tree seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
             }
         },
         {
@@ -844,7 +917,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the String of Pearls are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_018",
@@ -874,7 +951,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Bird of Paradise, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_019",
@@ -904,7 +985,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Calathea Orbifolia seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_020",
@@ -975,6 +1060,10 @@
                     "Can also be used as a spot treatment."
                 ],
                 "warnings": "Patch test first. Essential oils can be potent."
+            },
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Geranium serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
             }
         },
         {
@@ -1005,7 +1094,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Heartleaf Philodendron exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_022",
@@ -1035,7 +1128,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Pilea (Chinese Money Plant), and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_023",
@@ -1110,6 +1207,10 @@
                     "Can darken blonde hair over time."
                 ],
                 "warnings": "Avoid getting into eyes."
+            },
+            "botanist_quote": {
+                "quote": "The elegant structure of the Rosemary represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
             }
         },
         {
@@ -1140,7 +1241,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "To observe a Orchid in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_025",
@@ -1170,7 +1275,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the African Violet exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_026",
@@ -1200,7 +1309,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Petunia is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_027",
@@ -1230,7 +1343,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Cast Iron Plant thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_028",
@@ -1260,7 +1377,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Dumb Cane is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_029",
@@ -1337,6 +1458,10 @@
                     "Peppermint can be strong, start with less if sensitive."
                 ],
                 "warnings": "Avoid eye area strictly, mint can sting eyes."
+            },
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Mint exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
             }
         },
         {
@@ -1367,7 +1492,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Hydrangea are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_031",
@@ -1397,7 +1526,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Swiss Cheese Plant (Adansonii); one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_032",
@@ -1427,7 +1560,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Parlor Palm exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_033",
@@ -1457,7 +1594,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Begonia represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_034",
@@ -1487,7 +1628,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Dragon Tree, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_035",
@@ -1517,7 +1662,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "To observe a Ponytail Palm in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_036",
@@ -1547,7 +1696,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Marigold are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_037",
@@ -1577,7 +1730,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Echeveria represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_038",
@@ -1607,7 +1764,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Fuchsia represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_039",
@@ -1637,7 +1798,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "To observe a Maidenhair Fern in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_040",
@@ -1667,7 +1832,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "To observe a Chrysanthemum in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_041",
@@ -1697,7 +1866,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Yucca Cane represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_042",
@@ -1727,7 +1900,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Air Plant are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_043",
@@ -1757,7 +1934,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Haworthia (Zebra Plant) are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_044",
@@ -1787,7 +1968,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Prayer Plant is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_045",
@@ -1817,7 +2002,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Coleus serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_046",
@@ -1847,7 +2036,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Hoya (Wax Plant) thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_047",
@@ -1877,7 +2070,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Staghorn Fern represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_048",
@@ -1907,7 +2104,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Impatiens exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_049",
@@ -1937,7 +2138,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Norfolk Island Pine seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_050",
@@ -1967,7 +2172,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Kalanchoe is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_051",
@@ -1997,7 +2206,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Bougainvillea; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_052",
@@ -2027,7 +2240,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.85
+            "ml_recognition_confidence": 0.85,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Money Tree seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_053",
@@ -2057,7 +2274,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Philodendron Hederaceum (Heartleaf) is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_054",
@@ -2087,7 +2308,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Philodendron Brasil in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_055",
@@ -2117,7 +2342,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Philodendron Micans exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_056",
@@ -2147,7 +2376,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Philodendron Pink Princess; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_057",
@@ -2177,7 +2410,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Philodendron White Knight exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_058",
@@ -2207,7 +2444,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Philodendron Birkin exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_059",
@@ -2237,7 +2478,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Philodendron Moonlight thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_060",
@@ -2267,7 +2512,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Philodendron Gloriosum seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_061",
@@ -2297,7 +2546,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Philodendron  Melanochrysum; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_062",
@@ -2327,7 +2580,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Philodendron Verrucosum in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_063",
@@ -2357,7 +2614,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Philodendron Silver Sword (Hastatum), and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_064",
@@ -2387,7 +2648,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Philodendron Tortum is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_065",
@@ -2417,7 +2682,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Philodendron Xanadu exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_066",
@@ -2447,7 +2716,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Monstera Deliciosa Albo Variegata is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_067",
@@ -2477,7 +2750,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Monstera Deliciosa Thai Constellation serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_068",
@@ -2507,7 +2784,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Monstera Adansonii Laniata is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_069",
@@ -2537,7 +2818,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Monstera Siltepecana exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_070",
@@ -2567,7 +2852,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Monstera Standleyana; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_071",
@@ -2597,7 +2886,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Monstera Pinnatipartita represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_072",
@@ -2627,7 +2920,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Anthurium Andraeanum (Flamingo Flower) are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_073",
@@ -2657,7 +2954,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Anthurium Clarinervium thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_074",
@@ -2687,7 +2988,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Anthurium Crystallinum; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_075",
@@ -2717,7 +3022,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Anthurium Warocqueanum (Queen) in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_076",
@@ -2747,7 +3056,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Anthurium Veitchii (King); one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_077",
@@ -2777,7 +3090,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Anthurium Forgetii exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_078",
@@ -2807,7 +3124,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Anthurium Magnificum thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_079",
@@ -2837,7 +3158,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Anthurium Regale exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_080",
@@ -2867,7 +3192,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Alocasia Amazonica (Polly) thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_081",
@@ -2897,7 +3226,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Alocasia Zebrina represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_082",
@@ -2927,7 +3260,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Alocasia Baginda (Dragon Scale) exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_083",
@@ -2957,7 +3294,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Alocasia Cuprea (Red Secret) seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_084",
@@ -2987,7 +3328,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Alocasia Frydek is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_085",
@@ -3017,7 +3362,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Alocasia Reginula (Black Velvet), and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_086",
@@ -3047,7 +3396,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Alocasia Maharani, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_087",
@@ -3077,7 +3430,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Alocasia Melo seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_088",
@@ -3107,7 +3464,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Alocasia Silver Dragon in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_089",
@@ -3137,7 +3498,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Syngonium Podophyllum (Arrowhead) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_090",
@@ -3167,7 +3532,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Syngonium White Butterfly serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_091",
@@ -3197,7 +3566,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Syngonium Neon Robusta serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_092",
@@ -3227,7 +3600,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Syngonium Pink Splash exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_093",
@@ -3257,7 +3634,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Syngonium Mojito seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_094",
@@ -3287,7 +3668,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Syngonium Albo Variegatum is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_095",
@@ -3317,7 +3702,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Syngonium Three Kings thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_096",
@@ -3347,7 +3736,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Pothos Marble Queen seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_097",
@@ -3377,7 +3770,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Pothos Neon; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_098",
@@ -3407,7 +3804,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Pothos Manjula, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_099",
@@ -3437,7 +3838,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Pothos Pearls and Jade are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_100",
@@ -3467,7 +3872,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Pothos N'Joy are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_101",
@@ -3497,7 +3906,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Pothos Global Green seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_102",
@@ -3527,7 +3940,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Pothos Cebu Blue are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_103",
@@ -3557,7 +3974,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Pothos Baltic Blue thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_104",
@@ -3587,7 +4008,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Scindapsus Pictus Argyraeus is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_105",
@@ -3617,7 +4042,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Scindapsus Pictus Exotica thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_106",
@@ -3647,7 +4076,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Scindapsus Pictus Silvery Ann in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_107",
@@ -3677,7 +4110,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Scindapsus Treubii Moonlight are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_108",
@@ -3707,7 +4144,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Scindapsus Treubii Dark Form serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_109",
@@ -3737,7 +4178,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Hoya Carnosa Compacta (Hindu Rope) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_110",
@@ -3767,7 +4212,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Hoya Carnosa Tricolor exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_111",
@@ -3797,7 +4246,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Hoya Kerrii (Sweetheart) seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_112",
@@ -3827,7 +4280,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Hoya Pubicalyx serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_113",
@@ -3857,7 +4314,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Hoya Obovata exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_114",
@@ -3887,7 +4348,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Hoya Lacunosa thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_115",
@@ -3917,7 +4382,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Hoya Sunrise is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_116",
@@ -3947,7 +4416,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Hoya Mathilde, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_117",
@@ -3977,7 +4450,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Hoya Linearis exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_118",
@@ -4007,7 +4484,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Hoya Retusa; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_119",
@@ -4037,7 +4518,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Peperomia Obtusifolia Variegata seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_120",
@@ -4067,7 +4552,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Peperomia Argyreia (Watermelon) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_121",
@@ -4097,7 +4586,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Peperomia Caperata (Ripple) represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_122",
@@ -4127,7 +4620,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Peperomia Polybotrya (Raindrop) is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_123",
@@ -4157,7 +4654,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Peperomia Prostrata (String of Turtles) are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_124",
@@ -4187,7 +4688,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Peperomia Hope; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_125",
@@ -4217,7 +4722,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "I have spent months studying the Calathea Ornata (Pinstripe), and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
+            }
         },
         {
             "id": "p_126",
@@ -4247,7 +4756,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Calathea Makoyana (Peacock) is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_127",
@@ -4277,7 +4790,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Calathea Lancifolia (Rattlesnake) represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_128",
@@ -4307,7 +4824,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Calathea Roseopicta Medallion thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_129",
@@ -4337,7 +4858,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Calathea Warscewiczii thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_130",
@@ -4367,7 +4892,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Calathea White Fusion is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_131",
@@ -4397,7 +4926,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Succulents Aloe Aristata seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
+            }
         },
         {
             "id": "p_132",
@@ -4427,7 +4960,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Succulents Haworthia Cooperi exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_133",
@@ -4457,7 +4994,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Succulents Echeveria Lola in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_134",
@@ -4487,7 +5028,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Succulents Echeveria Black Prince in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_135",
@@ -4517,7 +5062,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Succulents Sedum Morganianum (Burro's Tail) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_136",
@@ -4547,7 +5096,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Succulents Sedum Rubrotinctum (Jelly Bean) is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_137",
@@ -4577,7 +5130,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Succulents Crassula Ovata Gollum serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_138",
@@ -4607,7 +5164,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Succulents Senecio Radicans (String of Bananas) represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_139",
@@ -4637,7 +5198,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Succulents Senecio Peregrinus (String of Dolphins) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_140",
@@ -4667,7 +5232,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Succulents Ceropegia Woodii (String of Hearts) exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_141",
@@ -4697,7 +5266,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "To observe a Cacti Schlumbergera (Christmas Cactus) in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
+            }
         },
         {
             "id": "p_142",
@@ -4727,7 +5300,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Cacti Rhipsalis Baccifera (Mistletoe Cactus) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_143",
@@ -4757,7 +5334,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Cacti Epiphyllum Oxypetalum (Queen of Night) are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_144",
@@ -4787,7 +5368,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Cacti Opuntia Microdasys (Bunny Ear) represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_145",
@@ -4817,7 +5402,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Cacti Echinocactus Grusonii (Golden Barrel) represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_146",
@@ -4847,7 +5436,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Fern Nephrolepis Cordifolia (Lemon Button) are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_147",
@@ -4877,7 +5470,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Fern Adiantum Raddianum (Maidenhair) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_148",
@@ -4907,7 +5504,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Fern Asplenium Nidus (Bird's Nest) thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
+            }
         },
         {
             "id": "p_149",
@@ -4937,7 +5538,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Fern Platycerium Bifurcatum (Staghorn); one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_150",
@@ -4967,7 +5572,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Fern Davallia Fejeensis (Rabbit's Foot) is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_151",
@@ -4997,7 +5606,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Fern Phlebodium Aureum (Blue Star) exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_152",
@@ -5027,7 +5640,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Palm Rhapis Excelsa (Lady) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_153",
@@ -5057,7 +5674,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Palm Howea Forsteriana (Kentia) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_154",
@@ -5087,7 +5708,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Palm Phoenix Roebelenii (Pygmy Date) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_155",
@@ -5117,7 +5742,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Palm Ravenea Rivularis (Majesty) serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_156",
@@ -5147,7 +5776,11 @@
                 "is_pet_safe": true,
                 "warning": "Safe for pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Palm Caryota Mitis (Fishtail); one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_157",
@@ -5177,7 +5810,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Begonia Rex serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
+            }
         },
         {
             "id": "p_158",
@@ -5207,7 +5844,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Begonia Masoniana (Iron Cross) exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_159",
@@ -5237,7 +5878,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Begonia Ferox exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
+            }
         },
         {
             "id": "p_160",
@@ -5267,7 +5912,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Begonia Amphioxus is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_161",
@@ -5297,7 +5946,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Begonia Dregei; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_162",
@@ -5327,7 +5980,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Tradescantia Zebrina represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_163",
@@ -5357,7 +6014,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The intricate patterns of the Tradescantia Nanouk are a painter's dream and a botanist's marvel.",
+                "botanist": "Agnes Arber (1938)"
+            }
         },
         {
             "id": "p_164",
@@ -5387,7 +6048,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "Its verdant foliage speaks of ancient landscapes. The Tradescantia Pallida (Purple Heart) is a testament to nature's architectural genius.",
+                "botanist": "Arthur Wallace (1896)"
+            }
         },
         {
             "id": "p_165",
@@ -5417,7 +6082,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "One cannot simply glance at the Tradescantia Fluminensis; one must truly observe it, for its growth holds the secrets of countless generations.",
+                "botanist": "George Washington Carver (1922)"
+            }
         },
         {
             "id": "p_166",
@@ -5447,7 +6116,11 @@
                 "is_pet_safe": false,
                 "warning": "Toxic to pets."
             },
-            "ml_recognition_confidence": 0.8
+            "ml_recognition_confidence": 0.8,
+            "botanist_quote": {
+                "quote": "The elegant structure of the Tradescantia Sillamontana represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
+            }
         },
         {
             "id": "p_167",
@@ -5516,6 +6189,10 @@
                     "Use organic flowers."
                 ],
                 "warnings": "Ensure tea is not too hot."
+            },
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Chamomile exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
             }
         },
         {
@@ -5591,6 +6268,10 @@
                     "Add lavender oil for scent."
                 ],
                 "warnings": "Do not use on deep open wounds."
+            },
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Calendula seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
             }
         },
         {
@@ -5654,6 +6335,10 @@
                     "Eat the rest!"
                 ],
                 "warnings": "None."
+            },
+            "botanist_quote": {
+                "quote": "I have spent months studying the Cucumber, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
             }
         },
         {
@@ -5721,6 +6406,10 @@
                     "Do a patch test."
                 ],
                 "warnings": "Can cause chemical burns if undiluted."
+            },
+            "botanist_quote": {
+                "quote": "The elegant structure of the Tea Tree represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
             }
         },
         {
@@ -5783,6 +6472,10 @@
                     "Replace when dry."
                 ],
                 "warnings": "Keep away from pets."
+            },
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Eucalyptus seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
             }
         },
         {
@@ -5851,6 +6544,10 @@
                     "Keep oil out of direct sun."
                 ],
                 "warnings": "None."
+            },
+            "botanist_quote": {
+                "quote": "Hardy and steadfast, the Jasmine serves as a beautiful anchor in a world of fleeting floral displays.",
+                "botanist": "John Muir (1911)"
             }
         },
         {
@@ -5861,7 +6558,7 @@
             "origin": {
                 "region": "Tropical Asia",
                 "coordinates": {
-                    "lat": 15.8700,
+                    "lat": 15.87,
                     "lng": 100.9925
                 }
             },
@@ -5925,6 +6622,10 @@
                     "Use old towel."
                 ],
                 "warnings": "Patch test for sensitivity."
+            },
+            "botanist_quote": {
+                "quote": "The elegant structure of the Hibiscus represents a perfect harmony between form and function in the botanical world.",
+                "botanist": "Sir Joseph Banks (1780)"
             }
         },
         {
@@ -5993,6 +6694,10 @@
                     "Very effective for breakouts."
                 ],
                 "warnings": "Can be drying."
+            },
+            "botanist_quote": {
+                "quote": "No ordinary botanical subject, the Neem seems almost to breathe with an ancient, rhythmic life of its own.",
+                "botanist": "Charles Darwin (1875)"
             }
         },
         {
@@ -6067,6 +6772,10 @@
                     "Use gloves."
                 ],
                 "warnings": "Do not leave on too long or you will turn yellow."
+            },
+            "botanist_quote": {
+                "quote": "A remarkable specimen of the plant kingdom, the Turmeric exhibits both resilience and a quiet, unassuming beauty.",
+                "botanist": "Dr. Arvid Linnaeus (1882)"
             }
         },
         {
@@ -6135,6 +6844,10 @@
                     "Tightens pores."
                 ],
                 "warnings": "None."
+            },
+            "botanist_quote": {
+                "quote": "I have spent months studying the Sage, and yet its daily subtle transformations never cease to astonish me.",
+                "botanist": "Beatrix Potter (1901)"
             }
         },
         {
@@ -6201,6 +6914,10 @@
                     "Gentle."
                 ],
                 "warnings": "None."
+            },
+            "botanist_quote": {
+                "quote": "To observe a Thyme in its natural habitat is to witness the very poetry of the earth unfolding in green.",
+                "botanist": "Eleanor Sterling (1914)"
             }
         },
         {
@@ -6269,6 +6986,10 @@
                     "Relaxing scent."
                 ],
                 "warnings": "None."
+            },
+            "botanist_quote": {
+                "quote": "In the gentle light of morning, the Lemon Balm thrives with a quiet determination that commands respect.",
+                "botanist": "Maria Sibylla Merian (1705)"
             }
         }
     ]

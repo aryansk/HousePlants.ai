@@ -50,6 +50,8 @@ struct ToolsView: View {
                             // Category: Deep Exploration
                             ToolSection(title: "Exploration") {
                                 VStack(spacing: 12) {
+                                    ToolNavigationLink(destination: ClimateMatcherToolView(), icon: "thermometer.sun.fill", title: "Climate Matcher", description: "Find plants perfectly suited to your local environment.", color: .orange)
+                                    
                                      ToolNavigationLink(destination: SkincareLabView(), icon: "flask.fill", title: "Skincare Lab", description: "Botanical remedies from your garden.", color: .purple)
                                     
                                     ToolNavigationLink(destination: CelestialMoonPhaseView(), icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting with lunar cycles.", color: .indigo)
@@ -532,15 +534,14 @@ struct PotSizeCalculatorView: View {
                     showBackButton: true
                 )
                 
-                GeometryReader { geometry in
-                    ScrollView(showsIndicators: false) {
+                ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
                         // Pot Growth Visualization
                         VStack(spacing: 20) {
                             PotGrowthView(current: currentDiameter, recommended: recommendedSize)
                                 .frame(height: 200)
                                 .shadow(color: Color.brown.opacity(0.1), radius: 20, x: 0, y: 10)
-                            
+
                             HStack(alignment: .center) {
                                 Text("REC. DIAMETER: ")
                                     .font(.claudeSans(size: 11, weight: .bold))
@@ -639,12 +640,10 @@ struct PotSizeCalculatorView: View {
                             .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color.claudeBorder, lineWidth: 1))
                         }
                         }
-                        .frame(width: geometry.size.width)
                         .padding(.horizontal, 20)
                         .padding(.top, 12)
                         .padding(.bottom, 40)
                     }
-                }
             }
         }
         .navigationBarHidden(true)

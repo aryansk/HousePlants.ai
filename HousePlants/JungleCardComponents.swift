@@ -5,6 +5,7 @@ struct EnhancedPlantCard: View {
     let plant: Plant
     @EnvironmentObject var dataLoader: DataLoader
     @State private var showCareSheet = false
+    @State private var justWatered = false
     
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
@@ -61,13 +62,22 @@ struct EnhancedPlantCard: View {
                 }
                 .frame(height: 160)
                 .clipped()
-                
+
+                // Bottom gradient for depth
+                LinearGradient(
+                    gradient: Gradient(colors: [.clear, Color.black.opacity(0.28)]),
+                    startPoint: UnitPoint(x: 0.5, y: 0.45),
+                    endPoint: .bottom
+                )
+                .frame(height: 160)
+                .allowsHitTesting(false)
+
                 // Health indicator badge
                 if let health = myPlant?.healthScore {
                     HealthRing(health: health)
                         .frame(width: 34, height: 34)
                         .padding(10)
-                        .background(Circle().fill(Color.claudeBackground.opacity(0.6)).blur(radius: 4))
+                        .background(Circle().fill(Color.claudeBackground.opacity(0.55)).blur(radius: 3))
                         .padding(8)
                 }
             }
@@ -78,6 +88,7 @@ struct EnhancedPlantCard: View {
                 Text(plant.commonName)
                     .font(.claudeSerif(size: 18, weight: .bold))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(Color.claudePrimaryText)
                 
                 // Watering status
@@ -93,24 +104,31 @@ struct EnhancedPlantCard: View {
                 
                 // Quick water button
                 Button(action: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    HapticManager.shared.playImpact(style: .medium)
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         dataLoader.waterPlant(plantId: plant.id)
+                        justWatered = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        withAnimation(.easeOut(duration: 0.4)) { justWatered = false }
                     }
                 }) {
                     HStack {
-                        Image(systemName: "drop.fill")
-                            .font(.system(size: 12))
-                        Text("Water")
+                        Image(systemName: justWatered ? "checkmark" : "drop.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .contentTransition(.symbolEffect(.replace))
+                        Text(justWatered ? "Watered!" : "Water")
                             .font(.claudeSans(size: 13, weight: .bold))
+                            .contentTransition(.numericText())
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
                         Capsule()
-                            .fill(wateringStatus.color.opacity(0.12))
+                            .fill(justWatered ? Color.blue.opacity(0.18) : wateringStatus.color.opacity(0.12))
                     )
-                    .foregroundStyle(wateringStatus.color)
+                    .foregroundStyle(justWatered ? Color.blue : wateringStatus.color)
+                    .animation(.spring(response: 0.35, dampingFraction: 0.75), value: justWatered)
                 }
                 .buttonStyle(BubblingButtonStyle())
             }
@@ -205,6 +223,8 @@ struct EnhancedJungleListRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(plant.commonName)
                     .font(.claudeSerif(size: 20, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(Color.claudePrimaryText)
                 
                 HStack(spacing: 6) {
@@ -221,7 +241,7 @@ struct EnhancedJungleListRow: View {
             
             // Quick water button
             Button(action: {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                HapticManager.shared.playImpact(style: .light)
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     dataLoader.waterPlant(plantId: plant.id)
                 }
@@ -241,6 +261,15 @@ struct EnhancedJungleListRow: View {
         .padding(14)
         .background(Color.claudeSecondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(alignment: .leading) {
+            if let myPlant = myPlant, let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant), daysUntil <= 0 {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(daysUntil < 0 ? Color.red : Color.orange)
+                    .frame(width: 4)
+                    .padding(.vertical, 8)
+                    .padding(.leading, 2)
+            }
+        }
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .stroke(Color.claudeBorder, lineWidth: 1)
@@ -251,28 +280,33 @@ struct EnhancedJungleListRow: View {
 
 struct HealthRing: View {
     let health: Int
-    
+    @State private var appeared = false
+
     var color: Color {
         if health >= 80 { return .green }
         else if health >= 60 { return .yellow }
         else { return .red }
     }
-    
+
     var body: some View {
         ZStack {
             Circle()
                 .stroke(color.opacity(0.2), lineWidth: 3)
-            
+
             Circle()
-                .trim(from: 0, to: CGFloat(health) / 100.0)
+                .trim(from: 0, to: appeared ? CGFloat(health) / 100.0 : 0)
                 .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            
+                .animation(.spring(response: 1.1, dampingFraction: 0.7).delay(0.15), value: appeared)
+
             Text("\(health)")
                 .font(.system(size: 10, weight: .bold, design: .rounded))
                 .foregroundStyle(color)
+                .opacity(appeared ? 1 : 0)
+                .animation(.easeIn(duration: 0.3).delay(0.4), value: appeared)
         }
         .background(Circle().fill(Color.claudeBackground.opacity(0.8)))
+        .onAppear { appeared = true }
     }
 }
 
@@ -281,6 +315,31 @@ struct PlantSelectionCard: View {
     let plant: Plant
     let isSelected: Bool
     let action: () -> Void
+    @EnvironmentObject var dataLoader: DataLoader
+    
+    var myPlant: MyPlant? {
+        dataLoader.myJungleLookup[plant.id]
+    }
+    
+    var wateringStatus: (text: String, color: Color, icon: String) {
+        guard let myPlant = myPlant else {
+            return ("Unknown", .gray, "drop.fill")
+        }
+        
+        if let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant) {
+            if daysUntil < 0 {
+                return ("Overdue!", .red, "exclamationmark.triangle.fill")
+            } else if daysUntil == 0 {
+                return ("Water today", .orange, "drop.fill")
+            } else if daysUntil <= 2 {
+                return ("In \(daysUntil)d", .blue, "drop.fill")
+            } else {
+                return ("\(daysUntil) days", .green, "checkmark.circle.fill")
+            }
+        } else {
+            return ("Not set", .gray, "drop.fill")
+        }
+    }
     
     var body: some View {
         Button(action: action) {
@@ -305,30 +364,71 @@ struct PlantSelectionCard: View {
                         }
                         .frame(width: geo.size.width, height: geo.size.height)
                     }
-                    .frame(height: 150)
+                    .frame(height: 160)
                     .clipped()
                     
-                    // Selection indicator
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.title3)
-                        .foregroundStyle(isSelected ? Color.claudeAccent : .secondary.opacity(0.5))
-                        .padding(10)
-                        .background(Circle().fill(Color.claudeBackground).blur(radius: 2))
-                        .padding(8)
+                    HStack {
+                        if let health = myPlant?.healthScore {
+                            HealthRing(health: health)
+                                .frame(width: 34, height: 34)
+                                .padding(10)
+                                .background(Circle().fill(Color.claudeBackground.opacity(0.6)).blur(radius: 4))
+                                .padding(8)
+                        }
+                        
+                        Spacer()
+                        
+                        // Selection indicator
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                            .foregroundStyle(isSelected ? Color.claudeAccent : .secondary.opacity(0.5))
+                            .padding(10)
+                            .background(Circle().fill(Color.claudeBackground).blur(radius: 2))
+                            .padding(8)
+                    }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 
-                Text(plant.commonName)
-                    .font(.claudeSerif(size: 17, weight: .bold))
-                    .lineLimit(1)
-                    .padding(14)
-                    .foregroundStyle(Color.claudePrimaryText)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(plant.commonName)
+                        .font(.claudeSerif(size: 18, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .foregroundStyle(Color.claudePrimaryText)
+                        
+                    // Watering status
+                    HStack(spacing: 6) {
+                        Image(systemName: wateringStatus.icon)
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(wateringStatus.color)
+                        Text(wateringStatus.text)
+                            .font(.claudeSans(size: 12, weight: .bold))
+                            .foregroundStyle(wateringStatus.color)
+                            .textCase(.uppercase)
+                    }
+                    
+                    // Ghost button to match layout height
+                    HStack {
+                        Image(systemName: isSelected ? "checkmark" : "plus")
+                            .font(.system(size: 12))
+                        Text(isSelected ? "Selected" : "Select")
+                            .font(.claudeSans(size: 13, weight: .bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        Capsule()
+                            .fill(isSelected ? Color.claudeAccent.opacity(0.12) : Color.gray.opacity(0.12))
+                    )
+                    .foregroundStyle(isSelected ? Color.claudeAccent : Color.gray)
+                }
+                .padding(16)
             }
             .background(Color.claudeSecondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(isSelected ? Color.claudeAccent : Color.claudeBorder, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .stroke(isSelected ? Color.claudeAccent : Color.claudeBorder, lineWidth: isSelected ? 2 : 1)
             )
             .shadow(color: Color.black.opacity(isSelected ? 0.08 : 0.02), radius: 10, x: 0, y: 5)
         }
@@ -341,12 +441,37 @@ struct JungleListRowSelectable: View {
     let plant: Plant
     let isSelected: Bool
     let action: () -> Void
+    @EnvironmentObject var dataLoader: DataLoader
+    
+    var myPlant: MyPlant? {
+        dataLoader.myJungleLookup[plant.id]
+    }
+    
+    var wateringStatus: (text: String, color: Color) {
+        guard let myPlant = myPlant else {
+            return ("Unknown", .gray)
+        }
+        
+        if let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant) {
+            if daysUntil < 0 {
+                return ("Overdue!", .red)
+            } else if daysUntil == 0 {
+                return ("Water today", .orange)
+            } else if daysUntil <= 2 {
+                return ("In \(daysUntil)d", .blue)
+            } else {
+                return ("\(daysUntil) days", .green)
+            }
+        } else {
+            return ("Not set", .gray)
+        }
+    }
     
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
                 // Image
-                ZStack {
+                ZStack(alignment: .bottomTrailing) {
                     Group {
                         if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
                             AsyncImage(url: url) { phase in
@@ -363,36 +488,80 @@ struct JungleListRowSelectable: View {
                                 .aspectRatio(contentMode: .fill)
                         }
                     }
-                    .frame(width: 70, height: 70)
+                    .frame(width: 80, height: 80)
                     .clipped()
+                    
+                    // Health indicator
+                    if let health = myPlant?.healthScore {
+                        let healthColor: Color = health >= 80 ? .green : (health >= 60 ? .yellow : .red)
+                        Circle()
+                            .fill(healthColor)
+                            .frame(width: 12, height: 12)
+                            .overlay(Circle().stroke(Color.claudeBackground, lineWidth: 2))
+                            .padding(4)
+                    }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(plant.commonName)
-                        .font(.claudeSerif(size: 19, weight: .bold))
+                        .font(.claudeSerif(size: 20, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .foregroundStyle(Color.claudePrimaryText)
-                    Text(plant.botanicalName)
-                        .font(.claudeSans(size: 13))
-                        .foregroundStyle(Color.claudeSecondaryText)
+                    
+                    HStack(spacing: 6) {
+                        Image(systemName: "drop.fill")
+                            .font(.caption2)
+                            .foregroundStyle(wateringStatus.color)
+                        Text(wateringStatus.text)
+                            .font(.claudeSans(size: 13, weight: .medium))
+                            .foregroundStyle(wateringStatus.color)
+                    }
                 }
                 
                 Spacer()
                 
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? Color.claudeAccent : .secondary.opacity(0.5))
-                    .font(.title2)
+                // Selection indicator mimicking the water button size
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? Color.claudeAccent.opacity(0.12) : Color.gray.opacity(0.12))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: isSelected ? "checkmark" : "plus")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(isSelected ? Color.claudeAccent : .gray)
+                }
             }
             .padding(14)
             .background(Color.claudeSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(isSelected ? Color.claudeAccent : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.claudeAccent : Color.claudeBorder, lineWidth: isSelected ? 2 : 1)
             )
-            .shadow(color: Color.black.opacity(isSelected ? 0.04 : 0.02), radius: 8, x: 0, y: 2)
+            .shadow(color: Color.black.opacity(isSelected ? 0.04 : 0.02), radius: 8, x: 0, y: 3)
         }
         .buttonStyle(BubblingButtonStyle())
     }
 }
 
+
+#Preview {
+    let dataLoader = DataLoader()
+    ScrollView {
+        VStack(spacing: 16) {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
+                ForEach(dataLoader.plants.prefix(4)) { plant in
+                    EnhancedPlantCard(plant: plant)
+                }
+            }
+            ForEach(dataLoader.plants.prefix(3)) { plant in
+                EnhancedJungleListRow(plant: plant)
+            }
+        }
+        .padding()
+    }
+    .environmentObject(dataLoader)
+    .background(Color.claudeBackground)
+}

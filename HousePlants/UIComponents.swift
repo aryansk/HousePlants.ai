@@ -42,7 +42,7 @@ struct ClaudeHeader: View {
                         }
                         
                         Text(title)
-                            .font(.claudeSerif(size: 34, weight: .bold))
+                            .font(.claudeSerif(size: 30, weight: .bold))
                             .foregroundStyle(Color.claudePrimaryText)
                             .minimumScaleFactor(0.8)
                             .lineLimit(1)
@@ -51,16 +51,20 @@ struct ClaudeHeader: View {
                             Text(subtitle)
                                 .font(.claudeSans(size: 16))
                                 .foregroundStyle(Color.claudeSecondaryText)
-                                .lineLimit(2)
+                                .minimumScaleFactor(0.7)
+                                .lineLimit(1)
                         }
                     }
+                    .layoutPriority(0)
                     
                     Spacer()
                     
                     if let actions = trailingActions {
                         actions
+                            .layoutPriority(1)
                     }
                 }
+                .padding(.bottom, 20)
             }
         }
         .padding(.horizontal, 20)

@@ -3,51 +3,91 @@ import SwiftUI
 struct PlantDoctorView: View {
     @State private var showInfoSheet = false
     // Expanded Symptom Database
+    // Expanded Symptom Database
     let symptoms = [
         // Leaves
         Symptom(name: "Yellow Leaves", part: .leaves, icon: "leaf.arrow.triangle.pullpath", color: .yellow, possibleCauses: [
-            Cause(title: "Overwatering", description: "Soil is constantly wet. Roots may be rotting.", fix: "Let soil dry out completely. Check drainage."),
-            Cause(title: "Underwatering", description: "Leaves are crispy and dry.", fix: "Water thoroughly until water drains out bottom."),
-            Cause(title: "Nutrient Deficiency", description: "Yellowing between veins (Chlorosis).", fix: "Apply balanced fertilizer with iron.")
+            Cause(title: "Overwatering", description: "Soil is constantly wet. Roots may be rotting and unable to function.", fix: "Let soil dry out completely. Improve drainage. Check for root rot."),
+            Cause(title: "Underwatering", description: "Leaves are crispy and dry. The plant is sacrificing older leaves for survival.", fix: "Water thoroughly until water drains out of the bottom."),
+            Cause(title: "Nutrient Deficiency", description: "Yellowing between veins (Chlorosis) often means iron or magnesium deficiency.", fix: "Apply balanced fertilizer or specific micronutrients."),
+            Cause(title: "Natural Shedding", description: "Older bottom leaves yellowing naturally as the plant grows.", fix: "Normal process. Prune once fully yellow to conserve plant energy."),
+            Cause(title: "Poor Lighting", description: "Insufficient light prevents chlorophyll production.", fix: "Gradually move to a brighter location with indirect light.")
         ]),
         Symptom(name: "Brown Tips/Edges", part: .leaves, icon: "leaf.fill", color: .brown, possibleCauses: [
-            Cause(title: "Low Humidity", description: "Air is too dry for the plant.", fix: "Mist leaves or use a pebble tray/humidifier."),
-            Cause(title: "Chemical Burn", description: "Tap water chemicals accumulating.", fix: "Use distilled or rain water."),
-            Cause(title: "Fertilizer Burn", description: "Too much fertilizer salts.", fix: "Flush soil with water.")
+            Cause(title: "Low Humidity", description: "Dry indoor air is pulling moisture from leaf tips faster than roots can supply it.", fix: "Use a humidifier, pebble tray, or group plants together."),
+            Cause(title: "Mineral Build-up", description: "Tap water chemicals (fluoride/chlorine) or fertilizer salts accumulating.", fix: "Use distilled, rain, or filtered water. Flush soil thoroughly."),
+            Cause(title: "Sunburn", description: "Direct sunlight through glass magnifying heat and scorching edges.", fix: "Move away from direct midday sun or use a sheer curtain."),
+            Cause(title: "Boric Acid Toxicity", description: "Rare but possible from certain fertilizers or soil supplements.", fix: "Flush soil with large amounts of clean water.")
         ]),
         Symptom(name: "White Spots/Powder", part: .leaves, icon: "cloud.snow.fill", color: .gray, possibleCauses: [
-            Cause(title: "Powdery Mildew", description: "Fungal infection looking like flour.", fix: "Wipe off. Improve airflow. Use fungicide."),
-            Cause(title: "Mealybugs", description: "White cottony fluff masses.", fix: "Dab with rubbing alcohol on a q-tip.")
+            Cause(title: "Powdery Mildew", description: "A common fungal infection that looks like a dusting of flour.", fix: "Remove affected leaves. Improve air circulation. Use Neem Oil."),
+            Cause(title: "Hard Water Residue", description: "Mineral spots left behind after tap water evaporates from leaves.", fix: "Wipe leaves with a damp cloth. Avoid overhead watering."),
+            Cause(title: "Early Pest Activity", description: "Small white clusters could be early mealybug or whitefly nests.", fix: "Inspect closely. Wipe with alcohol and treat with insecticidal soap.")
         ]),
-        Symptom(name: "Curling Leaves", part: .leaves, icon: "arrow.turn.right.up", color: .green, possibleCauses: [
-            Cause(title: "Heat Stress", description: "Too hot or too much direct sun.", fix: "Move to a cooler, shadier spot."),
-            Cause(title: "Pests", description: "Sucking insects hiding under leaves.", fix: "Inspect undersides and treat with neem oil.")
+        Symptom(name: "Curling/Distorted Leaves", part: .leaves, icon: "arrow.turn.right.up", color: .green, possibleCauses: [
+            Cause(title: "Heat/Light Stress", description: "Plant curls leaves to reduce surface area and moisture loss in high heat.", fix: "Move to a cooler spot and check moisture levels."),
+            Cause(title: "Thrip/Pest Damage", description: "Sap-sucking pests cause new growth to emerge twisted or curled.", fix: "Inspect new growth with a magnifying glass. Treat with Neem Oil."),
+            Cause(title: "Extreme Underwatering", description: "Loss of turgor pressure causes leaves to curl and sag.", fix: "Deep water immediately (bottom watering recommended).")
+        ]),
+        Symptom(name: "Black/Dark Spots", part: .leaves, icon: "circle.dotted", color: .black, possibleCauses: [
+            Cause(title: "Fungal Leaf Spot", description: "Black spots with yellow halos typically indicate a fungal pathogen.", fix: "Remove infected leaves. Apply copper fungicide. Keep foliage dry."),
+            Cause(title: "Bacterial Blight", description: "Spreading dark, water-soaked spots.", fix: "Prune infected stems. Avoid misting. Improve ventilation."),
+            Cause(title: "Cold Damage", description: "Soft, dark patches from exposure to freezing temperatures.", fix: "Move to a warm area. Do not prune until new growth appears.")
+        ]),
+        Symptom(name: "Sticky 'Honeydew'", part: .leaves, icon: "drop.fill", color: .blue, possibleCauses: [
+            Cause(title: "Scale or Aphids", description: "Pests excrete a sticky substance called honeydew as they feed.", fix: "Inspect stems and leaf undersides. Wash plant and apply Neem Oil."),
+            Cause(title: "Guttation", description: "Normal moisture release from leaves, though sticky gutation can happen.", fix: "Wipe with a damp cloth. Reduce watering frequency slightly.")
         ]),
         
         // Stems
-        Symptom(name: "Mushy Stems", part: .stems, icon: "drop.triangle.fill", color: .black, possibleCauses: [
-            Cause(title: "Root Rot", description: "Advanced rot traveling up stem.", fix: "Immediate emergency repotting. Cut away rot."),
-            Cause(title: "Cold Damage", description: "Exposure to freezing temps.", fix: "Trim damaged parts. Keep warm.")
+        Symptom(name: "Mushy/Soft Stems", part: .stems, icon: "drop.triangle.fill", color: .black, possibleCauses: [
+            Cause(title: "Root & Stem Rot", description: "Overwatering has caused rot to progress from roots into the main stem.", fix: "Immediate emergency repotting. Cut away all mushy parts."),
+            Cause(title: "Bacterial Soft Rot", description: "Pathogens entering through wounds in the stem.", fix: "Prune well below the soft area with sterilized shears.")
         ]),
         Symptom(name: "Leggy/Stretched", part: .stems, icon: "arrow.up.and.down", color: .green, possibleCauses: [
-            Cause(title: "Low Light", description: "Reaching for light.", fix: "Move closer to a window or use grow lights.")
+            Cause(title: "Etiolation (Low Light)", description: "The plant is rapidly growing 'weak' stems to reach for more light.", fix: "Move to a much brighter location. Prune leggy growth."),
+            Cause(title: "Incorrect Temperature", description: "Too much warmth combined with low light causes rapid, weak growth.", fix: "Lower the ambient temperature or increase light exposure.")
+        ]),
+        Symptom(name: "White Fuzz on Stems", part: .stems, icon: "fossil.shell.fill", color: .gray, possibleCauses: [
+            Cause(title: "Mealybugs", description: "Cottony masses usually found in stem crothes and nodes.", fix: "Remove with rubbing alcohol. Treat with systemic insecticide."),
+            Cause(title: "Sooty Mold", description: "A black/gray fungus that grows on sticky pest residue.", fix: "Clean the plant and treat for the underlying pest infestation.")
+        ]),
+        Symptom(name: "Woody/Corky Stems", part: .stems, icon: "shield.fill", color: .brown, possibleCauses: [
+            Cause(title: "Lignification", description: "Natural aging where older stems become bark-like for support.", fix: "Normal behavior for many older plants. No treatment needed."),
+            Cause(title: "Corking", description: "Scarring from previous pest damage or environmental stress.", fix: "Aesthetic change only. Ensure stable conditions moving forward.")
         ]),
         
         // Whole Plant
         Symptom(name: "Drooping/Wilting", part: .wholePlant, icon: "arrow.down", color: .green, possibleCauses: [
-            Cause(title: "Thirsty", description: "Plant lacks turgor pressure.", fix: "Water immediately."),
-            Cause(title: "Root Rot", description: "Roots damaged and can't drink.", fix: "Check roots. If mushy, treat for rot.")
+            Cause(title: "Critical Thirst", description: "The most common cause. Soil is bone dry and leaves have collapsed.", fix: "Water thoroughly. Consider bottom-soaking the pot."),
+            Cause(title: "Advanced Root Rot", description: "Roots are so damaged they can no longer absorb water, causing wilt.", fix: "If soil is wet but plant is wilting, check roots immediately."),
+            Cause(title: "Temperature Stress", description: "Sudden hot or cold drafts cause cellular collapse.", fix: "Move to a stable environment away from AC or heating vents.")
         ]),
         Symptom(name: "Stunted Growth", part: .wholePlant, icon: "arrow.down.to.line", color: .orange, possibleCauses: [
-            Cause(title: "Root Bound", description: "Roots have no room to grow.", fix: "Repot into a larger pot."),
-            Cause(title: "Dormancy", description: "Natural winter resting phase.", fix: "Normal. Reduce water/fertilizer until spring.")
+            Cause(title: "Root Bound", description: "Roots have filled the pot, leaving no room for new growth or nutrients.", fix: "Repot into a container 1-2 inches larger in diameter."),
+            Cause(title: "Winter Dormancy", description: "Many plants stop growing during cooler months with shorter days.", fix: "Reduce watering and stop fertilizing until spring growth resumes."),
+            Cause(title: "Nutrient Exhaustion", description: "Soil has been depleted of essential minerals over several years.", fix: "Repot with fresh soil or begin a regular fertilization schedule.")
+        ]),
+        Symptom(name: "Sudden Leaf Drop", part: .wholePlant, icon: "arrow.down.square", color: .red, possibleCauses: [
+            Cause(title: "Environmental Shock", description: "Major changes in light, temperature, or humidity cause stress.", fix: "Keep conditions consistent. Avoid moving the plant frequently."),
+            Cause(title: "Chlorine Sensitivity", description: "Some sensitive plants drop leaves when watered with chlorinated tap water.", fix: "Let tap water sit out for 24 hours or use distilled water.")
         ]),
         
-        // Pests (General)
-        Symptom(name: "Visible Pests", part: .pests, icon: "ant.fill", color: .red, possibleCauses: [
-            Cause(title: "Spider Mites", description: "Tiny webs and stippling.", fix: "Shower plant. Use miticide."),
-            Cause(title: "Scale", description: "Brown bumps on stems/leaves.", fix: "Scrape off. Use horticultural oil."),
-            Cause(title: "Fungus Gnats", description: "Tiny flies around soil.", fix: "Let soil dry. Use sticky traps.")
+        // Pests (Specific)
+        Symptom(name: "Fine Webbing", part: .pests, icon: "sparkles", color: .gray, possibleCauses: [
+            Cause(title: "Spider Mites", description: "Microscopic mites that thrive in dry conditions and spin tiny webs.", fix: "Isolate. Shower foliage. Apply Neem Oil or Miticide weekly.")
+        ]),
+        Symptom(name: "Hard Brown Bumps", part: .pests, icon: "shield.lefthalf.filled", color: .brown, possibleCauses: [
+            Cause(title: "Scale Insects", description: "Armored pests that look like part of the plant but don't move.", fix: "Scrape off with a dull knife or brush with alcohol. Use Neem Oil.")
+        ]),
+        Symptom(name: "Tiny Flying Traps", part: .pests, icon: "tornado", color: .black, possibleCauses: [
+            Cause(title: "Fungus Gnats", description: "Tiny black flies that emerge from moist soil surface.", fix: "Let top 2 inches of soil dry completely. Use yellow sticky traps.")
+        ]),
+        Symptom(name: "Cottony Clusters", part: .pests, icon: "cloud.fill", color: .white, possibleCauses: [
+            Cause(title: "Mealybugs", description: "White, waxy insects that hide in crevices and suck plant sap.", fix: "Dab with alcohol. Spray with insecticidal soap every 5 days.")
+        ]),
+        Symptom(name: "Silver/Grey Scars", part: .pests, icon: "bandage.fill", color: .gray, possibleCauses: [
+            Cause(title: "Thrips", description: "Very small, slender insects that rasp leaf surfaces leaving scars.", fix: "Use blue sticky traps. Spray with Spinosad or Systemic granules.")
         ])
     ]
     
@@ -91,9 +131,13 @@ struct PlantDoctorView: View {
                                     Text("Start Discovery Wizard")
                                         .font(.claudeSerif(size: 20, weight: .bold))
                                         .foregroundColor(.white)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
                                     Text("Step-by-step assistance to identify issues")
                                         .font(.claudeSans(size: 14))
                                         .foregroundColor(.white.opacity(0.8))
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
                                 }
                                 Spacer()
                                 Image(systemName: "arrow.right")
@@ -372,6 +416,8 @@ struct SymptomDetailView: View {
                             Text(symptom.name)
                                 .font(.claudeSerif(size: 30, weight: .bold))
                                 .foregroundStyle(Color.claudePrimaryText)
+                                .minimumScaleFactor(0.6)
+                                .lineLimit(2)
                         }
                         .padding(20)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -478,7 +524,7 @@ struct PlantDoctorInfoSheet: View {
                         }
                         
                         VStack(spacing: 16) {
-                            InfoRow(icon: "wand.and.stars", title: "Diagnostic Wizard", text: "Start by selecting the affected plant part — leaves, stems, or whole plant — then match visual symptoms for an accurate diagnosis.", color: .purple)
+                            InfoRow(icon: "wand.and.stars", title: "Diagnostic Wizard", text: "Start by selecting the affected plant part — leaves, stems, whole plant, or pests — then match visual symptoms for an accurate diagnosis.", color: .purple)
                             
                             InfoRow(icon: "leaf.fill", title: "Symptom Browser", text: "Browse the full symptom library organized by plant part. Each symptom lists possible causes and actionable treatment steps.", color: .green)
                             

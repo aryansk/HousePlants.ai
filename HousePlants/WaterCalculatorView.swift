@@ -113,11 +113,25 @@ struct WaterCalculatorView: View {
     }
     
     var waterLevel: Double {
+        var level: Double
         switch potSize {
-        case .small: return 0.3
-        case .medium: return 0.5
-        case .large: return 0.8
+        case .small: level = 0.3
+        case .medium: level = 0.5
+        case .large: level = 0.8
         }
+        
+        switch selectedPlantType {
+        case .succulent: level -= 0.15
+        case .tropical: level += 0.0
+        case .fern: level += 0.15
+        case .herb: level += 0.05
+        }
+        
+        level += (season == .summer) ? 0.05 : -0.1
+        level += (temperature - 22.0) * 0.008
+        level += (60.0 - humidityLevel) * 0.003
+        
+        return max(0.1, min(0.95, level))
     }
     
     var body: some View {
@@ -450,6 +464,7 @@ struct ResultItem: View {
 struct WaterTankView: View {
     let level: Double
     let color: Color
+    @State private var phase: Double = 0.0
     
     var body: some View {
         GeometryReader { geometry in
@@ -464,7 +479,7 @@ struct WaterTankView: View {
                     )
                 
                 // Water Level with Waves
-                WaterWave(phase: .pi / 3, strength: 6, frequency: 1.5)
+                WaterWave(phase: phase, strength: 6, frequency: 1.5)
                     .fill(
                         LinearGradient(
                             colors: [color.opacity(0.6), color.opacity(0.3)],
@@ -486,6 +501,11 @@ struct WaterTankView: View {
                 }
             }
             .mask(RoundedRectangle(cornerRadius: 30))
+            .onAppear {
+                withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
+                    phase = .pi * 2
+                }
+            }
         }
         .frame(width: 140)
         .frame(maxWidth: .infinity)

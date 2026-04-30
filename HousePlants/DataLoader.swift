@@ -46,6 +46,32 @@ class DataLoader: ObservableObject {
             self.userProfile = profile
         }
         
+        if let savedFavData = UserDefaults.standard.data(forKey: "user_favorites"),
+           let favorites = try? JSONDecoder().decode([String].self, from: savedFavData),
+           var profile = userProfile {
+            profile.favorites = favorites
+            self.userProfile = profile
+        }
+
+        if let currentStreak = UserDefaults.standard.object(forKey: "current_streak") as? Int,
+           var profile = userProfile {
+            profile.currentStreak = currentStreak
+            self.userProfile = profile
+        }
+        
+        if let lastStreakDate = UserDefaults.standard.string(forKey: "last_streak_date"),
+           var profile = userProfile {
+            profile.lastStreakDate = lastStreakDate
+            self.userProfile = profile
+        }
+        
+        if let historyData = UserDefaults.standard.data(forKey: "streak_history"),
+           let history = try? JSONDecoder().decode([String].self, from: historyData),
+           var profile = userProfile {
+            profile.streakHistory = history
+            self.userProfile = profile
+        }
+        
         if let savedPrefs = UserDefaults.standard.data(forKey: "userPreferences"),
            let prefs = try? JSONDecoder().decode(Preferences.self, from: savedPrefs),
            var profile = userProfile {
@@ -86,9 +112,25 @@ class DataLoader: ObservableObject {
         UserDefaults.standard.set(profile.locationSettings.country, forKey: "country")
         UserDefaults.standard.set(profile.profileImage, forKey: "profile_image")
         
-        // Save preferences too
         if let encoded = try? JSONEncoder().encode(profile.preferences) {
             UserDefaults.standard.set(encoded, forKey: "userPreferences")
+        }
+
+        if let encoded = try? JSONEncoder().encode(profile.favorites) {
+            UserDefaults.standard.set(encoded, forKey: "user_favorites")
+        }
+        
+        if let streak = profile.currentStreak {
+            UserDefaults.standard.set(streak, forKey: "current_streak")
+        }
+        if let lastStreakDate = profile.lastStreakDate {
+            UserDefaults.standard.set(lastStreakDate, forKey: "last_streak_date")
+        }
+        
+        if let history = profile.streakHistory {
+            if let encoded = try? JSONEncoder().encode(history) {
+                UserDefaults.standard.set(encoded, forKey: "streak_history")
+            }
         }
     }
     
@@ -115,6 +157,46 @@ class DataLoader: ObservableObject {
             self.errorMessage = "Error decoding JSON: \(error.localizedDescription)"
             print("Error decoding JSON: \(error)")
         }
+    }
+    
+    func checkAndUpdateStreak() {
+        guard var profile = userProfile else { return }
+        let now = Date()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        let todayString = DataLoader.isoFormatter.string(from: today)
+        
+        var streak = profile.currentStreak ?? 0
+        var history = profile.streakHistory ?? []
+        
+        if let lastDateString = profile.lastStreakDate,
+           let lastDate = DataLoader.isoFormatter.date(from: lastDateString) {
+            let startOfLast = calendar.startOfDay(for: lastDate)
+            
+            if let days = calendar.dateComponents([.day], from: startOfLast, to: today).day {
+                if days == 1 {
+                    streak += 1
+                    profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
+                    if !history.contains(todayString) { history.append(todayString) }
+                } else if days > 1 {
+                    streak = 1
+                    profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
+                    if !history.contains(todayString) { history.append(todayString) }
+                } else if days == 0 {
+                    // Same day, ensure it's in history just in case
+                    if !history.contains(todayString) { history.append(todayString) }
+                }
+            }
+        } else {
+            streak = 1
+            profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
+            history.append(todayString)
+        }
+        
+        profile.currentStreak = streak
+        profile.streakHistory = history
+        self.userProfile = profile
+        saveProfile()
     }
     
     func toggleJungle(plant: Plant) {
@@ -298,8 +380,30 @@ class DataLoader: ObservableObject {
         saveMyJungleData()
     }
     
+    func fertilizeAllPlants() {
+        guard var profile = userProfile else { return }
+        let now = DataLoader.isoFormatter.string(from: Date())
+        for index in profile.myJungle.indices {
+            profile.myJungle[index].lastFertilized = now
+        }
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
+    }
+
+    func mistAllPlants() {
+        guard var profile = userProfile else { return }
+        let now = DataLoader.isoFormatter.string(from: Date())
+        for index in profile.myJungle.indices {
+            profile.myJungle[index].lastMisted = now
+        }
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
+    }
+
     // MARK: - Batch Operations
-    
+
     func removePlants(plantIds: [String]) {
         guard var profile = userProfile else { return }
         
@@ -323,25 +427,12 @@ class DataLoader: ObservableObject {
     
     func loadMyJungleExtendedData() {
         guard var profile = userProfile else { return }
-        
-        // Load extended data from UserDefaults if available
+
+        // Saved data in UserDefaults is the authoritative source for the user's jungle.
+        // It contains all user-added plants plus any extended properties (watering history, etc.)
         if let savedData = UserDefaults.standard.data(forKey: "myJungleExtendedData"),
            let savedPlants = try? JSONDecoder().decode([MyPlant].self, from: savedData) {
-            
-            // Merge with existing jungle data (in case jason.json was updated)
-            var mergedJungle: [MyPlant] = []
-            
-            for plantInJson in profile.myJungle {
-                if let savedPlant = savedPlants.first(where: { $0.plantId == plantInJson.plantId }) {
-                    // Use saved data (has extended properties)
-                    mergedJungle.append(savedPlant)
-                } else {
-                    // New plant from JSON, use as-is
-                    mergedJungle.append(plantInJson)
-                }
-            }
-            
-            profile.myJungle = mergedJungle
+            profile.myJungle = savedPlants
             self.userProfile = profile
             self.updateLookup()
         }

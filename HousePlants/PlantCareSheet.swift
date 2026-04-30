@@ -60,8 +60,11 @@ struct PlantCareSheet: View {
                             }
                         }) {
                             Label("Water Now", systemImage: "drop.fill")
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                                 .frame(maxWidth: .infinity)
-                                .padding()
+                                .padding(.vertical, 12)
                                 .background(Color.blue)
                                 .foregroundStyle(.white)
                                 .cornerRadius(12)
@@ -72,8 +75,11 @@ struct PlantCareSheet: View {
                             dataLoader.updatePlantHealth(plantId: plant.id, healthScore: Int(healthScore))
                         }) {
                             Label("Update Health", systemImage: "heart.fill")
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                                 .frame(maxWidth: .infinity)
-                                .padding()
+                                .padding(.vertical, 12)
                                 .background(Color.red.opacity(0.1))
                                 .foregroundStyle(.red)
                                 .cornerRadius(12)
@@ -267,6 +273,8 @@ struct CareInfoRow: View {
             Text(value)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
             
             Spacer()
         }
