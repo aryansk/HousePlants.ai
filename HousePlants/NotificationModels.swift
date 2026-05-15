@@ -14,5 +14,6 @@ struct AppNotification: Identifiable, Codable {
         case alert = "exclamationmark.triangle.fill"
         case tip = "lightbulb.fill"
         case info = "info.circle.fill"
+        case repotting = "arrow.up.left.and.arrow.down.right.circle.fill"
     }
 }

@@ -6,7 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3A7769CC2FAAFF760030FCFD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A7769CB2FAAFF760030FCFD /* WidgetKit.framework */; };
+		3A7769CE2FAAFF760030FCFD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A7769CD2FAAFF760030FCFD /* SwiftUI.framework */; };
+		3A7769DF2FAAFF770030FCFD /* Progress EntentionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		3A7769DD2FAAFF770030FCFD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 926DBDD62ED890120092E592 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A7769C82FAAFF760030FCFD;
+			remoteInfo = "Progress EntentionExtension";
+		};
 		926DBDEC2ED890140092E592 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 926DBDD62ED890120092E592 /* Project object */;
@@ -23,13 +36,48 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3A7769E02FAAFF770030FCFD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3A7769DF2FAAFF770030FCFD /* Progress EntentionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Progress EntentionExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A7769CB2FAAFF760030FCFD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		3A7769CD2FAAFF760030FCFD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		926DBDDE2ED890120092E592 /* HousePlants.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HousePlants.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		926DBDEB2ED890140092E592 /* HousePlantsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HousePlantsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		926DBDF52ED890140092E592 /* HousePlantsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HousePlantsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3A7769E32FAAFF770030FCFD /* Exceptions for "Progress Entention" folder in "Progress EntentionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		3A7769CF2FAAFF760030FCFD /* Progress Entention */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3A7769E32FAAFF770030FCFD /* Exceptions for "Progress Entention" folder in "Progress EntentionExtension" target */,
+			);
+			path = "Progress Entention";
+			sourceTree = "<group>";
+		};
 		926DBDE02ED890120092E592 /* HousePlants */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HousePlants;
@@ -48,6 +96,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3A7769C62FAAFF760030FCFD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A7769CE2FAAFF760030FCFD /* SwiftUI.framework in Frameworks */,
+				3A7769CC2FAAFF760030FCFD /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		926DBDDB2ED890120092E592 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -72,12 +129,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3A7769CA2FAAFF760030FCFD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3A7769CB2FAAFF760030FCFD /* WidgetKit.framework */,
+				3A7769CD2FAAFF760030FCFD /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		926DBDD52ED890120092E592 = {
 			isa = PBXGroup;
 			children = (
 				926DBDE02ED890120092E592 /* HousePlants */,
 				926DBDEE2ED890140092E592 /* HousePlantsTests */,
 				926DBDF82ED890140092E592 /* HousePlantsUITests */,
+				3A7769CF2FAAFF760030FCFD /* Progress Entention */,
+				3A7769CA2FAAFF760030FCFD /* Frameworks */,
 				926DBDDF2ED890120092E592 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +156,7 @@
 				926DBDDE2ED890120092E592 /* HousePlants.app */,
 				926DBDEB2ED890140092E592 /* HousePlantsTests.xctest */,
 				926DBDF52ED890140092E592 /* HousePlantsUITests.xctest */,
+				3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +164,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A7769E42FAAFF770030FCFD /* Build configuration list for PBXNativeTarget "Progress EntentionExtension" */;
+			buildPhases = (
+				3A7769C52FAAFF760030FCFD /* Sources */,
+				3A7769C62FAAFF760030FCFD /* Frameworks */,
+				3A7769C72FAAFF760030FCFD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3A7769CF2FAAFF760030FCFD /* Progress Entention */,
+			);
+			name = "Progress EntentionExtension";
+			packageProductDependencies = (
+			);
+			productName = "Progress EntentionExtension";
+			productReference = 3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		926DBDDD2ED890120092E592 /* HousePlants */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 926DBDFF2ED890140092E592 /* Build configuration list for PBXNativeTarget "HousePlants" */;
@@ -102,10 +193,12 @@
 				926DBDDA2ED890120092E592 /* Sources */,
 				926DBDDB2ED890120092E592 /* Frameworks */,
 				926DBDDC2ED890120092E592 /* Resources */,
+				3A7769E02FAAFF770030FCFD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3A7769DE2FAAFF770030FCFD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				926DBDE02ED890120092E592 /* HousePlants */,
@@ -170,9 +263,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2610;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					3A7769C82FAAFF760030FCFD = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
 					926DBDDD2ED890120092E592 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -203,11 +299,19 @@
 				926DBDDD2ED890120092E592 /* HousePlants */,
 				926DBDEA2ED890140092E592 /* HousePlantsTests */,
 				926DBDF42ED890140092E592 /* HousePlantsUITests */,
+				3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3A7769C72FAAFF760030FCFD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		926DBDDC2ED890120092E592 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,6 +336,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3A7769C52FAAFF760030FCFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		926DBDDA2ED890120092E592 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +367,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3A7769DE2FAAFF770030FCFD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */;
+			targetProxy = 3A7769DD2FAAFF770030FCFD /* PBXContainerItemProxy */;
+		};
 		926DBDED2ED890140092E592 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 926DBDDD2ED890120092E592 /* HousePlants */;
@@ -269,6 +385,68 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		3A7769E12FAAFF770030FCFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U52UDRMR4A;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Progress Entention/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Progress Entention";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants.Progress-Entention";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3A7769E22FAAFF770030FCFD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U52UDRMR4A;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Progress Entention/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Progress Entention";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants.Progress-Entention";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		926DBDFD2ED890140092E592 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -323,7 +501,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -382,7 +560,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -403,6 +581,9 @@
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used by the Sun Seeker tool to analyze light conditions for your plants.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to auto-detect your city for the Climate Matcher tool.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Used to set your profile photo.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -436,6 +617,9 @@
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Used by the Sun Seeker tool to analyze light conditions for your plants.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to auto-detect your city for the Climate Matcher tool.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Used to set your profile photo.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -467,7 +651,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlantsTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -490,7 +674,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlantsTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -549,6 +733,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3A7769E42FAAFF770030FCFD /* Build configuration list for PBXNativeTarget "Progress EntentionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A7769E12FAAFF770030FCFD /* Debug */,
+				3A7769E22FAAFF770030FCFD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		926DBDD92ED890120092E592 /* Build configuration list for PBXProject "HousePlants" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

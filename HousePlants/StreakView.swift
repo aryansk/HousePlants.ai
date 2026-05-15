@@ -232,7 +232,7 @@ struct ConfettiPiece: View {
     @State private var rotation: Double = .random(in: 0...360)
     @State private var opacity: Double = 1.0
     @State private var scale: CGFloat = .random(in: 1.0...2.5)
-    @State private var emoji: String = ["🌿", "🍃", "🌱", "🍀", "🪴", "☘️"].randomElement()!
+    @State private var emoji: String = ["🌿", "🍃", "🌱", "🍀", "🪴", "☘️"].randomElement() ?? "🌿"
     
     var body: some View {
         Text(emoji)

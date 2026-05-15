@@ -192,15 +192,15 @@ struct ProfileView: View {
                         }
                     
                         Section(header: Text("Support").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                            Link(destination: URL(string: "https://houseplants.ai")!) {
+                            Link(destination: URL(string: "https://houseplants.io")!) {
                                 Label("Help Center", systemImage: "questionmark.circle.fill")
                             }
                         
-                            Link(destination: URL(string: "https://houseplants.ai/privacy")!) {
+                            Link(destination: URL(string: "https://houseplants.io/privacy")!) {
                                 Label("Privacy Policy", systemImage: "shield.fill")
                             }
                         
-                            Link(destination: URL(string: "https://houseplants.ai/terms")!) {
+                            Link(destination: URL(string: "https://houseplants.io/terms")!) {
                                 Label("Terms of Service", systemImage: "doc.text.fill")
                             }
                         

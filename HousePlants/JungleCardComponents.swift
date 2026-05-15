@@ -5,6 +5,7 @@ struct EnhancedPlantCard: View {
     let plant: Plant
     @EnvironmentObject var dataLoader: DataLoader
     @State private var showCareSheet = false
+    @State private var showInsightsSheet = false
     @State private var justWatered = false
     
     var myPlant: MyPlant? {
@@ -80,6 +81,24 @@ struct EnhancedPlantCard: View {
                         .background(Circle().fill(Color.claudeBackground.opacity(0.55)).blur(radius: 3))
                         .padding(8)
                 }
+
+                // Repot soon badge
+                if let myPlant,
+                   let days = dataLoader.daysUntilRepot(myPlant: myPlant),
+                   days <= 30 {
+                    HStack(spacing: 4) {
+                        Image(systemName: days <= 0 ? "exclamationmark.triangle.fill" : "arrow.up.left.and.arrow.down.right.circle.fill")
+                        Text(days <= 0 ? "Repot" : "Repot \(days)d")
+                    }
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(.thinMaterial))
+                    .foregroundStyle(days <= 0 ? Color.red : Color.brown)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .allowsHitTesting(false)
+                }
             }
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             
@@ -145,6 +164,9 @@ struct EnhancedPlantCard: View {
             Button(action: { showCareSheet = true }) {
                 Label("Manage Plant", systemImage: "slider.horizontal.3")
             }
+            Button(action: { showInsightsSheet = true }) {
+                Label("Insights", systemImage: "chart.bar.doc.horizontal")
+            }
             Button(action: { dataLoader.waterPlant(plantId: plant.id) }) {
                 Label("Water Plant", systemImage: "drop.fill")
             }
@@ -152,6 +174,14 @@ struct EnhancedPlantCard: View {
         .sheet(isPresented: $showCareSheet) {
             PlantCareSheet(plant: plant)
                 .environmentObject(dataLoader)
+        }
+        .sheet(isPresented: $showInsightsSheet) {
+            if let myPlant = dataLoader.myJungleLookup[plant.id] {
+                NavigationStack {
+                    PlantInsightsView(myPlant: myPlant)
+                }
+                .environmentObject(dataLoader)
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ struct ToolsView: View {
                             // Category: Essential Care
                             ToolSection(title: "Essential Care") {
                                 VStack(spacing: 12) {
-                                    ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "AR light meter to find the perfect spot for your plants.", color: .orange)
+                                    ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "Light meter to find the perfect spot for your plants.", color: .orange)
                                     
                                     ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue)
                                     
@@ -31,6 +31,8 @@ struct ToolsView: View {
                                     ToolNavigationLink(destination: SoilMixBuilderView(), icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates for species.", color: Color(hex: "8B4513"))
                                     
                                     ToolNavigationLink(destination: SeasonalCareCalendarView(), icon: "calendar.badge.clock", title: "Seasonal Care", description: "Month-by-month care timeline for every season.", color: Color(hex: "4CAF50"))
+
+                                    ToolNavigationLink(destination: SitterModeView(), icon: "person.2.fill", title: "Plant Sitter Mode", description: "Generate a shareable care PDF for your sitter.", color: .pink)
                                 }
                             }
                             
@@ -87,7 +89,7 @@ struct FeaturedToolInfo: Identifiable {
 }
 
 private let allFeaturedTools: [FeaturedToolInfo] = [
-    FeaturedToolInfo(id: 0, icon: "sun.max.fill", title: "Sun Seeker AI", description: "Find the perfect light intensity for your plants using your camera and augmented reality.", ctaLabel: "Start Measuring", gradientColors: [Color.claudeAccent, Color(hex: "E69173")]),
+    FeaturedToolInfo(id: 0, icon: "sun.max.fill", title: "Sun Seeker", description: "Find the perfect light intensity for every corner of your home.", ctaLabel: "Start Measuring", gradientColors: [Color.claudeAccent, Color(hex: "E69173")]),
     FeaturedToolInfo(id: 1, icon: "drop.fill", title: "Watering Guide", description: "Build custom watering schedules tuned to your home's micro-climate and each plant's needs.", ctaLabel: "Build Schedule", gradientColors: [Color(hex: "2980B9"), Color(hex: "6DD5FA")]),
     FeaturedToolInfo(id: 2, icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition plans for every growth stage — from seedling to mature specimen.", ctaLabel: "Plan Nutrition", gradientColors: [Color(hex: "27AE60"), Color(hex: "A8E063")]),
     FeaturedToolInfo(id: 3, icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates optimized for your species' native growing conditions.", ctaLabel: "Mix Substrate", gradientColors: [Color(hex: "8B4513"), Color(hex: "D2691E")]),
@@ -276,180 +278,170 @@ struct ToolCardView: View {
 struct SunSeekerARView: View {
     @Environment(\.dismiss) var dismiss
     @State private var isScanning = false
-    @State private var lightLevel: Double = 0.5
-    @State private var showCamera = false
+    @State private var windowDirection: WindowDirection = .south
+    @State private var isDirectSun: Bool = true
     @State private var showInfoSheet = false
-    
+
+    enum WindowDirection: String, CaseIterable {
+        case north = "North", south = "South", east = "East", west = "West"
+        var lightLevel: Double {
+            switch self {
+            case .north: return 0.15
+            case .east, .west: return 0.55
+            case .south: return 0.85
+            }
+        }
+    }
+
+    var effectiveLightLevel: Double {
+        isDirectSun ? windowDirection.lightLevel : windowDirection.lightLevel * 0.6
+    }
+
     var lightStatus: (String, Color) {
-        if lightLevel < 0.3 {
+        if effectiveLightLevel < 0.3 {
             return ("Low Light", .blue)
-        } else if lightLevel < 0.7 {
+        } else if effectiveLightLevel < 0.7 {
             return ("Medium Light", .green)
         } else {
             return ("Bright Light", .orange)
         }
     }
-    
+
     var body: some View {
         ZStack {
             Color.claudeBackground.ignoresSafeArea()
-            
-            if showCamera {
-                ZStack {
-                    Color.black
-                    
-                    // Simulated Camera Feed
-                    VStack {
-                        Spacer()
-                        Image(systemName: "camera.metering.center.weighted")
-                            .font(.system(size: 50))
-                            .foregroundStyle(.white.opacity(0.5))
-                        Spacer()
-                    }
-                    
-                    // Overlay
-                    VStack {
-                        HStack {
-                            Button(action: { showCamera = false }) {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(12)
-                                    .background(Circle().fill(Color.white.opacity(0.2)))
-                            }
-                            Spacer()
+
+            VStack(spacing: 0) {
+                ClaudeHeader(
+                    title: "Sun Seeker",
+                    subtitle: "Find the perfect spot for your plants.",
+                    trailingActions: AnyView(
+                        Button(action: { showInfoSheet = true }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 22))
+                                .foregroundColor(.claudePrimaryText.opacity(0.8))
+                                .frame(width: 44, height: 44)
+                                .background(Circle().fill(Color.orange.opacity(0.1)))
                         }
-                        .padding(24)
-                        
-                        Spacer()
-                        
-                        // Meter
-                        VStack(spacing: 24) {
-                            VStack(spacing: 8) {
+                    ),
+                    showBackButton: true
+                )
+
+                GeometryReader { geometry in
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 24) {
+
+                            // Light level readout
+                            VStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.orange.opacity(0.1))
+                                        .frame(width: 120, height: 120)
+                                    ForEach(0..<3) { i in
+                                        Circle()
+                                            .stroke(Color.orange.opacity(0.2), lineWidth: 2)
+                                            .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
+                                            .scaleEffect(isScanning ? 1.1 : 1.0)
+                                            .opacity(isScanning ? 0.3 : 0.1)
+                                            .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: isScanning)
+                                    }
+                                    Image(systemName: "sun.max.fill")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.orange)
+                                        .shadow(color: .orange.opacity(0.3), radius: 10)
+                                        .onAppear { isScanning = true }
+                                }
+
                                 Text(lightStatus.0.uppercased())
                                     .font(.claudeSans(size: 14, weight: .bold))
                                     .foregroundColor(lightStatus.1)
                                     .tracking(2)
-                                
-                                Text("\(Int(lightLevel * 100))%")
+
+                                Text("\(Int(effectiveLightLevel * 100))%")
                                     .font(.system(size: 48, weight: .black, design: .rounded))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.claudePrimaryText)
                             }
-                            .padding(.vertical, 20)
-                            .padding(.horizontal, 40)
-                            .background(BlurView(style: .systemThinMaterialDark).cornerRadius(24))
-                            
-                            VStack(spacing: 12) {
-                                Text("Simulated Photon Intensity")
-                                    .font(.claudeSans(size: 13))
-                                    .foregroundStyle(.white.opacity(0.6))
-                                Slider(value: $lightLevel)
-                                    .tint(lightStatus.1)
-                            }
-                            .padding(20)
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(20)
-                            .padding(.horizontal, 30)
-                        }
-                        .padding(.bottom, 60)
-                    }
-                }
-                .edgesIgnoringSafeArea(.all)
-            } else {
-                VStack(spacing: 0) {
-                    ClaudeHeader(
-                        title: "Sun Seeker",
-                        subtitle: "Measure the photons. Find the sanctuary.",
-                        trailingActions: AnyView(
-                            Button(action: { showInfoSheet = true }) {
-                                Image(systemName: "info.circle")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.claudePrimaryText.opacity(0.8))
-                                    .frame(width: 44, height: 44)
-                                    .background(Circle().fill(Color.orange.opacity(0.1)))
-                            }
-                        ),
-                        showBackButton: true
-                    )
-                    
-                    GeometryReader { geometry in
-                        ScrollView(showsIndicators: false) {
-                            VStack(alignment: .leading, spacing: 20) {
-                                VStack(spacing: 32) {
-                                    VStack(spacing: 16) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(Color.orange.opacity(0.1))
-                                                .frame(width: 120, height: 120)
-                                            
-                                            // Radiance effect
-                                            ForEach(0..<3) { i in
-                                                Circle()
-                                                    .stroke(Color.orange.opacity(0.2), lineWidth: 2)
-                                                    .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
-                                                    .scaleEffect(isScanning ? 1.1 : 1.0)
-                                                    .opacity(isScanning ? 0.3 : 0.1)
-                                                    .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: isScanning)
-                                            }
-                                            
-                                            Image(systemName: "sun.max.fill")
-                                                .font(.system(size: 60))
-                                                .foregroundColor(.orange)
-                                                .shadow(color: .orange.opacity(0.3), radius: 10)
-                                                .onAppear { isScanning = true }
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 24)
+
+                            // Window direction picker
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Window Direction")
+                                    .font(.claudeSans(size: 14, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .textCase(.uppercase)
+                                    .tracking(1.5)
+                                    .padding(.horizontal, 24)
+
+                                HStack(spacing: 12) {
+                                    ForEach(WindowDirection.allCases, id: \.self) { dir in
+                                        Button(action: { windowDirection = dir }) {
+                                            Text(dir.rawValue)
+                                                .font(.claudeSans(size: 15, weight: windowDirection == dir ? .bold : .regular))
+                                                .foregroundColor(windowDirection == dir ? .white : .claudePrimaryText)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 12)
+                                                .background(windowDirection == dir ? Color.orange : Color.claudeSecondaryBackground)
+                                                .cornerRadius(14)
+                                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.claudeBorder, lineWidth: windowDirection == dir ? 0 : 1))
                                         }
                                     }
-                                    .padding(.top, 24)
-                        
-                        Text("Use your camera to measure light intensity in real-time. We'll tell you which plants will thrive in each corner of your home.")
-                            .multilineTextAlignment(.center)
-                            .font(.claudeSans(size: 15))
-                            .foregroundColor(.claudeSecondaryText)
-                            .padding(.horizontal, 32)
-                        
-                        Button(action: { showCamera = true }) {
-                            HStack {
-                                Image(systemName: "camera.fill")
-                                Text("Launch Light Meter")
+                                }
+                                .padding(.horizontal, 24)
                             }
-                            .font(.claudeSans(size: 16, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                            .background(Color.claudeAccent)
-                            .cornerRadius(18)
-                            .shadow(color: Color.claudeAccent.opacity(0.3), radius: 10, x: 0, y: 5)
-                        }
-                        .padding(.horizontal, 24)
-                        
-                        VStack(alignment: .leading, spacing: 20) {
-                            Text("The Light Spectrum")
-                                .font(.claudeSans(size: 14, weight: .bold))
-                                .foregroundColor(.claudeSecondaryText)
-                                .textCase(.uppercase)
-                                .tracking(1.5)
-                            
-                            VStack(spacing: 0) {
-                                LightGuideRow(title: "Low Light", desc: "North windows or deep room corners.", color: .blue)
-                                Divider().padding(.leading, 60)
-                                LightGuideRow(title: "Medium Light", desc: "East/West windows with filtered light.", color: .green)
-                                Divider().padding(.leading, 60)
-                                LightGuideRow(title: "Bright Light", desc: "South windows or direct sun exposure.", color: .orange)
+
+                            // Direct sun toggle
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Conditions")
+                                    .font(.claudeSans(size: 14, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .textCase(.uppercase)
+                                    .tracking(1.5)
+                                    .padding(.horizontal, 24)
+
+                                HStack {
+                                    Text(isDirectSun ? "Direct sunlight" : "Filtered / indirect light")
+                                        .font(.claudeSans(size: 15))
+                                        .foregroundColor(.claudePrimaryText)
+                                    Spacer()
+                                    Toggle("", isOn: $isDirectSun)
+                                        .tint(.orange)
+                                }
+                                .padding(16)
+                                .background(Color.claudeSecondaryBackground)
+                                .cornerRadius(16)
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
+                                .padding(.horizontal, 24)
                             }
-                            .background(Color.claudeSecondaryBackground)
-                            .cornerRadius(20)
-                            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
+
+                            // Light guide
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("The Light Spectrum")
+                                    .font(.claudeSans(size: 14, weight: .bold))
+                                    .foregroundColor(.claudeSecondaryText)
+                                    .textCase(.uppercase)
+                                    .tracking(1.5)
+
+                                VStack(spacing: 0) {
+                                    LightGuideRow(title: "Low Light", desc: "North windows or deep room corners.", color: .blue)
+                                    Divider().padding(.leading, 60)
+                                    LightGuideRow(title: "Medium Light", desc: "East/West windows with filtered light.", color: .green)
+                                    Divider().padding(.leading, 60)
+                                    LightGuideRow(title: "Bright Light", desc: "South windows or direct sun exposure.", color: .orange)
+                                }
+                                .background(Color.claudeSecondaryBackground)
+                                .cornerRadius(20)
+                                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
+                            }
+                            .padding(.horizontal, 24)
+
                         }
-                        .padding(.horizontal, 24)
-                        } // end Inner VStack (304)
-                        } // end Outer Content VStack (291)
                         .frame(width: geometry.size.width)
                         .padding(.bottom, 40)
-                    } // end ScrollView (290)
+                    }
                 }
-                }
-            } // end else (289)
-        } // end outer ZStack (225)
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showInfoSheet) {
@@ -737,14 +729,14 @@ struct SunSeekerInfoSheet: View {
                                 .font(.claudeSerif(size: 32, weight: .bold))
                                 .foregroundColor(.claudePrimaryText)
                             
-                            Text("Use your camera to measure light intensity in different areas of your home and find the perfect spot for every plant.")
+                            Text("Tell Sun Seeker about your window direction and lighting conditions to find the perfect spot for every plant.")
                                 .font(.claudeSans(size: 16))
                                 .foregroundColor(.claudeSecondaryText)
                                 .lineSpacing(4)
                         }
                         
                         VStack(spacing: 16) {
-                            InfoRow(icon: "camera.fill", title: "Light Meter", text: "Point your camera at any spot and get a real-time reading of light intensity, measured as a percentage of full sun exposure.", color: .orange)
+                            InfoRow(icon: "sun.max.fill", title: "Light Estimator", text: "Select your window direction and whether you get direct sun to instantly estimate light intensity, measured as a percentage of full sun exposure.", color: .orange)
                             
                             InfoRow(icon: "circle.fill", title: "Low Light (0-30%)", text: "North-facing windows and deep corners. Perfect for snake plants, ZZ plants, pothos, and peace lilies.", color: .blue)
                             

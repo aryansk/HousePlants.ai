@@ -42,20 +42,10 @@ class LocationSearchManager: NSObject, ObservableObject, MKLocalSearchCompleterD
                 return
             }
 
-            // Prefer modern MapKit properties (iOS 26+)
-            let cityName = mapItem.addressRepresentations?.cityName ?? mapItem.name
+            let placemark = mapItem.placemark
+            let cityName = placemark.locality ?? placemark.name ?? mapItem.name
 
-            // Derive country from formatted address representations if available
-            var countryName: String? = nil
-            if let representations = mapItem.addressRepresentations,
-               let formatted = representations.fullAddress(includingRegion: true, singleLine: true) {
-                let comps = formatted
-                    .split(separator: ",")
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                countryName = comps.last
-            }
-
-            // Fallback: try MKLocalSearchCompletion subtitle parsing
+            var countryName: String? = placemark.country
             if countryName == nil {
                 let comps = completion.subtitle
                     .split(separator: ",")

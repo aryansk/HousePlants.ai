@@ -8,8 +8,9 @@ An intelligent iOS plant care companion that helps you nurture your indoor jungl
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-4.0-purple.svg)
 ![Maintenance](https://img.shields.io/badge/Maintenance-Active-brightgreen.svg)
 
-<img width="1920" height="1080" alt="SkinCare ai" src="https://github.com/user-attachments/assets/7f96aeb9-3738-4c96-8b13-ae84152447b9" />
+<img width="1920" height="1080" alt="HousePlants io" src="https://github.com/user-attachments/assets/ebc916e3-06c1-4f87-b165-80a46f55c63b" />
 
+<img width="1920" height="1080" alt="SkinCare ai" src="https://github.com/user-attachments/assets/7f96aeb9-3738-4c96-8b13-ae84152447b9" />
 
 ## 📖 Table of Contents
 - [Core Features](#-core-features)
@@ -144,8 +145,8 @@ Native frameworks: SwiftUI · Foundation · Combine · CoreLocation · ARKit (op
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/aryansk/HousePlants.ai.git
-cd HousePlants.ai
+git clone https://github.com/aryansk/HousePlants.io.git
+cd HousePlants.io
 open HousePlants.xcodeproj
 # Select a simulator or device, then Cmd+R
 ```
@@ -322,7 +323,7 @@ struct UserProfile: Codable {
 ## 🤝 Contributing
 
 ```bash
-git clone https://github.com/aryansk/HousePlants.ai.git
+git clone https://github.com/aryansk/HousePlants.io.git
 git checkout -b feature/your-feature
 # make changes
 git commit -m "feat: description"

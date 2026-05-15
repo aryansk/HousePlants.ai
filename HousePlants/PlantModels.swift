@@ -160,6 +160,15 @@ struct MyPlant: Codable, Identifiable {
     var lastFertilized: String? // ISO date string
     var lastMisted: String? // ISO date string
 
+    // Weather-aware watering
+    var isOutdoor: Bool?
+    var wateringAdjustmentNote: String?
+
+    // Repotting
+    var potSizeInches: Int?
+    var lastRepotted: String?
+    var nextRepotDate: String?
+
     enum CodingKeys: String, CodingKey {
         case plantId = "plant_id"
         case nickname
@@ -174,6 +183,11 @@ struct MyPlant: Codable, Identifiable {
         case customWateringFrequencyDays = "custom_watering_frequency_days"
         case lastFertilized = "last_fertilized"
         case lastMisted = "last_misted"
+        case isOutdoor = "is_outdoor"
+        case wateringAdjustmentNote = "watering_adjustment_note"
+        case potSizeInches = "pot_size_inches"
+        case lastRepotted = "last_repotted"
+        case nextRepotDate = "next_repot_date"
     }
 }
 

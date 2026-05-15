@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var dataLoader = DataLoader()
+    @StateObject private var dataLoader = DataLoader.shared
     @State private var tabSelection = TabSelection()
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("darkModeEnabled") var darkModeEnabled: Bool = false
