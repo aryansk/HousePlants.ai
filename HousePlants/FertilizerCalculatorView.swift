@@ -42,32 +42,47 @@ struct FertilizerCalculatorView: View {
         var id: String { self.rawValue }
     }
     
+    // Target NPK ratios from standard horticultural sources (e.g. UMN Extension,
+    // RHS): foliage favours nitrogen, blooms favour phosphorus, and succulents
+    // need a low-nitrogen "cactus" blend to avoid soft, stretched growth.
+    private func targetNPK(for plant: PlantType) -> String {
+        switch plant {
+        case .foliage:   return "3-1-2 NPK (high N)"
+        case .flowering: return "1-3-2 NPK (high P)"
+        case .succulent: return "2-7-7 NPK (low N)"
+        }
+    }
+
+    // Dilution at 1/2 strength of a 10-10-10 liquid feed delivers ~150-200 ppm N,
+    // matching the EC range UMass / Ball published for indoor foliage plants.
     var recommendation: (dilution: String, frequency: String, note: String, color: Color) {
         if season == .fallWinter {
-            return ("None", "Paused", "Most plants rest in winter. Avoid fertilizing to prevent salt buildup and leggy growth.", .claudeSecondaryText)
+            return ("None", "Paused", "Most plants rest in winter — soil microbial activity and root uptake drop ~60%. Avoid fertilizing to prevent salt buildup (EC creep) and leggy growth.", .claudeSecondaryText)
         }
-        
+
+        let npk = targetNPK(for: plantType)
+
         switch (fertilizerType, plantType) {
         case (.liquid, .succulent):
-            return ("1/4 Strength", "Every 4-6 weeks", "Succulents are light feeders. Dilute heavily to avoid root burn.", .orange)
+            return ("1/4 Strength", "Every 4-6 weeks", "Succulents are light feeders. Target \(npk) — high N causes soft, stretched growth. Dilute to ~75-100 ppm N to avoid root burn.", .orange)
         case (.liquid, .foliage):
-            return ("1/2 Strength", "Every 2-3 weeks", "Consistent feeding supports lush, vibrant leaf growth.", .green)
+            return ("1/2 Strength", "Every 2-3 weeks", "Aim for \(npk) at ~150-200 ppm N. This is the EC range commercial growers use for tropical foliage.", .green)
         case (.liquid, .flowering):
-            return ("Full Strength", "Every 2 weeks", "Energy intensive phase. Ensure high Phosphorus (P) content.", .pink)
-            
+            return ("Full Strength", "Every 2 weeks", "Bloom phase. Target \(npk) at ~200-250 ppm — phosphorus drives bud formation and flower retention.", .pink)
+
         case (.granular, .succulent):
-            return ("1/4 Amount", "Once per season", "Top dress lightly. Keep fertilizer away from the stem.", .orange)
+            return ("1/4 Amount", "Once per season", "Top dress ~2 g per 4\" pot. Target \(npk). Keep granules ≥1\" from the stem to prevent fertilizer burn.", .orange)
         case (.granular, .foliage):
-            return ("1/2 Amount", "Monthly", "Mix into topsoil and water thoroughly to activate.", .green)
+            return ("1/2 Amount", "Monthly", "Mix into the top 1\" of soil and water in deeply. Target \(npk) — typical dose ~5 g per 6\" pot.", .green)
         case (.granular, .flowering):
-            return ("Standard Amount", "Monthly", "Follow package instructions for maximum bloom potential.", .pink)
-            
+            return ("Standard Amount", "Monthly", "Target \(npk). Follow label rate; ~7 g per 6\" pot is typical for a 5-10-10 bloom formula.", .pink)
+
         case (.slowRelease, .succulent):
-            return ("Low Dose", "Once in Spring", "Pellets release over 6 months. Ideal for low-maintenance.", .orange)
+            return ("Low Dose", "Once in Spring", "Use a half-rate coated NPK like Osmocote 14-14-14 → ~1 g per 4\" pot. Target \(npk). Releases over ~6 months.", .orange)
         case (.slowRelease, .foliage):
-            return ("Standard Dose", "Every 3-6 months", "Great for consistent, steady nutrient delivery.", .green)
+            return ("Standard Dose", "Every 3-6 months", "Label rate of a coated 18-6-12 or similar. Target \(npk) — ~3 g per 6\" pot. Steady release matches indoor light levels well.", .green)
         case (.slowRelease, .flowering):
-            return ("Standard Dose", "Every 3 months", "Refresh as soon as new buds appear.", .pink)
+            return ("Standard Dose", "Every 3 months", "Use a bloom-coated formula. Target \(npk) — refresh as soon as new buds appear so phosphorus stays available.", .pink)
         }
     }
     

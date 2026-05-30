@@ -52,55 +52,69 @@ struct WaterCalculatorView: View {
         }
         
         var multiplier: Double {
+            // Soil volume scales roughly with diameter^2.5 for typical pot proportions;
+            // root density partially offsets, giving these empirical ratios vs. a 9" pot.
             switch self {
-            case .small: return 0.8
+            case .small: return 0.65
             case .medium: return 1.0
-            case .large: return 1.5
+            case .large: return 1.7
             }
         }
-        
+
         var volume: String {
+            // Rule of thumb: water ~20% of pot soil volume to saturate to drainage.
             switch self {
-            case .small: return "100-200ml"
-            case .medium: return "300-500ml"
-            case .large: return "1-1.5 Liters"
+            case .small: return "150-300 ml"
+            case .medium: return "750 ml - 1.2 L"
+            case .large: return "2-3 L"
             }
         }
     }
-    
+
     enum Season: String, CaseIterable, Identifiable {
         case summer = "Spring/Summer"
         case winter = "Fall/Winter"
-        
+
         var id: String { self.rawValue }
-        
+
         var icon: String {
             switch self {
             case .summer: return "sun.max.fill"
             case .winter: return "snowflake"
             }
         }
-        
-        var dayModifier: Int {
+
+        // Dormancy reduces transpiration / root uptake — extend interval by ~40%.
+        var multiplier: Double {
             switch self {
-            case .summer: return 0
-            case .winter: return 4
+            case .summer: return 1.0
+            case .winter: return 1.4
             }
         }
     }
-    
+
+    // Tetens equation: saturation vapor pressure in kPa.
+    private func saturationVaporPressure(_ tC: Double) -> Double {
+        return 0.6108 * exp(17.27 * tC / (tC + 237.3))
+    }
+
+    // Vapor pressure deficit drives transpiration: higher VPD → faster soil drying.
+    private func vaporPressureDeficit(tempC: Double, rhPercent: Double) -> Double {
+        let rh = max(0, min(100, rhPercent)) / 100.0
+        return saturationVaporPressure(tempC) * (1 - rh)
+    }
+
     var calculatedFrequency: String {
         let base = Double(selectedPlantType.baseWateringDays)
-        let sizeMod = potSize.multiplier
-        let seasonMod = Double(season.dayModifier)
-        
-        // Humidity & Temp impact (Simulated)
-        let humidityMod = (60.0 - humidityLevel) / 20.0 // Higher humidity -> less water (add days)
-        let tempMod = (temperature - 22.0) / 5.0 // Higher temp -> more water (subtract days)
-        
-        let days = Int((base * sizeMod) + seasonMod + humidityMod - tempMod)
-        let finalDays = max(1, days)
-        return "Every \(finalDays)-\(finalDays + 2) days"
+        // Reference condition for `baseWateringDays`: 22 °C, 60% RH → VPD ≈ 1.06 kPa.
+        let referenceVPD = vaporPressureDeficit(tempC: 22, rhPercent: 60)
+        let currentVPD = max(0.15, vaporPressureDeficit(tempC: temperature, rhPercent: humidityLevel))
+        let envFactor = referenceVPD / currentVPD
+
+        let raw = base * potSize.multiplier * envFactor * season.multiplier
+        let finalDays = max(1, Int(raw.rounded()))
+        let upper = finalDays + max(1, finalDays / 4) // ±25% window
+        return "Every \(finalDays)-\(upper) days"
     }
     
     var calculatedMethod: String {
