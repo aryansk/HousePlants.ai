@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import os
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
@@ -38,7 +39,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location manager error: \(error.localizedDescription)")
+        Logger.location.error("Location manager error: \(error.localizedDescription)")
         DispatchQueue.main.async {
             self.isUpdating = false
         }

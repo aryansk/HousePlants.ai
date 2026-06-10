@@ -3,6 +3,7 @@ import UIKit
 import ImageIO
 import MobileCoreServices
 import UniformTypeIdentifiers
+import os
 
 struct JournalEntry: Identifiable, Equatable {
     let id: String   // filename (ISO date)
@@ -53,7 +54,7 @@ final class PlantJournalStore {
             try data.write(to: url, options: .atomic)
             return JournalEntry(id: filename, url: url, date: date)
         } catch {
-            print("Journal write failed: \(error)")
+            Logger.persistence.error("Journal write failed: \(error)")
             return nil
         }
     }

@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import PDFKit
+import os
 
 struct SitterPlant: Identifiable {
     let id: String
@@ -98,7 +99,7 @@ enum SitterCardRenderer {
                 }
             }
         } catch {
-            print("Sitter PDF render error: \(error)")
+            Logger.rendering.error("Sitter PDF render error: \(error)")
             return nil
         }
 

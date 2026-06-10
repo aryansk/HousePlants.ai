@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import CoreLocation
+import os
 #if canImport(WeatherKit)
 import WeatherKit
 #endif
@@ -63,7 +64,7 @@ final class WeatherManager: ObservableObject {
                 return WateringAdjustment(daysDelta: -1, reason: "Heatwave — watering sooner", appliesIndoors: true)
             }
         } catch {
-            print("WeatherKit error: \(error.localizedDescription)")
+            Logger.weather.error("WeatherKit error: \(error.localizedDescription)")
         }
         #endif
         return .none

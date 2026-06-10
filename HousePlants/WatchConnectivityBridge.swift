@@ -1,4 +1,5 @@
 import Foundation
+import os
 #if canImport(WatchConnectivity)
 import WatchConnectivity
 #endif
@@ -48,7 +49,7 @@ final class WatchConnectivityBridge: NSObject {
         do {
             try session.updateApplicationContext(payload)
         } catch {
-            print("WCSession context error: \(error)")
+            Logger.connectivity.error("WCSession context error: \(error)")
         }
         #endif
     }

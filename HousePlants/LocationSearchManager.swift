@@ -1,6 +1,7 @@
 import Foundation
 import MapKit
 import Combine
+import os
 
 class LocationSearchManager: NSObject, ObservableObject, MKLocalSearchCompleterDelegate {
     @Published var suggestions: [MKLocalSearchCompletion] = []
@@ -29,7 +30,7 @@ class LocationSearchManager: NSObject, ObservableObject, MKLocalSearchCompleterD
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-        print("Location search error: \(error.localizedDescription)")
+        Logger.location.error("Location search error: \(error.localizedDescription)")
     }
     
     func getCityAndCountry(from completion: MKLocalSearchCompletion, completionHandler: @escaping (String?, String?) -> Void) {

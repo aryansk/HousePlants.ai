@@ -134,11 +134,24 @@ struct Preferences: Codable {
     var difficultyLevel: String
     var petSafeOnly: Bool
     var notifyOnSundays: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case difficultyLevel = "difficulty_level"
         case petSafeOnly = "pet_safe_only"
         case notifyOnSundays = "notify_on_sundays"
+    }
+
+    init(difficultyLevel: String, petSafeOnly: Bool, notifyOnSundays: Bool) {
+        self.difficultyLevel = difficultyLevel
+        self.petSafeOnly = petSafeOnly
+        self.notifyOnSundays = notifyOnSundays
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.difficultyLevel = try c.decode(String.self, forKey: .difficultyLevel)
+        self.petSafeOnly = try c.decode(Bool.self, forKey: .petSafeOnly)
+        self.notifyOnSundays = try c.decodeIfPresent(Bool.self, forKey: .notifyOnSundays) ?? false
     }
 }
 
