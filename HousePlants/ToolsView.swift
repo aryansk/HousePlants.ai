@@ -1,6 +1,11 @@
 import SwiftUI
 
 struct ToolsView: View {
+    @EnvironmentObject var dataLoader: DataLoader
+    @ObservedObject private var proManager = ProManager.shared
+    @State private var showProUpgrade = false
+    @State private var showGrowthPicker = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -22,6 +27,8 @@ struct ToolsView: View {
                             // Category: Essential Care
                             ToolSection(title: "Essential Care") {
                                 VStack(spacing: 12) {
+                                    ToolNavigationLink(destination: PlantIdentifierView(), icon: "camera.viewfinder", title: "Plant Identifier", description: "Snap a photo to identify any plant instantly.", color: Color(hex: "16A085"))
+
                                     ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "Light meter to find the perfect spot for your plants.", color: .orange)
                                     
                                     ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue)
@@ -40,12 +47,55 @@ struct ToolsView: View {
                             ToolSection(title: "Health & Growth") {
                                 VStack(spacing: 12) {
                                     ToolNavigationLink(destination: PlantDoctorView(), icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with symptom lookup.", color: .red)
-                                    
+
                                     ToolNavigationLink(destination: PotSizeCalculatorView(), icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size for root expansion.", color: .brown)
-                                    
+
                                     ToolNavigationLink(destination: ToxicityCheckerView(), icon: "shield.checkered", title: "Toxicity Checker", description: "Verify pet and child safety for every plant.", color: Color(hex: "2ECC71"))
-                                    
+
                                     ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"))
+
+                                    // Growth Analytics — Pro, opens plant picker then analytics view
+                                    Button(action: {
+                                        if proManager.isPro { showGrowthPicker = true } else { showProUpgrade = true }
+                                    }) {
+                                        HStack(spacing: 16) {
+                                            ZStack {
+                                                Circle()
+                                                    .fill(Color.purple.opacity(0.12))
+                                                    .frame(width: 48, height: 48)
+                                                Image(systemName: "chart.xyaxis.line")
+                                                    .font(.system(size: 20, weight: .semibold))
+                                                    .foregroundStyle(.purple)
+                                            }
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                HStack(spacing: 6) {
+                                                    Text("Growth Analytics")
+                                                        .font(.claudeSans(size: 16, weight: .bold))
+                                                        .foregroundStyle(Color.claudePrimaryText)
+                                                    if !proManager.isPro {
+                                                        Text("PRO")
+                                                            .font(.system(size: 9, weight: .bold))
+                                                            .foregroundStyle(.white)
+                                                            .padding(.horizontal, 5)
+                                                            .padding(.vertical, 2)
+                                                            .background(Capsule().fill(Color.orange))
+                                                    }
+                                                }
+                                                Text("Per-plant health timeline, watering adherence & journal stats.")
+                                                    .font(.claudeSans(size: 13))
+                                                    .foregroundStyle(Color.claudeSecondaryText)
+                                            }
+                                            Spacer()
+                                            Image(systemName: proManager.isPro ? "chevron.right" : "lock.fill")
+                                                .font(.system(size: 14, weight: .bold))
+                                                .foregroundStyle(Color.claudeBorder)
+                                        }
+                                        .padding(16)
+                                        .background(Color.claudeSecondaryBackground)
+                                        .cornerRadius(16)
+                                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                             
@@ -71,6 +121,55 @@ struct ToolsView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .toolbar(.visible, for: .tabBar)
+        }
+        .sheet(isPresented: $showProUpgrade) {
+            ProUpgradeView()
+        }
+        .sheet(isPresented: $showGrowthPicker) {
+            GrowthPlantPickerView()
+                .environmentObject(dataLoader)
+        }
+    }
+}
+
+// MARK: - Growth plant picker
+
+/// Shown from ToolsView; lets the user choose which plant to view analytics for.
+private struct GrowthPlantPickerView: View {
+    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if let jungle = dataLoader.userProfile?.myJungle, !jungle.isEmpty {
+                    ForEach(jungle) { myPlant in
+                        if let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) {
+                            NavigationLink(destination: PlantGrowthView(plant: plant)
+                                .environmentObject(dataLoader)) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(myPlant.nickname)
+                                        .font(.claudeSans(size: 15, weight: .semibold))
+                                    Text(plant.botanicalName)
+                                        .font(.claudeSans(size: 12))
+                                        .italic()
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Text("Add plants to My Jungle to see their analytics.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Select Plant")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
         }
     }
 }
@@ -100,7 +199,8 @@ private let allFeaturedTools: [FeaturedToolInfo] = [
     FeaturedToolInfo(id: 8, icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection through cuttings, division, and more.", ctaLabel: "Start Propagating", gradientColors: [Color(hex: "8E44AD"), Color(hex: "BB8FCE")]),
     FeaturedToolInfo(id: 9, icon: "flask.fill", title: "Skincare Lab", description: "Discover botanical skincare remedies you can craft from your own houseplant garden.", ctaLabel: "Explore Recipes", gradientColors: [Color(hex: "9B59B6"), Color(hex: "D7BDE2")]),
     FeaturedToolInfo(id: 10, icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting, pruning, and watering with lunar cycles for optimal growth.", ctaLabel: "View Phases", gradientColors: [Color(hex: "3F51B5"), Color(hex: "7986CB")]),
-    FeaturedToolInfo(id: 11, icon: "globe.americas.fill", title: "Origin Explorer", description: "Explore the native habitats of your houseplants on an interactive world map.", ctaLabel: "Explore Origins", gradientColors: [Color(hex: "009688"), Color(hex: "4DB6AC")])
+    FeaturedToolInfo(id: 11, icon: "globe.americas.fill", title: "Origin Explorer", description: "Explore the native habitats of your houseplants on an interactive world map.", ctaLabel: "Explore Origins", gradientColors: [Color(hex: "009688"), Color(hex: "4DB6AC")]),
+    FeaturedToolInfo(id: 12, icon: "camera.viewfinder", title: "Plant Identifier", description: "Snap a photo of any plant and instantly discover its name and care guide.", ctaLabel: "Identify Now", gradientColors: [Color(hex: "16A085"), Color(hex: "48C9B0")])
 ]
 
 struct FeaturedToolCard: View {
@@ -185,6 +285,7 @@ struct FeaturedToolCard: View {
         case 9:  SkincareLabView()
         case 10: CelestialMoonPhaseView()
         case 11: OriginExplorerView()
+        case 12: PlantIdentifierView()
         default: SunSeekerARView()
         }
     }

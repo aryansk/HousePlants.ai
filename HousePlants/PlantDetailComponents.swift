@@ -65,8 +65,9 @@ struct ToolLinkRow: View {
     let subtitle: String
     let icon: String
     let color: Color
+    var badge: String? = nil
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
@@ -78,18 +79,28 @@ struct ToolLinkRow: View {
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(color)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.claudeSans(size: 16, weight: .bold))
-                        .foregroundStyle(Color.claudePrimaryText)
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(.claudeSans(size: 16, weight: .bold))
+                            .foregroundStyle(Color.claudePrimaryText)
+                        if let badge {
+                            Text(badge)
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.orange))
+                        }
+                    }
                     Text(subtitle)
                         .font(.claudeSans(size: 13))
                         .foregroundStyle(Color.claudeSecondaryText)
                 }
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Color.claudeBorder)
