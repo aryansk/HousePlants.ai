@@ -3,6 +3,22 @@ import UIKit
 import PDFKit
 import os
 
+// MARK: - Template
+
+enum SitterCardTemplate: String, CaseIterable, Identifiable {
+    case rich    = "Rich"
+    case minimal = "Minimal"
+    var id: String { rawValue }
+    var description: String {
+        switch self {
+        case .rich:    return "Full-colour card with icons and decorative elements."
+        case .minimal: return "Black & white, compact. Prints economically."
+        }
+    }
+}
+
+// MARK: - Data model
+
 struct SitterPlant: Identifiable {
     let id: String
     let nickname: String
@@ -16,6 +32,8 @@ struct SitterPlant: Identifiable {
     let notes: String?
     let bloomText: String?
 }
+
+// MARK: - Rich template (original)
 
 struct SitterCardView: View {
     let owner: String
@@ -43,11 +61,11 @@ struct SitterCardView: View {
                 }
             }
 
-            row(icon: "drop.fill", title: "Water", body: plant.waterText)
-            row(icon: "calendar", title: "Next watering", body: plant.nextWateringText)
-            row(icon: "sun.max.fill", title: "Light", body: plant.lightText)
-            row(icon: "humidity.fill", title: "Humidity", body: plant.humidityText)
-            row(icon: "exclamationmark.shield", title: "Toxicity", body: plant.toxicityText)
+            row(icon: "drop.fill",             title: "Water",         body: plant.waterText)
+            row(icon: "calendar",              title: "Next watering", body: plant.nextWateringText)
+            row(icon: "sun.max.fill",          title: "Light",         body: plant.lightText)
+            row(icon: "humidity.fill",         title: "Humidity",      body: plant.humidityText)
+            row(icon: "exclamationmark.shield", title: "Toxicity",     body: plant.toxicityText)
             if let bloom = plant.bloomText {
                 row(icon: "leaf.fill", title: "Blooming", body: bloom)
             }
@@ -60,7 +78,7 @@ struct SitterCardView: View {
                 .font(.caption2).foregroundStyle(.tertiary)
         }
         .padding(36)
-        .frame(width: 612, height: 792, alignment: .topLeading) // US Letter @ 72dpi
+        .frame(width: 612, height: 792, alignment: .topLeading)
         .background(Color.white)
     }
 
@@ -75,27 +93,133 @@ struct SitterCardView: View {
     }
 }
 
+// MARK: - Minimal template (Pro)
+
+struct SitterCardMinimalView: View {
+    let owner: String
+    let ownerContact: String
+    let plant: SitterPlant
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header bar
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("PLANT CARE INSTRUCTIONS")
+                        .font(.system(size: 9, weight: .bold))
+                        .kerning(1.4)
+                        .foregroundStyle(Color(white: 0.45))
+                    Text(plant.nickname)
+                        .font(.system(size: 22, weight: .bold))
+                    Text(plant.species)
+                        .font(.system(size: 11))
+                        .italic()
+                        .foregroundStyle(Color(white: 0.45))
+                }
+                Spacer()
+                if !owner.isEmpty {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("From \(owner)")
+                            .font(.system(size: 11, weight: .semibold))
+                        if !ownerContact.isEmpty {
+                            Text(ownerContact)
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color(white: 0.5))
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 36)
+            .padding(.top, 36)
+            .padding(.bottom, 18)
+
+            Rectangle()
+                .fill(Color.black)
+                .frame(height: 2)
+                .padding(.horizontal, 36)
+
+            // Care grid
+            VStack(spacing: 0) {
+                minimalRow(label: "WATER",        value: plant.waterText)
+                minimalRow(label: "NEXT WATERING", value: plant.nextWateringText)
+                minimalRow(label: "LIGHT",        value: plant.lightText)
+                minimalRow(label: "HUMIDITY",     value: plant.humidityText)
+                minimalRow(label: "TOXICITY",     value: plant.toxicityText)
+                if let bloom = plant.bloomText {
+                    minimalRow(label: "BLOOM",    value: bloom)
+                }
+                if let loc = plant.locationInHome, !loc.isEmpty {
+                    minimalRow(label: "LOCATION", value: loc)
+                }
+                if let notes = plant.notes, !notes.isEmpty {
+                    minimalRow(label: "NOTES",    value: notes)
+                }
+            }
+            .padding(.horizontal, 36)
+            .padding(.top, 20)
+
+            Spacer(minLength: 0)
+
+            Rectangle()
+                .fill(Color.black)
+                .frame(height: 1)
+                .padding(.horizontal, 36)
+            Text("HousePlants.ai")
+                .font(.system(size: 8))
+                .foregroundStyle(Color(white: 0.6))
+                .padding(.horizontal, 36)
+                .padding(.vertical, 10)
+        }
+        .frame(width: 612, height: 792, alignment: .topLeading)
+        .background(Color.white)
+    }
+
+    private func minimalRow(label: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: 0) {
+            Text(label)
+                .font(.system(size: 9, weight: .bold))
+                .kerning(0.8)
+                .foregroundStyle(Color(white: 0.4))
+                .frame(width: 110, alignment: .leading)
+            Text(value)
+                .font(.system(size: 13))
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .overlay(
+            Rectangle()
+                .fill(Color(white: 0.88))
+                .frame(height: 1),
+            alignment: .bottom
+        )
+    }
+}
+
+// MARK: - Renderer
+
 enum SitterCardRenderer {
     @MainActor
-    static func renderPDF(owner: String, ownerContact: String, plants: [SitterPlant]) -> URL? {
+    static func renderPDF(owner: String, ownerContact: String, plants: [SitterPlant],
+                          template: SitterCardTemplate = .rich) -> URL? {
         guard !plants.isEmpty else { return nil }
 
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("plant-sitter-\(Int(Date().timeIntervalSince1970)).pdf")
 
         let pageRect = CGRect(x: 0, y: 0, width: 612, height: 792)
-        let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+        let pdfRenderer = UIGraphicsPDFRenderer(bounds: pageRect)
 
         do {
-            try renderer.writePDF(to: url) { ctx in
+            try pdfRenderer.writePDF(to: url) { ctx in
                 for plant in plants {
                     ctx.beginPage()
-                    let card = SitterCardView(owner: owner, ownerContact: ownerContact, plant: plant)
-                    let r = ImageRenderer(content: card)
+                    let r = ImageRenderer(content: cardView(
+                        owner: owner, ownerContact: ownerContact,
+                        plant: plant, template: template
+                    ))
                     r.scale = 2.0
-                    if let img = r.uiImage {
-                        img.draw(in: pageRect)
-                    }
+                    if let img = r.uiImage { img.draw(in: pageRect) }
                 }
             }
         } catch {
@@ -104,5 +228,16 @@ enum SitterCardRenderer {
         }
 
         return url
+    }
+
+    @ViewBuilder
+    private static func cardView(owner: String, ownerContact: String,
+                                 plant: SitterPlant, template: SitterCardTemplate) -> some View {
+        switch template {
+        case .rich:
+            SitterCardView(owner: owner, ownerContact: ownerContact, plant: plant)
+        case .minimal:
+            SitterCardMinimalView(owner: owner, ownerContact: ownerContact, plant: plant)
+        }
     }
 }

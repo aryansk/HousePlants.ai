@@ -2,15 +2,60 @@ import SwiftUI
 
 struct SitterModeView: View {
     @EnvironmentObject var dataLoader: DataLoader
+    @ObservedObject private var proManager = ProManager.shared
+
     @State private var selectedIds: Set<String> = []
     @State private var pdfURL: URL?
     @State private var isRendering = false
+    @State private var selectedTemplate: SitterCardTemplate = .rich
+    @State private var showProUpgrade = false
 
     var body: some View {
         List {
             Section("Owner") {
                 Text(dataLoader.userProfile?.username ?? "—")
                     .foregroundStyle(.secondary)
+            }
+
+            // Template picker — full access for Pro, locked for free users
+            Section("PDF Template") {
+                if proManager.isPro {
+                    Picker("Template", selection: $selectedTemplate) {
+                        ForEach(SitterCardTemplate.allCases) { template in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(template.rawValue)
+                                Text(template.description)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(template)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .onChange(of: selectedTemplate) { _, _ in pdfURL = nil }
+                } else {
+                    Button(action: { showProUpgrade = true }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "lock.fill")
+                                .foregroundStyle(.orange)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Minimal Template")
+                                    .foregroundStyle(.primary)
+                                Text("Upgrade to Pro to unlock the black & white minimal design.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Text("Pro")
+                                .font(.caption.bold())
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(.orange))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
             Section("Pick plants to include") {
@@ -57,6 +102,9 @@ struct SitterModeView: View {
             }
         }
         .navigationTitle("Plant Sitter Mode")
+        .sheet(isPresented: $showProUpgrade) {
+            ProUpgradeView()
+        }
     }
 
     private func toggle(_ id: String) {
@@ -103,7 +151,8 @@ struct SitterModeView: View {
         pdfURL = SitterCardRenderer.renderPDF(
             owner: profile.username,
             ownerContact: "",
-            plants: sitterPlants
+            plants: sitterPlants,
+            template: proManager.isPro ? selectedTemplate : .rich
         )
     }
 }
