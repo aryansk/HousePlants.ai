@@ -32,6 +32,8 @@ class DataLoader: ObservableObject {
         scanRepotReminders()
         CloudSyncManager.shared.start()
         WatchConnectivityBridge.shared.start()
+        NotificationScheduler.shared.requestAuthorization()
+        HomeKitSensorManager.shared.start()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(cloudPulledRemote),
                                                name: .cloudSyncDidPullRemote,
@@ -505,11 +507,132 @@ class DataLoader: ObservableObject {
     func saveMyJungleData() {
         guard let profile = userProfile else { return }
 
-        // Save extended MyPlant data to UserDefaults
         if let encoded = try? JSONEncoder().encode(profile.myJungle) {
             UserDefaults.standard.set(encoded, forKey: "myJungleExtendedData")
         }
         WatchConnectivityBridge.shared.pushJungleSnapshot()
+        syncAllNotifications()
+    }
+
+    /// Rebuilds all system notification schedules from the current jungle state.
+    func syncAllNotifications() {
+        guard let profile = userProfile else { return }
+        let enabled = true
+        let sundaysOnly = profile.preferences.notifyOnSundays
+        let now = Date()
+
+        // --- Watering (free tier) ---
+        let waterReminders: [NotificationScheduler.Reminder] = profile.myJungle.compactMap { myPlant in
+            guard let dateString = myPlant.nextWateringDate,
+                  let date = DataLoader.isoFormatter.date(from: dateString) else { return nil }
+            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            return NotificationScheduler.Reminder(plantId: myPlant.plantId, plantName: name, dueDate: date)
+        }
+        NotificationScheduler.shared.sync(reminders: waterReminders, enabled: enabled,
+                                          sundaysOnly: sundaysOnly, now: now)
+
+        guard ProManager.shared.isPro else { return }
+
+        // --- Fertilizer (Pro) — every 30 days from lastFertilized ---
+        let fertReminders: [NotificationScheduler.FertilizerReminder] = profile.myJungle.map { myPlant in
+            let base: Date
+            if let s = myPlant.lastFertilized, let d = DataLoader.isoFormatter.date(from: s) {
+                base = d
+            } else {
+                base = now
+            }
+            let due = Calendar.current.date(byAdding: .day, value: 30, to: base) ?? now
+            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            return NotificationScheduler.FertilizerReminder(plantId: myPlant.plantId, plantName: name, dueDate: due)
+        }
+        NotificationScheduler.shared.syncFertilizerReminders(fertReminders, enabled: enabled, now: now)
+
+        // --- Misting (Pro) — every 3 days from lastMisted ---
+        let mistReminders: [NotificationScheduler.MistingReminder] = profile.myJungle.map { myPlant in
+            let base: Date
+            if let s = myPlant.lastMisted, let d = DataLoader.isoFormatter.date(from: s) {
+                base = d
+            } else {
+                base = now
+            }
+            let due = Calendar.current.date(byAdding: .day, value: 3, to: base) ?? now
+            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            return NotificationScheduler.MistingReminder(plantId: myPlant.plantId, plantName: name, dueDate: due)
+        }
+        NotificationScheduler.shared.syncMistingReminders(mistReminders, enabled: enabled, now: now)
+
+        // --- Repotting (Pro) — from nextRepotDate ---
+        let repotReminders: [NotificationScheduler.RepottingReminder] = profile.myJungle.compactMap { myPlant in
+            guard let s = myPlant.nextRepotDate,
+                  let date = DataLoader.isoFormatter.date(from: s) else { return nil }
+            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            return NotificationScheduler.RepottingReminder(plantId: myPlant.plantId, plantName: name, dueDate: date)
+        }
+        NotificationScheduler.shared.syncRepottingReminders(repotReminders, enabled: enabled, now: now)
+
+        // --- Bloom countdown (Pro) — via BloomPredictor ---
+        let hemisphere = BloomPredictor.hemisphere(forCountry: profile.locationSettings.country)
+        let bloomReminders: [NotificationScheduler.BloomReminder] = profile.myJungle.compactMap { myPlant in
+            guard let plant = plants.first(where: { $0.id == myPlant.plantId }),
+                  let window = BloomPredictor.predict(for: plant, hemisphere: hemisphere),
+                  let daysAway = window.daysUntilNextBloom(from: now),
+                  daysAway > 0 else { return nil }
+            guard let bloomStart = Calendar.current.date(byAdding: .day, value: daysAway, to: now) else { return nil }
+            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            return NotificationScheduler.BloomReminder(
+                plantId: myPlant.plantId, plantName: name,
+                bloomStartDate: bloomStart, bloomNotes: window.notes
+            )
+        }
+        NotificationScheduler.shared.syncBloomReminders(bloomReminders, enabled: enabled, now: now)
+
+        // --- HomeKit threshold monitoring (Pro) ---
+        if ProManager.shared.isPro {
+            let thresholds: [HomeKitSensorManager.PlantThreshold] = profile.myJungle.compactMap { myPlant in
+                guard let plant = plants.first(where: { $0.id == myPlant.plantId }) else { return nil }
+                let minHumidity = parseMinHumidity(from: plant.careGuide.humidity)
+                let maxTemp = parseMaxTempC(from: plant.careGuide.temperatureRange)
+                let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+                return HomeKitSensorManager.PlantThreshold(
+                    plantId: myPlant.plantId, plantName: name,
+                    minHumidityPct: minHumidity, maxTempC: maxTemp
+                )
+            }
+            HomeKitSensorManager.shared.startThresholdMonitoring(thresholds: thresholds)
+        } else {
+            HomeKitSensorManager.shared.stopThresholdMonitoring()
+        }
+    }
+
+    // MARK: - Parsing helpers for sensor thresholds
+
+    /// Extracts the lower bound from a humidity string like "High, 60-80%" → 60.0
+    private func parseMinHumidity(from text: String) -> Double {
+        let pattern = #"(\d+)\s*[-–]\s*\d+\s*%"#
+        if let range = text.range(of: pattern, options: .regularExpression),
+           let match = text[range].firstMatch(of: /(\d+)/) {
+            return Double(match.output.1) ?? 40.0
+        }
+        if text.lowercased().contains("high")   { return 60.0 }
+        if text.lowercased().contains("medium") { return 40.0 }
+        return 30.0
+    }
+
+    /// Extracts the upper °C bound from a range like "65-85°F" (converts from °F) or "18-29°C".
+    private func parseMaxTempC(from text: String) -> Double {
+        let t = text.lowercased()
+        // Try to find a Celsius range first
+        if t.contains("°c") || t.contains("c)") {
+            if let m = text.firstMatch(of: /\d+\s*[-–]\s*(\d+)/) {
+                return Double(m.output.1) ?? 35.0
+            }
+        }
+        // Fall back to Fahrenheit (upper bound of range) → convert
+        if let m = text.firstMatch(of: /\d+\s*[-–]\s*(\d+)/) {
+            let fahr = Double(m.output.1) ?? 95.0
+            return (fahr - 32) * 5 / 9
+        }
+        return 32.0 // default ~90°F
     }
     
     func loadMyJungleExtendedData() {
