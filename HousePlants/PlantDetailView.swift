@@ -11,6 +11,10 @@ struct PlantDetailView: View {
     @State private var showSoilBuilder = false
     @State private var showFertilizerCalculator = false
     @State private var showOriginCountries = false
+    @State private var showGrowthView = false
+    @State private var showARPlacement = false
+    @State private var showProUpgrade = false
+    @ObservedObject private var proManager = ProManager.shared
     
     var isInJungle: Bool {
 
@@ -405,6 +409,24 @@ struct PlantDetailView: View {
                                     ToolLinkRow(title: "Nutrition Optimizer", subtitle: "Balanced fertilization guide", icon: "sparkles", color: .purple) {
                                         showFertilizerCalculator = true
                                     }
+                                    ToolLinkRow(
+                                        title: "Growth Analytics",
+                                        subtitle: proManager.isPro ? "Health trends & watering adherence" : "Pro — health trends & watering adherence",
+                                        icon: "chart.xyaxis.line", color: .purple,
+                                        badge: proManager.isPro ? nil : "PRO"
+                                    ) {
+                                        if proManager.isPro { showGrowthView = true } else { showProUpgrade = true }
+                                    }
+                                    if dataLoader.appData?.appConfig.features.arPlacement == true {
+                                        ToolLinkRow(
+                                            title: "AR Plant Placement",
+                                            subtitle: proManager.isPro ? "Preview plants in your room" : "Pro — preview plants in your room",
+                                            icon: "arkit", color: .teal,
+                                            badge: proManager.isPro ? nil : "PRO"
+                                        ) {
+                                            if proManager.isPro { showARPlacement = true } else { showProUpgrade = true }
+                                        }
+                                    }
                                 }
                             }
     
@@ -449,6 +471,30 @@ struct PlantDetailView: View {
             if let countries = plant.origin.countries {
                 OriginCountriesView(region: plant.origin.region, countries: countries)
                     .presentationDetents([.medium, .large])
+            }
+        }
+        .sheet(isPresented: $showProUpgrade) {
+            ProUpgradeView()
+        }
+        .sheet(isPresented: $showGrowthView) {
+            NavigationStack {
+                PlantGrowthView(plant: plant)
+                    .environmentObject(dataLoader)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Done") { showGrowthView = false }
+                        }
+                    }
+            }
+        }
+        .sheet(isPresented: $showARPlacement) {
+            NavigationStack {
+                ARPlantPlacementView(plant: plant)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Done") { showARPlacement = false }
+                        }
+                    }
             }
         }
     }
@@ -510,8 +556,14 @@ struct PlantDetailView: View {
     
     var addToJungleButton: some View {
         Button(action: {
-            withAnimation(.spring()) {
-                dataLoader.toggleJungle(plant: plant)
+            let atLimit = !proManager.isPro &&
+                          (dataLoader.userProfile?.myJungle.count ?? 0) >= ProManager.freePlantLimit
+            if !isInJungle && atLimit {
+                showProUpgrade = true
+            } else {
+                withAnimation(.spring()) {
+                    dataLoader.toggleJungle(plant: plant)
+                }
             }
         }) {
             HStack(spacing: 12) {
