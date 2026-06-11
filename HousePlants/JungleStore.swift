@@ -91,7 +91,23 @@ private extension MyPlantRecord {
 /// Owns the SwiftData `ModelContainer` for the user's jungle. The rest of the app continues to
 /// use `[MyPlant]` value types; this class is the single bridge between them and SwiftData.
 ///
-/// Phase 1: local-only SwiftData. Phase 2 will add CloudKit by switching the ModelConfiguration.
+// TODO: CloudKit sync — Phase 2
+//
+// What needs to change (single file):
+//   1. Replace `ModelConfiguration(isStoredInMemoryOnly:)` with
+//      `ModelConfiguration(cloudKitDatabase: .private("iCloud.com.yourcompany.HousePlants"))`.
+//   2. Add the CloudKit capability in Xcode → Signing & Capabilities → iCloud → CloudKit.
+//   3. Create a schema version in CloudKit Dashboard or let SwiftData auto-generate on first run.
+//   4. Remove `CloudSyncManager` (NSUbiquitousKeyValueStore layer) — it becomes redundant once
+//      SwiftData is CloudKit-backed and handles conflict resolution natively.
+//   5. Test migration: existing SwiftData rows in the local store will NOT auto-migrate to the
+//      CloudKit store on first launch; perform a `replaceAll` from the local container into the
+//      new CloudKit-backed container during the upgrade path.
+//
+// Files to touch: JungleStore.swift (this file), CloudSyncManager.swift (delete or archive),
+//                 DataLoader.swift (remove CloudSyncManager.shared.start() call).
+
+/// Phase 1: local-only SwiftData. Phase 2 will add CloudKit (see TODO above).
 final class JungleStore {
     static let shared = JungleStore()
 
@@ -105,6 +121,7 @@ final class JungleStore {
     private var context: ModelContext { container.mainContext }
 
     init(inMemory: Bool = false, defaults: UserDefaults = .standard) {
+        // TODO: CloudKit — swap this line for a CloudKit-backed ModelConfiguration (see stub above).
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
         do {
             self.container = try ModelContainer(for: MyPlantRecord.self, configurations: config)

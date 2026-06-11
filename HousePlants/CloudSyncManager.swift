@@ -4,7 +4,12 @@ import Foundation
 /// state follows them across devices on the same iCloud account.
 ///
 /// Scope: encoded MyPlant array, favorites, streak. ~1MB hard cap on KVS — journal photos
-/// stay on-device. A future SwiftData + CloudKit migration would replace this layer.
+/// stay on-device.
+///
+/// TODO: CloudKit — this entire class is a *transitional* sync layer. Once JungleStore is
+/// switched to `ModelConfiguration(cloudKitDatabase: .private(...))`, SwiftData handles
+/// cross-device sync natively and CloudSyncManager can be deleted. Until then, this layer
+/// ensures parity for users on the current build. See JungleStore.swift for the Phase 2 plan.
 final class CloudSyncManager {
     static let shared = CloudSyncManager()
 
