@@ -1,10 +1,16 @@
 import SwiftUI
+import EventKit
 
 struct SeasonalCareCalendarView: View {
     @EnvironmentObject var dataLoader: DataLoader
+    @ObservedObject private var proManager = ProManager.shared
+
     @State private var selectedMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var animateLeaf = false
     @State private var showInfoSheet = false
+    @State private var showProUpgrade = false
+    @State private var calendarAlertMessage = ""
+    @State private var showCalendarAlert = false
     
     let months = Calendar.current.monthSymbols
     
@@ -141,7 +147,7 @@ struct SeasonalCareCalendarView: View {
                                 .foregroundColor(.claudeSecondaryText)
                                 .tracking(1.5)
                                 .padding(.horizontal, 24)
-                            
+
                             VStack(spacing: 12) {
                                 ForEach(currentSeason.tips, id: \.self) { tip in
                                     HStack(alignment: .top, spacing: 12) {
@@ -151,12 +157,12 @@ struct SeasonalCareCalendarView: View {
                                             .frame(width: 28, height: 28)
                                             .background(Color.orange.opacity(0.1))
                                             .clipShape(Circle())
-                                        
+
                                         Text(tip)
                                             .font(.claudeSans(size: 14))
                                             .foregroundColor(.claudePrimaryText)
                                             .fixedSize(horizontal: false, vertical: true)
-                                        
+
                                         Spacer()
                                     }
                                     .padding(16)
@@ -167,6 +173,10 @@ struct SeasonalCareCalendarView: View {
                             }
                             .padding(.horizontal, 20)
                         }
+
+                        // Calendar Export (Pro)
+                        calendarExportButton
+                            .padding(.horizontal, 20)
                         }
                         .frame(width: geometry.size.width)
                         .padding(.top, 8)
@@ -179,8 +189,159 @@ struct SeasonalCareCalendarView: View {
         .sheet(isPresented: $showInfoSheet) {
             SeasonalCareInfoSheet()
         }
+        .sheet(isPresented: $showProUpgrade) {
+            ProUpgradeView()
+        }
+        .alert("Calendar Export", isPresented: $showCalendarAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(calendarAlertMessage)
+        }
     }
-    
+
+    // MARK: - Calendar Export UI
+
+    private var calendarExportButton: some View {
+        Button(action: {
+            if proManager.isPro {
+                exportToCalendar()
+            } else {
+                showProUpgrade = true
+            }
+        }) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.blue.opacity(0.12))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: proManager.isPro ? "calendar.badge.plus" : "lock.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(proManager.isPro ? .blue : .orange)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text("Export to Apple Calendar")
+                            .font(.claudeSans(size: 15, weight: .semibold))
+                            .foregroundColor(.claudePrimaryText)
+                        if !proManager.isPro {
+                            Text("PRO")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.orange))
+                        }
+                    }
+                    Text("Repotting, fertilising & bloom events for your jungle.")
+                        .font(.claudeSans(size: 12))
+                        .foregroundColor(.claudeSecondaryText)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.claudeBorder)
+            }
+            .padding(16)
+            .background(Color.claudeSecondaryBackground)
+            .cornerRadius(16)
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - EventKit Export
+
+    private func exportToCalendar() {
+        let store = EKEventStore()
+
+        let requestAccess: (@escaping (Bool, Error?) -> Void) -> Void
+        if #available(iOS 17.0, *) {
+            requestAccess = { handler in store.requestFullAccessToEvents(completion: handler) }
+        } else {
+            requestAccess = { handler in store.requestAccess(to: .event, completion: handler) }
+        }
+
+        requestAccess { granted, error in
+            DispatchQueue.main.async {
+                guard granted, error == nil else {
+                    self.calendarAlertMessage = "Calendar access was denied. Enable it in Settings → Privacy → Calendars."
+                    self.showCalendarAlert = true
+                    return
+                }
+                self.addCalendarEvents(to: store)
+            }
+        }
+    }
+
+    private func addCalendarEvents(to store: EKEventStore) {
+        guard let profile = dataLoader.userProfile else { return }
+        let calendar = store.defaultCalendarForNewEvents
+        let hemisphere = BloomPredictor.hemisphere(forCountry: profile.locationSettings.country)
+        var added = 0
+
+        for myPlant in profile.myJungle {
+            guard let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) else { continue }
+            let nickname = myPlant.nickname
+
+            // Repotting event
+            if let repotStr = myPlant.nextRepotDate,
+               let repotDate = DataLoader.isoFormatter.date(from: repotStr) {
+                addEvent(store: store, calendar: calendar,
+                         title: "Repot \(nickname)",
+                         notes: "Time to move \(nickname) (\(plant.botanicalName)) into a bigger pot.",
+                         date: repotDate)
+                added += 1
+            }
+
+            // Next fertilize event (30 days from last)
+            let fertBase: Date
+            if let s = myPlant.lastFertilized, let d = DataLoader.isoFormatter.date(from: s) {
+                fertBase = d
+            } else {
+                fertBase = Date()
+            }
+            if let fertDate = Calendar.current.date(byAdding: .day, value: 30, to: fertBase) {
+                addEvent(store: store, calendar: calendar,
+                         title: "Fertilize \(nickname)",
+                         notes: "Monthly feed for \(nickname) (\(plant.botanicalName)).",
+                         date: fertDate)
+                added += 1
+            }
+
+            // Bloom window event
+            if let window = BloomPredictor.predict(for: plant, hemisphere: hemisphere),
+               let daysAway = window.daysUntilNextBloom(),
+               daysAway > 0,
+               let bloomDate = Calendar.current.date(byAdding: .day, value: daysAway, to: Date()) {
+                addEvent(store: store, calendar: calendar,
+                         title: "\(nickname) bloom season begins",
+                         notes: window.notes,
+                         date: bloomDate)
+                added += 1
+            }
+        }
+
+        do {
+            try store.commit()
+            calendarAlertMessage = "Added \(added) event\(added == 1 ? "" : "s") to your calendar."
+        } catch {
+            calendarAlertMessage = "Could not save events: \(error.localizedDescription)"
+        }
+        showCalendarAlert = true
+    }
+
+    private func addEvent(store: EKEventStore, calendar: EKCalendar?,
+                          title: String, notes: String, date: Date) {
+        let event = EKEvent(eventStore: store)
+        event.title = title
+        event.notes = notes
+        event.startDate = date
+        event.endDate = Calendar.current.date(byAdding: .hour, value: 1, to: date) ?? date
+        event.calendar = calendar
+        event.isAllDay = true
+        try? store.save(event, span: .thisEvent)
+    }
+
     func shortMonth(_ month: Int) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
