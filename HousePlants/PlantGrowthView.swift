@@ -5,7 +5,7 @@ import Charts
 /// Gated behind Pro. Free users see a paywall prompt.
 struct PlantGrowthView: View {
     let plant: Plant
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @ObservedObject private var proManager = ProManager.shared
     @State private var showProUpgrade = false
 
@@ -408,6 +408,6 @@ private struct UpcomingCareRow: View {
             mlRecognitionConfidence: 0.9,
             skincarePotential: nil, propagation: nil, botanistQuote: nil
         ))
-        .environmentObject(DataLoader.shared)
+        .environment(DataLoader.shared)
     }
 }

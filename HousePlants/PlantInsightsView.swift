@@ -3,7 +3,7 @@ import CoreLocation
 
 struct PlantInsightsView: View {
     let myPlant: MyPlant
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @StateObject private var locationManager = LocationManager()
     @StateObject private var homeKit = HomeKitSensorManager.shared
 

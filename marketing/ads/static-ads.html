@@ -1,0 +1,118 @@
+<meta charset="utf-8">
+<title>HousePlants.ai — static ads</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="brand.css">
+<style>
+  body { background: #6b6259; padding: 40px; display: flex; flex-wrap: wrap; gap: 48px;
+    align-items: flex-start; justify-content: center; }
+  .ad { position: relative; overflow: hidden; flex: none; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  .ad .label { position: absolute; top: 14px; left: 16px; z-index: 99; font: 600 13px var(--sans);
+    color: #fff; background: rgba(0,0,0,.45); padding: 6px 12px; border-radius: 8px; }
+  .sq  { width: 1080px; height: 1080px; }
+  .por { width: 1080px; height: 1350px; }
+  .scale { transform: scale(.46); transform-origin: top center; }
+  .scalewrap { width: 497px; }
+  .scalewrap.por { width: 497px; height: 621px; }
+  .scalewrap.sq  { height: 497px; }
+
+  .ad-inner { width: 100%; height: 100%; position: relative; }
+  .headline { font: 700 var(--serif); color: var(--text); }
+  .appstore { display: inline-flex; align-items: center; gap: 12px; background: var(--text);
+    color: var(--bg); padding: 16px 26px; border-radius: 16px; }
+  .appstore .ti { font-size: 38px; }
+  .appstore small { display: block; font: 400 14px var(--sans); opacity: .8; }
+  .appstore b { font: 600 24px var(--sans); }
+  .phone.mini { transform: scale(.92); }
+
+  /* AD 1 — hero */
+  .ad1 { background: var(--bg); }
+  .ad1 .top { padding: 90px 80px 0; text-align: center; }
+  .ad1 .kick { font: 600 24px var(--sans); letter-spacing: .12em; color: var(--accent); text-transform: uppercase; }
+  .ad1 .headline { font-size: 86px; line-height: 1.02; margin-top: 20px; }
+  .ad1 .sub { font: 400 28px/1.5 var(--sans); color: var(--text2); margin-top: 26px; }
+  .ad1 .phonewrap { position: absolute; left: 50%; bottom: -120px; transform: translateX(-50%); }
+
+  /* AD 2 — tools, terracotta */
+  .ad2 { background: linear-gradient(155deg, var(--accent), #c25f40); }
+  .ad2 .copy { padding: 110px 80px 0; }
+  .ad2 .kick { font: 600 22px var(--sans); letter-spacing: .14em; color: rgba(255,255,255,.85); text-transform: uppercase; }
+  .ad2 .headline { font-size: 78px; line-height: 1.05; color: #fff; margin-top: 18px; }
+  .ad2 .sub { font: 400 26px/1.5 var(--sans); color: rgba(255,255,255,.92); margin-top: 24px; max-width: 560px; }
+  .ad2 .phonewrap { position: absolute; right: -70px; bottom: -90px; transform: rotate(8deg); }
+  .ad2 .appstore { margin-top: 40px; background: #fff; color: var(--accent); }
+
+  /* AD 3 — plant ID square */
+  .ad3 { background: var(--bg); display: flex; align-items: center; }
+  .ad3 .copy { padding: 0 0 0 80px; width: 560px; }
+  .ad3 .kick { font: 600 22px var(--sans); letter-spacing: .12em; color: var(--green); text-transform: uppercase; }
+  .ad3 .headline { font-size: 72px; line-height: 1.05; margin-top: 18px; }
+  .ad3 .sub { font: 400 25px/1.5 var(--sans); color: var(--text2); margin-top: 22px; }
+  .ad3 .phonewrap { position: absolute; right: -40px; top: 50%; transform: translateY(-50%) rotate(-6deg); }
+
+  /* AD 4 — social proof portrait */
+  .ad4 { background: var(--bg2); text-align: center; }
+  .ad4 .copy { padding: 90px 70px 0; }
+  .ad4 .stars { color: var(--accent); font-size: 40px; letter-spacing: 6px; }
+  .ad4 .headline { font-size: 64px; line-height: 1.08; margin-top: 24px; }
+  .ad4 .quote { font: italic 400 30px/1.5 var(--serif); color: var(--text2); margin-top: 28px; }
+  .ad4 .who { font: 600 22px var(--sans); color: var(--text); margin-top: 22px; }
+  .ad4 .phonewrap { position: absolute; left: 50%; bottom: -150px; transform: translateX(-50%); }
+</style>
+
+<div class="scalewrap por"><div class="ad por ad1 scale">
+  <div class="label">1 · Hero — 1080×1350 (IG portrait)</div>
+  <div class="ad-inner">
+    <div class="top">
+      <div class="kick">HousePlants.ai</div>
+      <div class="headline">Never lose a<br>plant again</div>
+      <div class="sub">Join 50,000+ plant parents who turned<br>brown thumbs into green jungles.</div>
+    </div>
+    <div class="phonewrap" id="p1"></div>
+  </div>
+</div></div>
+
+<div class="scalewrap sq"><div class="ad sq ad2 scale">
+  <div class="label">2 · Tools — 1080×1080 (IG/X square)</div>
+  <div class="ad-inner">
+    <div class="copy">
+      <div class="kick">12 pro tools</div>
+      <div class="headline">A toolkit for<br>serious plant<br>parents</div>
+      <div class="sub">Light meter, watering schedules, plant doctor, toxicity checker & more.</div>
+      <div class="appstore"><i class="ti ti-brand-apple"></i><span><small>Download on the</small><b>App Store</b></span></div>
+    </div>
+    <div class="phonewrap" id="p2"></div>
+  </div>
+</div></div>
+
+<div class="scalewrap sq"><div class="ad sq ad3 scale">
+  <div class="label">3 · Plant ID — 1080×1080</div>
+  <div class="ad-inner">
+    <div class="copy">
+      <div class="kick">Instant plant ID</div>
+      <div class="headline">Snap a photo.<br>Know your<br>plant.</div>
+      <div class="sub">Point your camera at any plant and get its name plus a full care guide in seconds.</div>
+    </div>
+    <div class="phonewrap" id="p3"></div>
+  </div>
+</div></div>
+
+<div class="scalewrap por"><div class="ad por ad4 scale">
+  <div class="label">4 · Social proof — 1080×1350</div>
+  <div class="ad-inner">
+    <div class="copy">
+      <div class="stars">★★★★★</div>
+      <div class="headline">The app my<br>plants needed</div>
+      <div class="quote">“Haven't killed a single plant since I downloaded it. The watering reminders are a lifesaver.”</div>
+      <div class="who">— Robin, plant parent of 14</div>
+    </div>
+    <div class="phonewrap" id="p4"></div>
+  </div>
+</div></div>
+
+<script src="screens.js"></script>
+<script>
+  document.getElementById('p1').innerHTML = phone(discoverScreen());
+  document.getElementById('p2').innerHTML = phone(toolsScreen());
+  document.getElementById('p3').innerHTML = phone(identifyScreen());
+  document.getElementById('p4').innerHTML = phone(discoverScreen());
+</script>

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PropagationStationView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @State private var selectedMethod: PropMethodFilter = .all
     @State private var searchText = ""
     @State private var animateHero = false

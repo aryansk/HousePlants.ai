@@ -3,33 +3,19 @@ import SwiftUI
 // MARK: - Enhanced Plant Card (Grid View)
 struct EnhancedPlantCard: View {
     let plant: Plant
-    @EnvironmentObject var dataLoader: DataLoader
-    @State private var showCareSheet = false
-    @State private var showInsightsSheet = false
+    /// Provided by the parent list so the "Manage"/"Insights" sheets are presented once at the
+    /// list level rather than one hidden `.sheet` per card.
+    var onManage: (() -> Void)? = nil
+    var onInsights: (() -> Void)? = nil
+    @Environment(DataLoader.self) var dataLoader
     @State private var justWatered = false
     
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
     }
     
-    var wateringStatus: (text: String, color: Color, icon: String) {
-        guard let myPlant = myPlant else {
-            return ("Unknown", .gray, "drop.fill")
-        }
-        
-        if let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant) {
-            if daysUntil < 0 {
-                return ("Overdue!", .red, "exclamationmark.triangle.fill")
-            } else if daysUntil == 0 {
-                return ("Water today", .orange, "drop.fill")
-            } else if daysUntil <= 2 {
-                return ("In \(daysUntil)d", .blue, "drop.fill")
-            } else {
-                return ("\(daysUntil) days", .green, "checkmark.circle.fill")
-            }
-        } else {
-            return ("Not set", .gray, "drop.fill")
-        }
+    var wateringStatus: WateringStatusDisplay {
+        dataLoader.wateringStatusDisplay(for: myPlant)
     }
     
     var body: some View {
@@ -37,29 +23,8 @@ struct EnhancedPlantCard: View {
             // Plant Image
             ZStack(alignment: .topTrailing) {
                 GeometryReader { geo in
-                    Group {
-                        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image.resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                case .failure:
-                                    Color.green.opacity(0.1)
-                                        .overlay(Image(systemName: "photo").foregroundStyle(.green.opacity(0.3)))
-                                case .empty:
-                                    Rectangle().fill(Color.gray.opacity(0.1)).overlay(ProgressView())
-                                @unknown default: EmptyView()
-                                }
-                            }
-                        } else {
-                            let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
-                            Image(String(imageName))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        }
-                    }
-                    .frame(width: geo.size.width, height: geo.size.height)
+                    PlantImage(plant: plant)
+                        .frame(width: geo.size.width, height: geo.size.height)
                 }
                 .frame(height: 160)
                 .clipped()
@@ -161,26 +126,14 @@ struct EnhancedPlantCard: View {
         )
         .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
         .contextMenu {
-            Button(action: { showCareSheet = true }) {
+            Button(action: { onManage?() }) {
                 Label("Manage Plant", systemImage: "slider.horizontal.3")
             }
-            Button(action: { showInsightsSheet = true }) {
+            Button(action: { onInsights?() }) {
                 Label("Insights", systemImage: "chart.bar.doc.horizontal")
             }
             Button(action: { dataLoader.waterPlant(plantId: plant.id) }) {
                 Label("Water Plant", systemImage: "drop.fill")
-            }
-        }
-        .sheet(isPresented: $showCareSheet) {
-            PlantCareSheet(plant: plant)
-                .environmentObject(dataLoader)
-        }
-        .sheet(isPresented: $showInsightsSheet) {
-            if let myPlant = dataLoader.myJungleLookup[plant.id] {
-                NavigationStack {
-                    PlantInsightsView(myPlant: myPlant)
-                }
-                .environmentObject(dataLoader)
             }
         }
     }
@@ -189,55 +142,24 @@ struct EnhancedPlantCard: View {
 // MARK: - Enhanced List Row
 struct EnhancedJungleListRow: View {
     let plant: Plant
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
     }
     
-    var wateringStatus: (text: String, color: Color) {
-        guard let myPlant = myPlant else {
-            return ("Unknown", .gray)
-        }
-        
-        if let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant) {
-            if daysUntil < 0 {
-                return ("Overdue!", .red)
-            } else if daysUntil == 0 {
-                return ("Water today", .orange)
-            } else if daysUntil <= 2 {
-                return ("In \(daysUntil)d", .blue)
-            } else {
-                return ("\(daysUntil) days", .green)
-            }
-        } else {
-            return ("Not set", .gray)
-        }
+    var wateringStatus: WateringStatusDisplay {
+        dataLoader.wateringStatusDisplay(for: myPlant)
     }
     
     var body: some View {
         HStack(spacing: 16) {
             // Image
             ZStack(alignment: .bottomTrailing) {
-                Group {
-                    if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                        AsyncImage(url: url) { phase in
-                            if let image = phase.image {
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } else {
-                                Color.gray.opacity(0.1)
-                            }
-                        }
-                    } else {
-                        let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
-                        Image(String(imageName))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    }
-                }
-                .frame(width: 80, height: 80)
-                .clipped()
-                
+                PlantImage(plant: plant, showsProgress: false)
+                    .frame(width: 80, height: 80)
+                    .clipped()
+
                 // Health indicator
                 if let health = myPlant?.healthScore {
                     let healthColor: Color = health >= 80 ? .green : (health >= 60 ? .yellow : .red)
@@ -249,14 +171,14 @@ struct EnhancedJungleListRow: View {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 Text(plant.commonName)
                     .font(.claudeSerif(size: 20, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .foregroundStyle(Color.claudePrimaryText)
-                
+
                 HStack(spacing: 6) {
                     Image(systemName: "drop.fill")
                         .font(.caption2)
@@ -266,9 +188,9 @@ struct EnhancedJungleListRow: View {
                         .foregroundStyle(wateringStatus.color)
                 }
             }
-            
+
             Spacer()
-            
+
             // Quick water button
             Button(action: {
                 HapticManager.shared.playImpact(style: .light)
@@ -345,30 +267,14 @@ struct PlantSelectionCard: View {
     let plant: Plant
     let isSelected: Bool
     let action: () -> Void
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
     }
     
-    var wateringStatus: (text: String, color: Color, icon: String) {
-        guard let myPlant = myPlant else {
-            return ("Unknown", .gray, "drop.fill")
-        }
-        
-        if let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant) {
-            if daysUntil < 0 {
-                return ("Overdue!", .red, "exclamationmark.triangle.fill")
-            } else if daysUntil == 0 {
-                return ("Water today", .orange, "drop.fill")
-            } else if daysUntil <= 2 {
-                return ("In \(daysUntil)d", .blue, "drop.fill")
-            } else {
-                return ("\(daysUntil) days", .green, "checkmark.circle.fill")
-            }
-        } else {
-            return ("Not set", .gray, "drop.fill")
-        }
+    var wateringStatus: WateringStatusDisplay {
+        dataLoader.wateringStatusDisplay(for: myPlant)
     }
     
     var body: some View {
@@ -376,27 +282,12 @@ struct PlantSelectionCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .topTrailing) {
                     GeometryReader { geo in
-                        Group {
-                            if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                                AsyncImage(url: url) { phase in
-                                    if let image = phase.image {
-                                        image.resizable().aspectRatio(contentMode: .fill)
-                                    } else {
-                                        Color.gray.opacity(0.1)
-                                    }
-                                }
-                            } else {
-                                let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
-                                Image(String(imageName))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            }
-                        }
-                        .frame(width: geo.size.width, height: geo.size.height)
+                        PlantImage(plant: plant)
+                            .frame(width: geo.size.width, height: geo.size.height)
                     }
                     .frame(height: 160)
                     .clipped()
-                    
+
                     HStack {
                         if let health = myPlant?.healthScore {
                             HealthRing(health: health)
@@ -471,30 +362,14 @@ struct JungleListRowSelectable: View {
     let plant: Plant
     let isSelected: Bool
     let action: () -> Void
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
     }
     
-    var wateringStatus: (text: String, color: Color) {
-        guard let myPlant = myPlant else {
-            return ("Unknown", .gray)
-        }
-        
-        if let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant) {
-            if daysUntil < 0 {
-                return ("Overdue!", .red)
-            } else if daysUntil == 0 {
-                return ("Water today", .orange)
-            } else if daysUntil <= 2 {
-                return ("In \(daysUntil)d", .blue)
-            } else {
-                return ("\(daysUntil) days", .green)
-            }
-        } else {
-            return ("Not set", .gray)
-        }
+    var wateringStatus: WateringStatusDisplay {
+        dataLoader.wateringStatusDisplay(for: myPlant)
     }
     
     var body: some View {
@@ -502,25 +377,10 @@ struct JungleListRowSelectable: View {
             HStack(spacing: 16) {
                 // Image
                 ZStack(alignment: .bottomTrailing) {
-                    Group {
-                        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                            AsyncImage(url: url) { phase in
-                                if let image = phase.image {
-                                    image.resizable().aspectRatio(contentMode: .fill)
-                                } else {
-                                    Color.gray.opacity(0.1)
-                                }
-                            }
-                        } else {
-                            let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
-                            Image(String(imageName))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        }
-                    }
-                    .frame(width: 80, height: 80)
-                    .clipped()
-                    
+                    PlantImage(plant: plant, showsProgress: false)
+                        .frame(width: 80, height: 80)
+                        .clipped()
+
                     // Health indicator
                     if let health = myPlant?.healthScore {
                         let healthColor: Color = health >= 80 ? .green : (health >= 60 ? .yellow : .red)
@@ -592,6 +452,6 @@ struct JungleListRowSelectable: View {
         }
         .padding()
     }
-    .environmentObject(dataLoader)
+    .environment(dataLoader)
     .background(Color.claudeBackground)
 }

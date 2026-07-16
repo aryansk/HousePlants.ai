@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ClimateMatcherToolView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @StateObject private var locationManager = LocationManager()
     @State private var city: String = ""
     @State private var country: String = ""
@@ -177,7 +177,7 @@ struct ClimateMatcherToolView: View {
 }
 
 struct RecommendationResultsSection: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     let city: String
     let country: String
     let difficulty: String

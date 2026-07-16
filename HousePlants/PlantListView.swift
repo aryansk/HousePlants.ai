@@ -2,29 +2,32 @@ import SwiftUI
 import MapKit
 
 struct PlantListView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @State private var selectedCategory: String?
     @State private var searchText = ""
+    /// Debounced copy of `searchText`. Filtering scans every plant's name, botanical name and
+    /// full description, so we only rerun that once typing pauses rather than on each keystroke.
+    @State private var debouncedSearchText = ""
     @State private var isSearchFocused = false
     @Namespace private var categoryNamespace
     @State private var isShowingNotifications = false
     @FocusState private var searchFieldFocused: Bool
-    
+
     var filteredPlants: [Plant] {
         var plants = dataLoader.plants
-        
+
         if let category = selectedCategory {
             plants = plants.filter { $0.categoryId == category }
         }
-        
-        if !searchText.isEmpty {
+
+        if !debouncedSearchText.isEmpty {
             plants = plants.filter { plant in
-                plant.commonName.localizedCaseInsensitiveContains(searchText) ||
-                plant.botanicalName.localizedCaseInsensitiveContains(searchText) ||
-                plant.description.localizedCaseInsensitiveContains(searchText)
+                plant.commonName.localizedCaseInsensitiveContains(debouncedSearchText) ||
+                plant.botanicalName.localizedCaseInsensitiveContains(debouncedSearchText) ||
+                plant.description.localizedCaseInsensitiveContains(debouncedSearchText)
             }
         }
-        
+
         return plants
     }
     
@@ -192,6 +195,7 @@ struct PlantListView: View {
                                 .frame(width: geometry.size.width, alignment: .leading)
                                 .padding(.top, 10)
                             }
+                            .scrollDismissesKeyboard(.immediately)
                         }
                     }
                 }
@@ -201,7 +205,18 @@ struct PlantListView: View {
         }
         .sheet(isPresented: $isShowingNotifications) {
             NotificationCenterView()
-                .environmentObject(dataLoader)
+                .environment(dataLoader)
+        }
+        // Debounce: each keystroke cancels the previous task; the filter only reruns after a
+        // ~220ms pause in typing.
+        .task(id: searchText) {
+            if searchText.isEmpty {
+                debouncedSearchText = ""
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(220))
+            guard !Task.isCancelled else { return }
+            debouncedSearchText = searchText
         }
     }
 }
@@ -321,29 +336,8 @@ struct ModernPlantCard: View {
             // Image
             ZStack(alignment: .topTrailing) {
                 GeometryReader { geometry in
-                    Group {
-                        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image.resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                case .failure:
-                                    Color.green.opacity(0.1)
-                                        .overlay(Image(systemName: "photo").foregroundStyle(.green.opacity(0.3)))
-                                case .empty:
-                                    Rectangle().fill(Color.gray.opacity(0.1)).overlay(ProgressView())
-                                @unknown default: EmptyView()
-                                }
-                            }
-                        } else {
-                            let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
-                            Image(String(imageName))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        }
-                    }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    PlantImage(plant: plant)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
                 }
                 .frame(height: isFeatured ? 200 : 160)
                 .clipped()

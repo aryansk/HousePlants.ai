@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var dataLoader = DataLoader.shared
+    @State private var dataLoader = DataLoader.shared
     @State private var tabSelection = TabSelection()
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
-    @AppStorage("darkModeEnabled") var darkModeEnabled: Bool = false
+    @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppAppearance.system.rawValue
 
     var body: some View {
         Group {
@@ -31,9 +31,9 @@ struct ContentView: View {
                 WelcomeView(isCompleted: $hasCompletedOnboarding)
             }
         }
-        .environmentObject(dataLoader)
+        .environment(dataLoader)
         .environment(tabSelection)
-        .preferredColorScheme(darkModeEnabled ? .dark : .light)
+        .preferredColorScheme(AppAppearance(rawValue: appearanceModeRaw)?.colorScheme)
     }
 }
 

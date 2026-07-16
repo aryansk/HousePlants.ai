@@ -1,8 +1,10 @@
 import SwiftUI
+import StoreKit
 
 struct ProUpgradeView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var proManager = ProManager.shared
+    @State private var purchaseError: String?
 
     var body: some View {
         NavigationStack {
@@ -28,6 +30,18 @@ struct ProUpgradeView: View {
                     Button("Not Now") { dismiss() }
                         .foregroundStyle(.white.opacity(0.6))
                 }
+            }
+            .alert("Purchase Failed", isPresented: Binding(
+                get: { purchaseError != nil },
+                set: { if !$0 { purchaseError = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(purchaseError ?? "")
+            }
+            .task { await proManager.loadProductIfNeeded() }
+            .onChange(of: proManager.isPro) { _, nowPro in
+                if nowPro { dismiss() }
             }
         }
     }
@@ -111,33 +125,59 @@ struct ProUpgradeView: View {
     private var ctaSection: some View {
         VStack(spacing: 14) {
             Button(action: {
-                proManager.isPro = true
-                dismiss()
+                Task {
+                    do {
+                        try await proManager.purchase()
+                    } catch {
+                        purchaseError = error.localizedDescription
+                    }
+                }
             }) {
-                Text("Upgrade to Pro")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 18)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(hex: "2ECC71"), Color(hex: "27AE60")],
-                            startPoint: .topLeading, endPoint: .bottomTrailing
-                        )
+                HStack(spacing: 10) {
+                    if proManager.purchaseInProgress {
+                        ProgressView().tint(.black)
+                    }
+                    Text(upgradeButtonTitle)
+                        .font(.system(size: 18, weight: .bold))
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 18)
+                .background(
+                    LinearGradient(
+                        colors: [Color(hex: "2ECC71"), Color(hex: "27AE60")],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
                     )
-                    .clipShape(Capsule())
-                    .shadow(color: .green.opacity(0.45), radius: 16, y: 8)
+                )
+                .clipShape(Capsule())
+                .shadow(color: .green.opacity(0.45), radius: 16, y: 8)
             }
             .buttonStyle(.plain)
+            .disabled(proManager.purchaseInProgress)
             .padding(.horizontal, 20)
 
-            // TODO: Replace with real StoreKit 2 purchase flow before release.
-            Text("Testing mode — Upgrade enables Pro features locally without a real purchase.")
+            Button(action: {
+                Task { await proManager.restorePurchases() }
+            }) {
+                Text("Restore Purchases")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .buttonStyle(.plain)
+
+            Text("One-time purchase. Billed through your App Store account.")
                 .font(.system(size: 11))
                 .foregroundStyle(.white.opacity(0.35))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
         }
+    }
+
+    private var upgradeButtonTitle: String {
+        if let price = proManager.product?.displayPrice {
+            return "Upgrade to Pro — \(price)"
+        }
+        return "Upgrade to Pro"
     }
 }
 

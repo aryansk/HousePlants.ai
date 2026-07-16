@@ -2,10 +2,10 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = true
     @AppStorage("notificationsEnabled") var notificationsEnabled: Bool = true
-    @AppStorage("darkModeEnabled") var darkModeEnabled: Bool = false
+    @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppAppearance.system.rawValue
     @AppStorage("hapticFeedback") var hapticFeedback: Bool = true
     @State private var showLogoutAlert = false
     @State private var showDeleteDataAlert = false
@@ -16,8 +16,12 @@ struct ProfileView: View {
     let cuteAvatars = ["avatar_cactus", "avatar_monstera", "avatar_succulent", "avatar_fern"]
     
     private var profileImage: UIImage? {
-        guard let base64 = dataLoader.userProfile?.profileImage,
-              let data = Data(base64Encoded: base64) else { return nil }
+        // profileImage now holds a cache-busting token; the JPEG lives in ProfileImageStore.
+        // Reading the token off the published profile keeps this view refreshing on change.
+        guard let token = dataLoader.userProfile?.profileImage, !token.isEmpty else { return nil }
+        if let image = ProfileImageStore.shared.loadImage() { return image }
+        // Pre-migration profiles may still carry the raw base64 payload.
+        guard let data = Data(base64Encoded: token) else { return nil }
         return UIImage(data: data)
     }
 
@@ -180,8 +184,12 @@ struct ProfileView: View {
                             }
                             .tint(Color.claudeAccent)
                         
-                            Toggle(isOn: $darkModeEnabled) {
-                                Label("Dark Mode", systemImage: "moon.fill")
+                            Picker(selection: $appearanceModeRaw) {
+                                ForEach(AppAppearance.allCases) { mode in
+                                    Text(mode.label).tag(mode.rawValue)
+                                }
+                            } label: {
+                                Label("Appearance", systemImage: "circle.lefthalf.filled")
                             }
                             .tint(Color.claudeAccent)
                         
@@ -314,15 +322,18 @@ struct ProfileView: View {
             "userPreferences", "user_favorites", "myJungleExtendedData",
             "current_streak", "last_streak_date", "streak_history",
             "appNotifications", "hasCompletedOnboarding",
-            "notificationsEnabled", "darkModeEnabled", "hapticFeedback"
+            "notificationsEnabled", "appearanceMode", "hapticFeedback"
         ]
         
         for key in keysToRemove {
             UserDefaults.standard.removeObject(forKey: key)
         }
-        
+
         UserDefaults.standard.synchronize()
-        
+
+        ProfileImageStore.shared.delete()
+        PlantNetService.shared.apiKey = nil
+
         // Reset app state back to onboarding
         withAnimation {
             hasCompletedOnboarding = false
@@ -412,7 +423,7 @@ struct AchievementBadge: Identifiable {
 }
 
 struct EditProfileView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @Environment(\.dismiss) var dismiss
     @State private var username: String = ""
     @State private var city: String = ""
@@ -464,7 +475,7 @@ struct EditProfileView: View {
 }
 
 struct PlantPreferencesView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @Environment(\.dismiss) var dismiss
     @State private var difficulty = "Beginner"
     @State private var petSafeOnly = false
@@ -524,5 +535,5 @@ struct PlantPreferencesView: View {
 
 #Preview {
     ProfileView()
-        .environmentObject(DataLoader())
+        .environment(DataLoader())
 }

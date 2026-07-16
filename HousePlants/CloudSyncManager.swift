@@ -24,7 +24,6 @@ final class CloudSyncManager {
     ]
 
     private var observer: NSObjectProtocol?
-    private var localObserver: NSObjectProtocol?
     private var isApplyingRemote = false
 
     func start() {
@@ -39,19 +38,17 @@ final class CloudSyncManager {
         ) { [weak self] note in
             self?.handleRemoteChange(note)
         }
-
-        localObserver = NotificationCenter.default.addObserver(
-            forName: UserDefaults.didChangeNotification,
-            object: UserDefaults.standard,
-            queue: .main
-        ) { [weak self] _ in
-            self?.applyLocalToRemote()
-        }
     }
 
     func stop() {
         if let observer { NotificationCenter.default.removeObserver(observer) }
-        if let localObserver { NotificationCenter.default.removeObserver(localObserver) }
+    }
+
+    /// Uploads the synced keys to iCloud. Called explicitly by DataLoader after each save —
+    /// observing UserDefaults.didChangeNotification re-uploaded everything on every defaults
+    /// write app-wide (weather cache, HomeKit bindings, …), which this replaces.
+    func push() {
+        applyLocalToRemote()
     }
 
     private func handleRemoteChange(_ note: Notification) {

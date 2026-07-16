@@ -1,17 +1,21 @@
 import Foundation
-import Combine
+import Observation
 import os
 
-class DataLoader: ObservableObject {
+@Observable
+class DataLoader {
     static let shared = DataLoader()
 
-    @Published var appData: AppData?
-    @Published var plants: [Plant] = []
-    @Published var categories: [PlantCategory] = []
-    @Published var userProfile: UserProfile?
-    @Published var errorMessage: String?
-    @Published var myJungleLookup: [String: MyPlant] = [:]
-    @Published var notifications: [AppNotification] = []
+    var appData: AppData?
+    var plants: [Plant] = []
+    /// O(1) id → Plant lookup, rebuilt whenever `plants` is loaded. Avoids repeated
+    /// `plants.first(where:)` linear scans throughout the app.
+    private(set) var plantsById: [String: Plant] = [:]
+    var categories: [PlantCategory] = []
+    var userProfile: UserProfile?
+    var errorMessage: String?
+    var myJungleLookup: [String: MyPlant] = [:]
+    var notifications: [AppNotification] = []
     
     var isProfileComplete: Bool {
         UserDefaults.standard.string(forKey: "username") != nil
@@ -29,15 +33,21 @@ class DataLoader: ObservableObject {
         loadUserPreferences()
         loadMyJungleExtendedData()
         loadNotifications()
-        scanRepotReminders()
-        CloudSyncManager.shared.start()
-        WatchConnectivityBridge.shared.start()
-        NotificationScheduler.shared.requestAuthorization()
-        HomeKitSensorManager.shared.start()
+        // Notification authorization is requested when the first reminder is scheduled, and
+        // HomeKit is only touched once the user binds a sensor — never blanket-prompt at launch.
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(cloudPulledRemote),
                                                name: .cloudSyncDidPullRemote,
                                                object: nil)
+
+        // Non-critical launch work — repot scan (generates in-app notifications), iCloud KVS
+        // sync, and the watch bridge — is deferred off the first-frame path. None of it is
+        // needed to render the initial UI.
+        Task { @MainActor [weak self] in
+            self?.scanRepotReminders()
+            CloudSyncManager.shared.start()
+            WatchConnectivityBridge.shared.start()
+        }
     }
 
     @objc private func cloudPulledRemote() {
@@ -46,55 +56,56 @@ class DataLoader: ObservableObject {
     }
     
     func loadUserPreferences() {
-        // Load saved user preferences from UserDefaults
-        if let username = UserDefaults.standard.string(forKey: "username"),
-           let city = UserDefaults.standard.string(forKey: "city"),
-           let country = UserDefaults.standard.string(forKey: "country"),
-           var profile = userProfile {
+        // Build the whole profile locally, then publish once. Previously each key assigned
+        // `self.userProfile` separately, firing up to seven `objectWillChange` events per load.
+        guard var profile = userProfile else { return }
+        let defaults = UserDefaults.standard
+
+        if let username = defaults.string(forKey: "username"),
+           let city = defaults.string(forKey: "city"),
+           let country = defaults.string(forKey: "country") {
             profile.username = username
             profile.locationSettings.city = city
             profile.locationSettings.country = country
-            self.userProfile = profile
-        }
-        
-        if let profileImage = UserDefaults.standard.string(forKey: "profile_image"),
-           var profile = userProfile {
-            profile.profileImage = profileImage
-            self.userProfile = profile
-        }
-        
-        if let savedFavData = UserDefaults.standard.data(forKey: "user_favorites"),
-           let favorites = try? JSONDecoder().decode([String].self, from: savedFavData),
-           var profile = userProfile {
-            profile.favorites = favorites
-            self.userProfile = profile
         }
 
-        if let currentStreak = UserDefaults.standard.object(forKey: "current_streak") as? Int,
-           var profile = userProfile {
+        if let profileImage = defaults.string(forKey: "profile_image") {
+            if profileImage.count > 512, let data = Data(base64Encoded: profileImage) {
+                // Legacy builds kept the whole JPEG base64-encoded in UserDefaults — move it
+                // to a file and leave just a token behind.
+                ProfileImageStore.shared.save(data)
+                let token = DataLoader.isoFormatter.string(from: Date())
+                defaults.set(token, forKey: "profile_image")
+                profile.profileImage = token
+            } else {
+                profile.profileImage = profileImage
+            }
+        }
+
+        if let savedFavData = defaults.data(forKey: "user_favorites"),
+           let favorites = try? JSONDecoder().decode([String].self, from: savedFavData) {
+            profile.favorites = favorites
+        }
+
+        if let currentStreak = defaults.object(forKey: "current_streak") as? Int {
             profile.currentStreak = currentStreak
-            self.userProfile = profile
         }
-        
-        if let lastStreakDate = UserDefaults.standard.string(forKey: "last_streak_date"),
-           var profile = userProfile {
+
+        if let lastStreakDate = defaults.string(forKey: "last_streak_date") {
             profile.lastStreakDate = lastStreakDate
-            self.userProfile = profile
         }
-        
-        if let historyData = UserDefaults.standard.data(forKey: "streak_history"),
-           let history = try? JSONDecoder().decode([String].self, from: historyData),
-           var profile = userProfile {
+
+        if let historyData = defaults.data(forKey: "streak_history"),
+           let history = try? JSONDecoder().decode([String].self, from: historyData) {
             profile.streakHistory = history
-            self.userProfile = profile
         }
-        
-        if let savedPrefs = UserDefaults.standard.data(forKey: "userPreferences"),
-           let prefs = try? JSONDecoder().decode(Preferences.self, from: savedPrefs),
-           var profile = userProfile {
+
+        if let savedPrefs = defaults.data(forKey: "userPreferences"),
+           let prefs = try? JSONDecoder().decode(Preferences.self, from: savedPrefs) {
             profile.preferences = prefs
-            self.userProfile = profile
         }
+
+        self.userProfile = profile
     }
     
     func updateProfile(username: String, city: String, country: String) {
@@ -117,7 +128,9 @@ class DataLoader: ObservableObject {
     
     func updateProfileImage(imageData: Data) {
         guard var profile = userProfile else { return }
-        profile.profileImage = imageData.base64EncodedString()
+        ProfileImageStore.shared.save(imageData)
+        // Only a cache-busting token lives in the profile; the JPEG stays on disk.
+        profile.profileImage = DataLoader.isoFormatter.string(from: Date())
         self.userProfile = profile
         saveProfile()
     }
@@ -149,6 +162,8 @@ class DataLoader: ObservableObject {
                 UserDefaults.standard.set(encoded, forKey: "streak_history")
             }
         }
+
+        CloudSyncManager.shared.push()
     }
     
     func loadData() {
@@ -165,6 +180,7 @@ class DataLoader: ObservableObject {
             
             self.appData = appData
             self.plants = appData.plantCatalog
+            self.plantsById = Dictionary(uniqueKeysWithValues: appData.plantCatalog.map { ($0.id, $0) })
             self.categories = appData.plantCategories
             self.userProfile = appData.userProfile
             self.errorMessage = nil
@@ -185,31 +201,42 @@ class DataLoader: ObservableObject {
         
         var streak = profile.currentStreak ?? 0
         var history = profile.streakHistory ?? []
-        
+        var changed = false
+
         if let lastDateString = profile.lastStreakDate,
            let lastDate = DataLoader.isoFormatter.date(from: lastDateString) {
             let startOfLast = calendar.startOfDay(for: lastDate)
-            
+
             if let days = calendar.dateComponents([.day], from: startOfLast, to: today).day {
                 if days == 1 {
                     streak += 1
                     profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
                     if !history.contains(todayString) { history.append(todayString) }
+                    changed = true
                 } else if days > 1 {
                     streak = 1
                     profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
                     if !history.contains(todayString) { history.append(todayString) }
+                    changed = true
                 } else if days == 0 {
-                    // Same day, ensure it's in history just in case
-                    if !history.contains(todayString) { history.append(todayString) }
+                    // Same day — nothing to bump. Only touch history if today is somehow missing.
+                    if !history.contains(todayString) {
+                        history.append(todayString)
+                        changed = true
+                    }
                 }
             }
         } else {
             streak = 1
             profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
             history.append(todayString)
+            changed = true
         }
-        
+
+        // The common case — opening the app again the same day — is a no-op, so we skip the
+        // profile write and the iCloud push it would trigger.
+        guard changed else { return }
+
         profile.currentStreak = streak
         profile.streakHistory = history
         self.userProfile = profile
@@ -268,13 +295,18 @@ class DataLoader: ObservableObject {
         }
         myJungleLookup = Dictionary(uniqueKeysWithValues: profile.myJungle.map { ($0.plantId, $0) })
     }
+
+    /// O(1) catalog lookup. Prefer this over `plants.first(where:)`.
+    func plant(for id: String) -> Plant? {
+        plantsById[id]
+    }
     
     // MARK: - Watering Management
     
     func waterPlant(plantId: String) {
         guard var profile = userProfile,
               let plantIndex = profile.myJungle.firstIndex(where: { $0.plantId == plantId }),
-              let plant = plants.first(where: { $0.id == plantId }) else { return }
+              let plant = plant(for: plantId) else { return }
         
         let now = Date()
         let dateString = DataLoader.isoFormatter.string(from: now)
@@ -297,15 +329,37 @@ class DataLoader: ObservableObject {
         saveMyJungleData()
     }
     
+    /// Waters every plant that needs it in a single pass, then persists once. Previously this
+    /// called `waterPlant` per plant, and each call ran a full SwiftData rewrite + iCloud push +
+    /// notification reschedule — O(N) saves. Now it's one save for the whole batch.
     func waterAllPlants() {
-        guard let profile = userProfile else { return }
-        
-        for myPlant in profile.myJungle {
-            // Only water plants that need it (overdue or due soon)
-            if needsWatering(myPlant: myPlant) {
-                waterPlant(plantId: myPlant.plantId)
+        guard var profile = userProfile else { return }
+
+        let now = Date()
+        let dateString = DataLoader.isoFormatter.string(from: now)
+        let lastWateredDisplay = now.formatted(date: .numeric, time: .omitted)
+        var changed = false
+
+        for index in profile.myJungle.indices {
+            guard needsWatering(myPlant: profile.myJungle[index]),
+                  let plant = plant(for: profile.myJungle[index].plantId) else { continue }
+
+            var history = profile.myJungle[index].wateringHistory ?? []
+            history.append(dateString)
+            profile.myJungle[index].wateringHistory = history
+            profile.myJungle[index].lastWatered = lastWateredDisplay
+
+            let frequencyDays = profile.myJungle[index].customWateringFrequencyDays ?? getWateringFrequency(for: plant)
+            if let nextDate = Calendar.current.date(byAdding: .day, value: frequencyDays, to: now) {
+                profile.myJungle[index].nextWateringDate = DataLoader.isoFormatter.string(from: nextDate)
             }
+            changed = true
         }
+
+        guard changed else { return }
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
     }
     
     func needsWatering(myPlant: MyPlant) -> Bool {
@@ -336,7 +390,7 @@ class DataLoader: ObservableObject {
     func recomputeNextWatering(for plantId: String, weatherAdjustment: WateringAdjustment? = nil) {
         guard var profile = userProfile,
               let idx = profile.myJungle.firstIndex(where: { $0.plantId == plantId }),
-              let plant = plants.first(where: { $0.id == plantId }) else { return }
+              let plant = plant(for: plantId) else { return }
 
         let base = profile.myJungle[idx].customWateringFrequencyDays ?? getWateringFrequency(for: plant)
         let isOutdoor = profile.myJungle[idx].isOutdoor ?? false
@@ -374,7 +428,7 @@ class DataLoader: ObservableObject {
     func recomputeHealth(for plantId: String) {
         guard let profile = userProfile,
               let myPlant = profile.myJungle.first(where: { $0.plantId == plantId }),
-              let plant = plants.first(where: { $0.id == plantId }) else { return }
+              let plant = plant(for: plantId) else { return }
         let journalCount = PlantJournalStore.shared.photos(for: plantId).count
         let recentJournal = PlantJournalStore.shared.photos(for: plantId).first?.date
         let assessment = HealthScoreEngine.compute(
@@ -388,7 +442,7 @@ class DataLoader: ObservableObject {
     }
 
     func healthAssessment(for myPlant: MyPlant) -> HealthAssessment? {
-        guard let plant = plants.first(where: { $0.id == myPlant.plantId }) else { return nil }
+        guard let plant = plant(for: myPlant.plantId) else { return nil }
         let journalCount = PlantJournalStore.shared.photos(for: myPlant.plantId).count
         let recentJournal = PlantJournalStore.shared.photos(for: myPlant.plantId).first?.date
         return HealthScoreEngine.compute(
@@ -401,7 +455,11 @@ class DataLoader: ObservableObject {
     }
 
     func getWateringFrequency(for plant: Plant) -> Int {
-        // Parse water requirement and estimate frequency in days
+        // Prefer the structured field when the catalog provides it.
+        if let days = plant.careGuide.wateringFrequencyDays, days > 0 {
+            return days
+        }
+        // Fall back to parsing the prose care text.
         let waterReq = plant.careGuide.water.lowercased()
         
         if waterReq.contains("daily") || waterReq.contains("every day") {
@@ -507,9 +565,13 @@ class DataLoader: ObservableObject {
     func saveMyJungleData() {
         guard let profile = userProfile else { return }
 
+        // SwiftData is the durable store; the UserDefaults blob is kept in step because it is
+        // also the iCloud KVS sync medium (see CloudSyncManager).
+        JungleStore.shared.replaceAll(with: profile.myJungle)
         if let encoded = try? JSONEncoder().encode(profile.myJungle) {
             UserDefaults.standard.set(encoded, forKey: "myJungleExtendedData")
         }
+        CloudSyncManager.shared.push()
         WatchConnectivityBridge.shared.pushJungleSnapshot()
         syncAllNotifications()
     }
@@ -525,7 +587,7 @@ class DataLoader: ObservableObject {
         let waterReminders: [NotificationScheduler.Reminder] = profile.myJungle.compactMap { myPlant in
             guard let dateString = myPlant.nextWateringDate,
                   let date = DataLoader.isoFormatter.date(from: dateString) else { return nil }
-            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            let name = myPlant.nickname
             return NotificationScheduler.Reminder(plantId: myPlant.plantId, plantName: name, dueDate: date)
         }
         NotificationScheduler.shared.sync(reminders: waterReminders, enabled: enabled,
@@ -542,7 +604,7 @@ class DataLoader: ObservableObject {
                 base = now
             }
             let due = Calendar.current.date(byAdding: .day, value: 30, to: base) ?? now
-            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            let name = myPlant.nickname
             return NotificationScheduler.FertilizerReminder(plantId: myPlant.plantId, plantName: name, dueDate: due)
         }
         NotificationScheduler.shared.syncFertilizerReminders(fertReminders, enabled: enabled, now: now)
@@ -556,7 +618,7 @@ class DataLoader: ObservableObject {
                 base = now
             }
             let due = Calendar.current.date(byAdding: .day, value: 3, to: base) ?? now
-            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            let name = myPlant.nickname
             return NotificationScheduler.MistingReminder(plantId: myPlant.plantId, plantName: name, dueDate: due)
         }
         NotificationScheduler.shared.syncMistingReminders(mistReminders, enabled: enabled, now: now)
@@ -565,7 +627,7 @@ class DataLoader: ObservableObject {
         let repotReminders: [NotificationScheduler.RepottingReminder] = profile.myJungle.compactMap { myPlant in
             guard let s = myPlant.nextRepotDate,
                   let date = DataLoader.isoFormatter.date(from: s) else { return nil }
-            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            let name = myPlant.nickname
             return NotificationScheduler.RepottingReminder(plantId: myPlant.plantId, plantName: name, dueDate: date)
         }
         NotificationScheduler.shared.syncRepottingReminders(repotReminders, enabled: enabled, now: now)
@@ -573,12 +635,12 @@ class DataLoader: ObservableObject {
         // --- Bloom countdown (Pro) — via BloomPredictor ---
         let hemisphere = BloomPredictor.hemisphere(forCountry: profile.locationSettings.country)
         let bloomReminders: [NotificationScheduler.BloomReminder] = profile.myJungle.compactMap { myPlant in
-            guard let plant = plants.first(where: { $0.id == myPlant.plantId }),
+            guard let plant = plant(for: myPlant.plantId),
                   let window = BloomPredictor.predict(for: plant, hemisphere: hemisphere),
                   let daysAway = window.daysUntilNextBloom(from: now),
                   daysAway > 0 else { return nil }
             guard let bloomStart = Calendar.current.date(byAdding: .day, value: daysAway, to: now) else { return nil }
-            let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+            let name = myPlant.nickname
             return NotificationScheduler.BloomReminder(
                 plantId: myPlant.plantId, plantName: name,
                 bloomStartDate: bloomStart, bloomNotes: window.notes
@@ -589,10 +651,10 @@ class DataLoader: ObservableObject {
         // --- HomeKit threshold monitoring (Pro) ---
         if ProManager.shared.isPro {
             let thresholds: [HomeKitSensorManager.PlantThreshold] = profile.myJungle.compactMap { myPlant in
-                guard let plant = plants.first(where: { $0.id == myPlant.plantId }) else { return nil }
-                let minHumidity = parseMinHumidity(from: plant.careGuide.humidity)
-                let maxTemp = parseMaxTempC(from: plant.careGuide.temperatureRange)
-                let name = myJungleLookup[myPlant.plantId]?.nickname ?? myPlant.nickname
+                guard let plant = plant(for: myPlant.plantId) else { return nil }
+                let minHumidity = plant.careGuide.humidityMinPct ?? parseMinHumidity(from: plant.careGuide.humidity)
+                let maxTemp = plant.careGuide.temperatureMaxC ?? parseMaxTempC(from: plant.careGuide.temperatureRange)
+                let name = myPlant.nickname
                 return HomeKitSensorManager.PlantThreshold(
                     plantId: myPlant.plantId, plantName: name,
                     minHumidityPct: minHumidity, maxTempC: maxTemp
@@ -638,13 +700,25 @@ class DataLoader: ObservableObject {
     func loadMyJungleExtendedData() {
         guard var profile = userProfile else { return }
 
-        // Saved data in UserDefaults is the authoritative source for the user's jungle.
-        // It contains all user-added plants plus any extended properties (watering history, etc.)
         if let savedData = UserDefaults.standard.data(forKey: "myJungleExtendedData"),
            let savedPlants = try? JSONDecoder().decode([MyPlant].self, from: savedData) {
+            // The blob doubles as the iCloud KVS sync medium, so when present (including
+            // after a cloud pull) it wins; SwiftData is brought in step with it.
+            JungleStore.shared.performMigrationIfNeeded(legacy: savedPlants)
+            JungleStore.shared.replaceAll(with: savedPlants)
             profile.myJungle = savedPlants
             self.userProfile = profile
             self.updateLookup()
+        } else {
+            // No blob (fresh install or cleared defaults): fall back to whatever SwiftData
+            // holds, keeping the bundled starter jungle if the store is empty too.
+            JungleStore.shared.performMigrationIfNeeded(legacy: [])
+            let stored = JungleStore.shared.fetchAll()
+            if !stored.isEmpty {
+                profile.myJungle = stored
+                self.userProfile = profile
+                self.updateLookup()
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ToolsView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @ObservedObject private var proManager = ProManager.shared
     @State private var showProUpgrade = false
     @State private var showGrowthPicker = false
@@ -127,7 +127,7 @@ struct ToolsView: View {
         }
         .sheet(isPresented: $showGrowthPicker) {
             GrowthPlantPickerView()
-                .environmentObject(dataLoader)
+                .environment(dataLoader)
         }
     }
 }
@@ -136,7 +136,7 @@ struct ToolsView: View {
 
 /// Shown from ToolsView; lets the user choose which plant to view analytics for.
 private struct GrowthPlantPickerView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -146,7 +146,7 @@ private struct GrowthPlantPickerView: View {
                     ForEach(jungle) { myPlant in
                         if let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) {
                             NavigationLink(destination: PlantGrowthView(plant: plant)
-                                .environmentObject(dataLoader)) {
+                                .environment(dataLoader)) {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(myPlant.nickname)
                                         .font(.claudeSans(size: 15, weight: .semibold))

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ToxicityCheckerView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @State private var searchText = ""
     @State private var filterMode: ToxicityFilter = .all
     @State private var animateShield = false

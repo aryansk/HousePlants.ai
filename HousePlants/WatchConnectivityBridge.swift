@@ -58,7 +58,11 @@ final class WatchConnectivityBridge: NSObject {
 #if canImport(WatchConnectivity)
 extension WatchConnectivityBridge: WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        pushJungleSnapshot()
+        // Delivered on a background queue; hop to main so DataLoader.shared is never touched
+        // while its lazy initialization (which starts this bridge) may still be running.
+        DispatchQueue.main.async { [weak self] in
+            self?.pushJungleSnapshot()
+        }
     }
 
     #if os(iOS)

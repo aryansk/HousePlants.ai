@@ -74,6 +74,10 @@ final class NotificationScheduler {
 
     /// Replaces all pending watering reminders with the supplied set (other notifications untouched).
     func sync(reminders: [Reminder], enabled: Bool, sundaysOnly: Bool, now: Date = Date()) {
+        // The first time something is actually worth notifying about is when we ask permission.
+        if enabled && !reminders.isEmpty {
+            requestAuthorization()
+        }
         replace(prefix: waterPrefix, enabled: enabled) { [weak self] in
             guard let self else { return }
             for reminder in reminders {

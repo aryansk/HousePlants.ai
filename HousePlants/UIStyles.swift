@@ -30,12 +30,17 @@ extension Color {
 
 extension Font {
     static func claudeSerif(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        // Fallback to system serif if Georgia isn't available, though it usually is on iOS
-        return .custom("Georgia", size: size).weight(weight)
+        // `relativeTo:` lets Georgia scale with the user's Dynamic Type setting instead of being
+        // pinned to a fixed point size (which ignored accessibility text sizes entirely).
+        return .custom("Georgia", size: size, relativeTo: .body).weight(weight)
     }
-    
+
     static func claudeSans(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        return .system(size: size, weight: weight, design: .default)
+        // `.system(size:)` is a fixed size and ignores Dynamic Type. SwiftUI has no size+relativeTo
+        // variant for the system font, so scale the point size via UIFontMetrics (evaluated during
+        // body, so it tracks the user's current text-size setting).
+        let scaled = UIFontMetrics(forTextStyle: .body).scaledValue(for: size)
+        return .system(size: scaled, weight: weight, design: .default)
     }
 }
 

@@ -2,7 +2,7 @@ import SwiftUI
 import EventKit
 
 struct SeasonalCareCalendarView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @ObservedObject private var proManager = ProManager.shared
 
     @State private var selectedMonth: Int = Calendar.current.component(.month, from: Date())

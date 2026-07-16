@@ -2,7 +2,7 @@ import SwiftUI
 
 struct NotificationCenterView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     
     var body: some View {
         NavigationView {
@@ -120,5 +120,5 @@ struct NotificationRow: View {
 
 #Preview {
     NotificationCenterView()
-        .environmentObject(DataLoader())
+        .environment(DataLoader())
 }

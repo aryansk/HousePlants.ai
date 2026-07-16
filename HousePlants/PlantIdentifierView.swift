@@ -2,7 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct PlantIdentifierView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
 
     @State private var pickerItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
@@ -280,11 +280,6 @@ struct PlantIdentifierView: View {
         guard let selectedImage,
               let jpeg = resizedJPEG(from: selectedImage) else { return }
 
-        // Pro users get a bundled API key; inject it if they haven't set their own.
-        if proManager.isPro && PlantNetService.shared.apiKey == nil {
-            PlantNetService.shared.apiKey = ProConfig.plantNetAPIKey
-        }
-
         errorMessage = nil
         results = []
         isIdentifying = true
@@ -517,6 +512,6 @@ private struct CameraPicker: UIViewControllerRepresentable {
 #Preview {
     NavigationStack {
         PlantIdentifierView()
-            .environmentObject(DataLoader.shared)
+            .environment(DataLoader.shared)
     }
 }

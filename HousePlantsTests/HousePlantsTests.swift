@@ -217,3 +217,38 @@ struct BloomPredictorTests {
         #expect(days <= 0, "bloom month already underway")
     }
 }
+
+struct PlantCatalogMatcherTests {
+    @Test func normalizeKeepsGenusAndSpecies() {
+        #expect(PlantCatalogMatcher.normalize("Monstera deliciosa Liebm.") == "monstera deliciosa")
+        #expect(PlantCatalogMatcher.normalize("Ficus lyrata") == "ficus lyrata")
+    }
+
+    @Test func normalizeStripsCultivarQuotes() {
+        #expect(PlantCatalogMatcher.normalize("Epipremnum aureum 'Marble Queen'") == "epipremnum aureum")
+    }
+
+    @Test func normalizeStripsVarietyMarkers() {
+        #expect(PlantCatalogMatcher.normalize("Sansevieria trifasciata var. laurentii") == "sansevieria trifasciata")
+    }
+
+    @Test func matchesExactSpecies() {
+        let catalog = [
+            makePlant(botanicalName: "Monstera deliciosa"),
+            makePlant(botanicalName: "Ficus lyrata")
+        ]
+        let match = PlantCatalogMatcher.match(scientificName: "Monstera deliciosa", in: catalog)
+        #expect(match?.botanicalName == "Monstera deliciosa")
+    }
+
+    @Test func fallsBackToGenusWhenSpeciesDiffers() {
+        let catalog = [makePlant(botanicalName: "Monstera deliciosa")]
+        let match = PlantCatalogMatcher.match(scientificName: "Monstera adansonii", in: catalog)
+        #expect(match?.botanicalName == "Monstera deliciosa")
+    }
+
+    @Test func returnsNilForUnknownGenus() {
+        let catalog = [makePlant(botanicalName: "Monstera deliciosa")]
+        #expect(PlantCatalogMatcher.match(scientificName: "Quercus robur", in: catalog) == nil)
+    }
+}

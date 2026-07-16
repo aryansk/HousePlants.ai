@@ -16,3 +16,8 @@ build/
 
 # macOS
 .DS_Store
+
+# Python tooling (one-off catalog scripts)
+__pycache__/
+*.pyc
+*.log

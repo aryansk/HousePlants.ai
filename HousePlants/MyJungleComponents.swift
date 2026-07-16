@@ -406,6 +406,6 @@ struct StreakBadge: View {
 #Preview {
     let dataLoader = DataLoader()
     MyJungleView()
-        .environmentObject(dataLoader)
+        .environment(dataLoader)
         .environment(TabSelection())
 }

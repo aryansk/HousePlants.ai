@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - WelcomeView
 struct WelcomeView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @State private var currentStep: Int = 0
     @State private var username = ""
     @State private var city = ""
@@ -681,6 +681,6 @@ struct WelcomeView: View {
 
 #Preview {
     WelcomeView(isCompleted: .constant(false))
-        .environmentObject(DataLoader())
+        .environment(DataLoader())
 }
 

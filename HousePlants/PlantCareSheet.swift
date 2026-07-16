@@ -2,7 +2,7 @@ import SwiftUI
 
 struct PlantCareSheet: View {
     let plant: Plant
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @Environment(\.dismiss) var dismiss
     
     @State private var nickname: String = ""
@@ -27,26 +27,11 @@ struct PlantCareSheet: View {
                 ScrollView {
                     VStack(spacing: 24) {
                     // Plant Image
-                    ZStack {
-                        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-                            AsyncImage(url: url) { phase in
-                                if let image = phase.image {
-                                    image.resizable().scaledToFill()
-                                } else {
-                                    Color.gray.opacity(0.1)
-                                }
-                            }
-                        } else if let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first {
-                            Image(String(imageName))
-                                .resizable()
-                                .scaledToFill()
-                        } else {
-                            Color.green.opacity(0.2)
-                        }
-                    }
-                    .frame(height: 200)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .padding(.horizontal)
+                    PlantImage(plant: plant)
+                        .frame(height: 200)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .padding(.horizontal)
                     
                     // Quick Actions
                     HStack(spacing: 12) {

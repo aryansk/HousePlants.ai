@@ -79,6 +79,12 @@ final class HomeKitSensorManager: NSObject, ObservableObject {
         self.thresholds = thresholds
         monitoringCancellable?.cancel()
 
+        // Creating HMHomeManager triggers the system HomeKit permission prompt, so don't
+        // touch HomeKit until the user has actually bound a sensor to a plant (done in
+        // PlantInsightsView, which calls start() itself).
+        guard thresholds.contains(where: { binding(for: $0.plantId) != nil }) else { return }
+        start()
+
         // Fire once immediately, then every 15 minutes.
         checkThresholds()
         monitoringCancellable = Timer.publish(every: 900, on: .main, in: .common)

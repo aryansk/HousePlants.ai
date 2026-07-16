@@ -78,7 +78,7 @@ extension DataLoader {
         let cutoff = Date().addingTimeInterval(-7 * 24 * 60 * 60)
         for myPlant in profile.myJungle {
             guard let days = daysUntilRepot(myPlant: myPlant), days <= 14, days >= -180 else { continue }
-            guard let plant = plants.first(where: { $0.id == myPlant.plantId }) else { continue }
+            guard let plant = plant(for: myPlant.plantId) else { continue }
             let alreadyNotified = notifications.contains { n in
                 n.type == .repotting && n.date >= cutoff && n.message.contains(plant.commonName)
             }

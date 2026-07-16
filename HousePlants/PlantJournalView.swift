@@ -3,7 +3,7 @@ import PhotosUI
 
 struct PlantJournalView: View {
     let myPlant: MyPlant
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
 
     @State private var entries: [JournalEntry] = []
     @State private var pickerItem: PhotosPickerItem?

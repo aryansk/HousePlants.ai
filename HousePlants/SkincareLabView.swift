@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SkincareLabView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @State private var selectedCategory: String = "All"
     @State private var showDisclaimer: Bool = true
     @State private var showInfoSheet = false

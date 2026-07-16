@@ -2,7 +2,7 @@ import SwiftUI
 import MapKit
 
 struct OriginExplorerView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @State private var selectedPlant: Plant?
     @State private var selectedRegion: String?
     @State private var mapPosition: MapCameraPosition = .automatic

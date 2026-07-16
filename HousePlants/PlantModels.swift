@@ -264,10 +264,20 @@ struct CareGuide: Codable {
     let humidity: String
     let soil: String
     let temperatureRange: String
-    
+
+    // Optional structured values. When present in plants.json they take precedence over
+    // parsing the prose strings above (see DataLoader.getWateringFrequency and the
+    // HomeKit threshold builders).
+    var wateringFrequencyDays: Int? = nil
+    var humidityMinPct: Double? = nil
+    var temperatureMaxC: Double? = nil
+
     enum CodingKeys: String, CodingKey {
         case difficulty, light, water, humidity, soil
         case temperatureRange = "temperature_range"
+        case wateringFrequencyDays = "watering_frequency_days"
+        case humidityMinPct = "humidity_min_pct"
+        case temperatureMaxC = "temperature_max_c"
     }
 }
 

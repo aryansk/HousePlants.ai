@@ -1,0 +1,117 @@
+<meta charset="utf-8">
+<title>HousePlants.ai — reel</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="brand.css">
+<style>
+  body { background: #2b2723; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 30px; }
+  .hint { color: #cbbfae; font: 400 14px var(--sans); text-align: center; max-width: 420px; }
+  .hint b { color: #fff; font-weight: 600; }
+  /* 1080x1920 stage, scaled to fit screen height */
+  .stagewrap { width: 405px; height: 720px; }
+  .stage { width: 1080px; height: 1920px; transform: scale(.375); transform-origin: top left;
+    position: relative; overflow: hidden; border-radius: 36px; background: var(--bg); }
+
+  .scene { position: absolute; inset: 0; opacity: 0; display: flex; flex-direction: column;
+    align-items: center; animation: scene 20s infinite; }
+  .s1 { animation-delay: 0s; }   .s2 { animation-delay: 4s; }
+  .s3 { animation-delay: 8s; }   .s4 { animation-delay: 12s; }  .s5 { animation-delay: 16s; }
+  @keyframes scene {
+    0% { opacity: 0; transform: translateY(30px); }
+    2% { opacity: 1; transform: translateY(0); }
+    18% { opacity: 1; transform: translateY(0); }
+    20% { opacity: 0; transform: translateY(-30px); }
+    100% { opacity: 0; }
+  }
+  .cap { text-align: center; padding: 90px 70px 0; }
+  .cap .kick { font: 600 30px var(--sans); letter-spacing: .14em; text-transform: uppercase; }
+  .cap h1 { font: 700 88px/1.02 var(--serif); color: var(--text); margin-top: 22px; }
+  .cap p { font: 400 34px/1.45 var(--sans); color: var(--text2); margin-top: 26px; }
+  .phonebig { transform: scale(1.55); margin-top: 200px; }
+  .phonebig.up { margin-top: 120px; }
+
+  /* progress dots */
+  .dots { position: absolute; top: 40px; left: 0; right: 0; display: flex; gap: 10px;
+    justify-content: center; z-index: 80; }
+  .dots i { width: 90px; height: 7px; border-radius: 4px; background: rgba(41,33,29,.15); overflow: hidden; position: relative; }
+  .dots i::after { content: ''; position: absolute; inset: 0; background: var(--accent);
+    transform: translateX(-100%); animation: fill 20s infinite; }
+  .dots i:nth-child(1)::after { animation-delay: 0s; }
+  .dots i:nth-child(2)::after { animation-delay: 4s; }
+  .dots i:nth-child(3)::after { animation-delay: 8s; }
+  .dots i:nth-child(4)::after { animation-delay: 12s; }
+  .dots i:nth-child(5)::after { animation-delay: 16s; }
+  @keyframes fill { 0%{transform:translateX(-100%)} 20%{transform:translateX(0)} 100%{transform:translateX(0)} }
+
+  /* scene 1 hero */
+  .hero { background: var(--bg); justify-content: center; }
+  .hero .badge-row { display: flex; gap: 10px; justify-content: center; margin-top: 34px; }
+  .hero .pp { display: inline-flex; align-items: center; gap: 10px; background: var(--bg2);
+    border: 1px solid var(--border); padding: 14px 24px; border-radius: 999px;
+    font: 600 26px var(--sans); color: var(--text); }
+  .hero .pp .ti { color: var(--accent); font-size: 28px; }
+
+  /* scene 5 CTA */
+  .cta-scene { background: linear-gradient(170deg, var(--accent), #c25f40); justify-content: center; }
+  .cta-scene h1 { color: #fff; }
+  .cta-scene .feat { display: flex; flex-direction: column; gap: 20px; margin-top: 40px; padding: 0 120px; }
+  .cta-scene .feat div { display: flex; align-items: center; gap: 18px; color: #fff;
+    font: 500 34px var(--sans); }
+  .cta-scene .feat .ti { font-size: 38px; opacity: .9; }
+  .cta-scene .store { display: inline-flex; align-items: center; gap: 16px; background: #fff;
+    color: var(--accent); padding: 24px 44px; border-radius: 22px; margin-top: 56px; }
+  .cta-scene .store .ti { font-size: 54px; }
+  .cta-scene .store small { display: block; font: 400 22px var(--sans); opacity: .8; }
+  .cta-scene .store b { font: 600 38px var(--sans); }
+</style>
+
+<div class="stagewrap"><div class="stage">
+  <div class="dots"><i></i><i></i><i></i><i></i><i></i></div>
+
+  <div class="scene s1 hero">
+    <div class="cap">
+      <div class="kick" style="color:var(--accent)">HousePlants.ai</div>
+      <h1>Never lose a<br>plant again</h1>
+    </div>
+    <div class="badge-row">
+      <span class="pp"><i class="ti ti-users"></i> 50,000+ plant parents</span>
+    </div>
+  </div>
+
+  <div class="scene s2">
+    <div class="cap"><h1>Discover 500+<br>houseplants</h1>
+      <p>Care guides, difficulty levels &amp; picks<br>tailored to your home.</p></div>
+    <div class="phonebig up" id="r2"></div>
+  </div>
+
+  <div class="scene s3">
+    <div class="cap"><h1>A toolkit that<br>does the work</h1>
+      <p>Light meter, watering schedules,<br>plant doctor &amp; 9 more tools.</p></div>
+    <div class="phonebig up" id="r3"></div>
+  </div>
+
+  <div class="scene s4">
+    <div class="cap"><h1>Snap a photo.<br>Know your plant.</h1>
+      <p>Instant ID with a full care guide<br>in seconds.</p></div>
+    <div class="phonebig up" id="r4"></div>
+  </div>
+
+  <div class="scene s5 cta-scene">
+    <div class="cap"><div class="kick" style="color:rgba(255,255,255,.85)">Download today</div>
+      <h1>Your jungle,<br>thriving</h1></div>
+    <div class="feat">
+      <div><i class="ti ti-infinity"></i> Unlimited plants</div>
+      <div><i class="ti ti-bell"></i> Smart care reminders</div>
+      <div><i class="ti ti-chart-line"></i> Growth analytics</div>
+    </div>
+    <div class="store"><i class="ti ti-brand-apple"></i><span><small>Download on the</small><b>App Store</b></span></div>
+  </div>
+</div></div>
+
+<div class="hint"><b>Screen-record this panel</b> (or the saved file in a browser) at 1080×1920 to export your reel. The loop runs ~20s — 5 scenes, 4s each.</div>
+
+<script src="screens.js"></script>
+<script>
+  document.getElementById('r2').innerHTML = phone(discoverScreen());
+  document.getElementById('r3').innerHTML = phone(toolsScreen());
+  document.getElementById('r4').innerHTML = phone(identifyScreen());
+</script>

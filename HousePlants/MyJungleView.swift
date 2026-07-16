@@ -1,14 +1,29 @@
 import SwiftUI
 
 struct MyJungleView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @Namespace private var filterNamespace
     @State private var isGridView = true
     @State private var sortOption: SortOption = .name
     @State private var searchText = ""
     @State private var filterOption: FilterOption = .all
     @State private var showStreakSheet = false
+    @State private var activeSheet: JungleSheet? = nil
     @State private var activeToast: ActiveToast? = nil
+    @State private var toastTask: Task<Void, Never>? = nil
+
+    /// Single sheet driver for the whole collection, replacing a per-card `.sheet` pair.
+    enum JungleSheet: Identifiable {
+        case care(Plant)
+        case insights(MyPlant)
+
+        var id: String {
+            switch self {
+            case .care(let plant): return "care-\(plant.id)"
+            case .insights(let myPlant): return "insights-\(myPlant.id)"
+            }
+        }
+    }
 
     enum ActiveToast {
         case watered, fertilized, misted, rotated
@@ -78,7 +93,7 @@ struct MyJungleView: View {
     
     var myPlants: [Plant] {
         guard let profile = dataLoader.userProfile else { return [] }
-        let myPlantIds = profile.myJungle.map { $0.plantId }
+        let myPlantIds = Set(profile.myJungle.map { $0.plantId })
         var plants = dataLoader.plants.filter { myPlantIds.contains($0.id) }
         
         // Apply search filter
@@ -276,7 +291,7 @@ struct MyJungleView: View {
                                     }
                                     .padding(12)
                                     .background(Color.claudeSecondaryBackground)
-                                    .cornerRadius(12)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.claudeBorder, lineWidth: 1))
                                 }
                                 .padding(.horizontal)
@@ -364,6 +379,11 @@ struct MyJungleView: View {
 
                                         QuickActionButton(title: "Rotate", icon: "arrow.trianglehead.2.clockwise.rotate.90", color: .orange) {
                                             HapticManager.shared.playImpact(style: .light)
+                                            dataLoader.addNotification(
+                                                title: "Rotate Your Plants",
+                                                message: "Give each plant a quarter turn toward the light for even, balanced growth.",
+                                                type: .tip
+                                            )
                                             showToast(.rotated)
                                         }
                                     }
@@ -468,7 +488,9 @@ struct MyJungleView: View {
                                                             let cardWidth = (geometry.size.width - 48) / 2
                                                             ForEach(pendingPlants) { plant in
                                                                 NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                                    EnhancedPlantCard(plant: plant)
+                                                                    EnhancedPlantCard(plant: plant,
+                                                                                      onManage: { activeSheet = .care(plant) },
+                                                                                      onInsights: { presentInsights(for: plant) })
                                                                         .frame(width: cardWidth)
                                                                 }
                                                                 .buttonStyle(ScaleButtonStyle())
@@ -485,7 +507,9 @@ struct MyJungleView: View {
                                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
                                                     ForEach(myPlants) { plant in
                                                         NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                            EnhancedPlantCard(plant: plant)
+                                                            EnhancedPlantCard(plant: plant,
+                                                                              onManage: { activeSheet = .care(plant) },
+                                                                              onInsights: { presentInsights(for: plant) })
                                                         }
                                                         .buttonStyle(ScaleButtonStyle())
                                                     }
@@ -510,9 +534,10 @@ struct MyJungleView: View {
                                 .frame(width: geometry.size.width)
                                 .padding(.vertical)
                             }
+                            .scrollDismissesKeyboard(.immediately)
                         }
                     }
-                
+
                 if let toast = activeToast {
                     VStack {
                         Spacer()
@@ -551,16 +576,39 @@ struct MyJungleView: View {
             }
             .sheet(isPresented: $showStreakSheet) {
                 StreakView()
-                    .environmentObject(dataLoader)
+                    .environment(dataLoader)
+            }
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case .care(let plant):
+                    PlantCareSheet(plant: plant)
+                        .environment(dataLoader)
+                case .insights(let myPlant):
+                    NavigationStack {
+                        PlantInsightsView(myPlant: myPlant)
+                    }
+                    .environment(dataLoader)
+                }
             }
         }
     }
 
+    private func presentInsights(for plant: Plant) {
+        if let myPlant = dataLoader.myJungleLookup[plant.id] {
+            activeSheet = .insights(myPlant)
+        }
+    }
+
     private func showToast(_ toast: ActiveToast) {
+        // Cancel any in-flight dismissal so a second toast within 2.4s isn't cut short by the
+        // first one's timer.
+        toastTask?.cancel()
         withAnimation(.spring(response: 0.45, dampingFraction: 0.78)) {
             activeToast = toast
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
+        toastTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2.4))
+            guard !Task.isCancelled else { return }
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 activeToast = nil
             }
@@ -572,6 +620,6 @@ struct MyJungleView: View {
 #Preview {
     let dataLoader = DataLoader()
     MyJungleView()
-        .environmentObject(dataLoader)
+        .environment(dataLoader)
         .environment(TabSelection())
 }

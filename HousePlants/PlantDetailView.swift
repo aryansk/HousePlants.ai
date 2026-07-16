@@ -2,9 +2,8 @@ import SwiftUI
 
 struct PlantDetailView: View {
     let plant: Plant
-    @Environment(\.presentationMode) var presentationMode
     @State private var selectedCareInfo: (String, String, String, Color)? = nil
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     
     // Tools states
     @State private var showWaterCalculator = false
@@ -479,7 +478,7 @@ struct PlantDetailView: View {
         .sheet(isPresented: $showGrowthView) {
             NavigationStack {
                 PlantGrowthView(plant: plant)
-                    .environmentObject(dataLoader)
+                    .environment(dataLoader)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Done") { showGrowthView = false }
@@ -521,25 +520,8 @@ struct PlantDetailView: View {
     
     var headerImage: some View {
         ZStack(alignment: .bottom) {
-            if plant.images.main.hasPrefix("http") {
-                AsyncImage(url: URL(string: plant.images.main)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure, .empty:
-                        Color.claudeSecondaryBackground
-                            .overlay(Image(systemName: "photo").font(.largeTitle).foregroundStyle(.secondary.opacity(0.3)))
-                    @unknown default: EmptyView()
-                    }
-                }
-            } else {
-                let imageName = plant.images.main.split(separator: "/").last?.split(separator: ".").first ?? ""
-                Image(String(imageName))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            }
-            
+            PlantImage(plant: plant)
+
             // Subtle gradient for depth
             LinearGradient(
                 colors: [.clear, .black.opacity(0.1)],

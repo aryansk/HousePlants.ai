@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StreakView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @Environment(\.dismiss) var dismiss
     
     @State private var pulseAmount: CGFloat = 1.0

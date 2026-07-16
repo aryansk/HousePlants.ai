@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SitterModeView: View {
-    @EnvironmentObject var dataLoader: DataLoader
+    @Environment(DataLoader.self) var dataLoader
     @ObservedObject private var proManager = ProManager.shared
 
     @State private var selectedIds: Set<String> = []

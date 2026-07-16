@@ -50,7 +50,6 @@ struct Progress_EntentionLiveActivity: Widget {
             } minimal: {
                 Text(context.state.emoji)
             }
-            .widgetURL(URL(string: "http://www.apple.com"))
             .keylineTint(Color.red)
         }
     }
