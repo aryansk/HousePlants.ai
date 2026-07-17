@@ -1,10 +1,10 @@
 import Foundation
 
-enum Hemisphere {
+nonisolated enum Hemisphere: Sendable {
     case northern, southern
 }
 
-struct BloomWindow: Equatable {
+nonisolated struct BloomWindow: Equatable, Sendable {
     /// 1-indexed months (1 = January) when blooming typically occurs in the northern hemisphere.
     let months: [Int]
     let notes: String
@@ -37,7 +37,7 @@ struct BloomWindow: Equatable {
     }
 }
 
-enum BloomPredictor {
+nonisolated enum BloomPredictor {
     /// Genus-keyed bloom table. Months are northern-hemisphere defaults; predict() flips for south.
     private static let table: [String: BloomWindow] = [
         "Phalaenopsis": .init(months: [2, 3, 4], notes: "Spike emerges in cool nights."),

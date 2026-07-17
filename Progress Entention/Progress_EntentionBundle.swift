@@ -12,7 +12,9 @@ import SwiftUI
 struct Progress_EntentionBundle: WidgetBundle {
     var body: some Widget {
         Progress_Entention()
-        Progress_EntentionControl()
         Progress_EntentionLiveActivity()
+        if #available(iOS 18.0, *) {
+            Progress_EntentionControl()
+        }
     }
 }

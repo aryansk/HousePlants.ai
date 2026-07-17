@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - App Config
-struct AppData: Codable {
+nonisolated struct AppData: Codable {
     let appConfig: AppConfig
     let toolsConfig: ToolsConfig
     let userProfile: UserProfile
@@ -130,7 +130,7 @@ struct Coordinates: Codable {
     let lng: Double
 }
 
-struct Preferences: Codable {
+nonisolated struct Preferences: Codable {
     var difficultyLevel: String
     var petSafeOnly: Bool
     var notifyOnSundays: Bool
@@ -155,7 +155,7 @@ struct Preferences: Codable {
     }
 }
 
-struct MyPlant: Codable, Identifiable {
+struct MyPlant: Codable, Identifiable, Equatable {
     var id: String { plantId }
     let plantId: String
     var nickname: String

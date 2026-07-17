@@ -123,7 +123,9 @@ final class PlantNetService {
         let proKey = ProManager.shared.isPro ? ProConfig.plantNetAPIKey : nil
         guard let apiKey = apiKey ?? proKey else { throw PlantNetError.missingAPIKey }
 
-        var components = URLComponents(string: endpoint)!
+        guard var components = URLComponents(string: endpoint) else {
+            throw PlantNetError.server(0)
+        }
         components.queryItems = [
             URLQueryItem(name: "api-key", value: apiKey),
             URLQueryItem(name: "lang", value: "en"),
@@ -131,7 +133,8 @@ final class PlantNetService {
         ]
 
         let boundary = "Boundary-\(UUID().uuidString)"
-        var request = URLRequest(url: components.url!)
+        guard let url = components.url else { throw PlantNetError.server(0) }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         request.httpBody = multipartBody(imageData: imageData, organ: organ, boundary: boundary)

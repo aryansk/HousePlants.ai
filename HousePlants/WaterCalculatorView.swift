@@ -478,6 +478,7 @@ struct ResultItem: View {
 struct WaterTankView: View {
     let level: Double
     let color: Color
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: Double = 0.0
     
     var body: some View {
@@ -516,8 +517,10 @@ struct WaterTankView: View {
             }
             .mask(RoundedRectangle(cornerRadius: 30))
             .onAppear {
-                withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
-                    phase = .pi * 2
+                if !reduceMotion {
+                    withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
+                        phase = .pi * 2
+                    }
                 }
             }
         }

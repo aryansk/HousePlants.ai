@@ -13,7 +13,16 @@ import Foundation
 final class CloudSyncManager {
     static let shared = CloudSyncManager()
 
-    private let kvs = NSUbiquitousKeyValueStore.default
+    // Simulator builds are not signed with a real iCloud container identifier. Constructing
+    // the default KVS store there produces a client-fatal entitlement diagnostic and delays
+    // first launch, so cloud mirroring remains device-only while all local persistence works.
+    private lazy var kvs: NSUbiquitousKeyValueStore? = {
+        #if targetEnvironment(simulator)
+        return nil
+        #else
+        return NSUbiquitousKeyValueStore.default
+        #endif
+    }()
     private let keys = [
         "myJungleExtendedData",
         "user_favorites",
@@ -27,6 +36,7 @@ final class CloudSyncManager {
     private var isApplyingRemote = false
 
     func start() {
+        guard let kvs else { return }
         // Pull latest from cloud on launch
         kvs.synchronize()
         applyRemoteToLocal(reason: "launch")
@@ -48,7 +58,18 @@ final class CloudSyncManager {
     /// observing UserDefaults.didChangeNotification re-uploaded everything on every defaults
     /// write app-wide (weather cache, HomeKit bindings, …), which this replaces.
     func push() {
+        guard kvs != nil else { return }
         applyLocalToRemote()
+    }
+
+    /// Removes personal values from the iCloud mirror so a destructive local reset is not
+    /// silently undone by the next cross-device pull.
+    func clearMirroredData() {
+        guard let kvs else { return }
+        for key in keys {
+            kvs.removeObject(forKey: key)
+        }
+        kvs.synchronize()
     }
 
     private func handleRemoteChange(_ note: Notification) {
@@ -65,6 +86,7 @@ final class CloudSyncManager {
     }
 
     private func applyRemoteToLocal(reason: String) {
+        guard let kvs else { return }
         isApplyingRemote = true
         defer { isApplyingRemote = false }
 
@@ -77,7 +99,7 @@ final class CloudSyncManager {
     }
 
     private func applyLocalToRemote() {
-        guard !isApplyingRemote else { return }
+        guard !isApplyingRemote, let kvs else { return }
         let ud = UserDefaults.standard
         for key in keys {
             if let value = ud.object(forKey: key) {

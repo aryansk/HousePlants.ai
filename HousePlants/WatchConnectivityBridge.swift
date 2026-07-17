@@ -24,7 +24,10 @@ final class WatchConnectivityBridge: NSObject {
 
     func pushJungleSnapshot() {
         #if canImport(WatchConnectivity)
-        guard let session = session, session.activationState == .activated else { return }
+        guard let session = session,
+              session.activationState == .activated,
+              session.isPaired,
+              session.isWatchAppInstalled else { return }
 
         let loader = DataLoader.shared
         guard let profile = loader.userProfile else { return }

@@ -81,7 +81,10 @@ struct OriginExplorerView: View {
                                                     .font(.system(size: 12))
                                                     .foregroundColor(.white)
                                             }
+                                            .frame(width: 44, height: 44)
                                         }
+                                        .buttonStyle(.plain)
+                                        .accessibilityLabel("Show \(plant.commonName)")
                                     }
                                 }
                             }

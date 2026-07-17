@@ -151,21 +151,27 @@ final class JungleStore {
         do {
             let existing = try context.fetch(FetchDescriptor<MyPlantRecord>())
             let newIds = Set(plants.map(\.plantId))
+            var didChange = false
 
             for record in existing where !newIds.contains(record.plantId) {
                 context.delete(record)
+                didChange = true
             }
 
             let byId = Dictionary(uniqueKeysWithValues: existing.map { ($0.plantId, $0) })
             for plant in plants {
                 if let existingRecord = byId[plant.plantId] {
-                    existingRecord.apply(plant)
+                    if existingRecord.asMyPlant() != plant {
+                        existingRecord.apply(plant)
+                        didChange = true
+                    }
                 } else {
                     context.insert(MyPlantRecord(plant))
+                    didChange = true
                 }
             }
 
-            try context.save()
+            if didChange { try context.save() }
         } catch {
             Logger.persistence.error("JungleStore save failed: \(error.localizedDescription, privacy: .public)")
         }

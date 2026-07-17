@@ -17,7 +17,17 @@ struct EnhancedPlantCard: View {
     var wateringStatus: WateringStatusDisplay {
         dataLoader.wateringStatusDisplay(for: myPlant)
     }
-    
+
+    /// The user's own name for the plant leads; the species name becomes the byline.
+    private var displayName: String {
+        let nickname = myPlant?.nickname ?? ""
+        return nickname.isEmpty ? plant.commonName : nickname
+    }
+
+    private var showsSpeciesByline: Bool {
+        displayName != plant.commonName
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Plant Image
@@ -65,16 +75,27 @@ struct EnhancedPlantCard: View {
                     .allowsHitTesting(false)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(IndieHousePalette.ink).frame(height: 1.4)
+            }
+
             VStack(alignment: .leading, spacing: 12) {
-                // Plant name
-                Text(plant.commonName)
-                    .font(.claudeSerif(size: 18, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .foregroundStyle(Color.claudePrimaryText)
-                
+                // Plant name (nickname first, species as byline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(displayName)
+                        .font(.claudeSerif(size: 18, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .foregroundStyle(Color.claudePrimaryText)
+
+                    if showsSpeciesByline {
+                        Text(plant.commonName)
+                            .font(.claudeSans(size: 11, weight: .medium))
+                            .foregroundStyle(Color.claudeSecondaryText)
+                            .lineLimit(1)
+                    }
+                }
+
                 // Watering status
                 HStack(spacing: 6) {
                     Image(systemName: wateringStatus.icon)
@@ -107,10 +128,8 @@ struct EnhancedPlantCard: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(
-                        Capsule()
-                            .fill(justWatered ? Color.blue.opacity(0.18) : wateringStatus.color.opacity(0.12))
-                    )
+                    .background(justWatered ? Color.blue.opacity(0.16) : wateringStatus.color.opacity(0.1))
+                    .overlay(Rectangle().stroke(justWatered ? Color.blue : wateringStatus.color, lineWidth: 1.3))
                     .foregroundStyle(justWatered ? Color.blue : wateringStatus.color)
                     .animation(.spring(response: 0.35, dampingFraction: 0.75), value: justWatered)
                 }
@@ -118,13 +137,15 @@ struct EnhancedPlantCard: View {
             }
             .padding(16)
         }
-        .background(Color.claudeSecondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .stroke(Color.claudeBorder, lineWidth: 1)
+        .indiePaperCard(
+            fill: Color.claudeSecondaryBackground,
+            border: IndieHousePalette.ink,
+            shadow: IndieHousePalette.ink,
+            cornerRadius: 3,
+            shadowOffset: 4
         )
-        .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
+        .padding(.trailing, 4)
+        .padding(.bottom, 4)
         .contextMenu {
             Button(action: { onManage?() }) {
                 Label("Manage Plant", systemImage: "slider.horizontal.3")
@@ -151,7 +172,12 @@ struct EnhancedJungleListRow: View {
     var wateringStatus: WateringStatusDisplay {
         dataLoader.wateringStatusDisplay(for: myPlant)
     }
-    
+
+    private var displayName: String {
+        let nickname = myPlant?.nickname ?? ""
+        return nickname.isEmpty ? plant.commonName : nickname
+    }
+
     var body: some View {
         HStack(spacing: 16) {
             // Image
@@ -170,14 +196,24 @@ struct EnhancedJungleListRow: View {
                         .padding(4)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 3, style: .continuous).stroke(IndieHousePalette.ink, lineWidth: 1.4))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(plant.commonName)
-                    .font(.claudeSerif(size: 20, weight: .bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .foregroundStyle(Color.claudePrimaryText)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(displayName)
+                        .font(.claudeSerif(size: 20, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .foregroundStyle(Color.claudePrimaryText)
+
+                    if displayName != plant.commonName {
+                        Text(plant.commonName)
+                            .font(.claudeSans(size: 12, weight: .medium))
+                            .foregroundStyle(Color.claudeSecondaryText)
+                            .lineLimit(1)
+                    }
+                }
 
                 HStack(spacing: 6) {
                     Image(systemName: "drop.fill")
@@ -211,22 +247,24 @@ struct EnhancedJungleListRow: View {
             .buttonStyle(WaterButtonStyle())
         }
         .padding(14)
-        .background(Color.claudeSecondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .indiePaperCard(
+            fill: Color.claudeSecondaryBackground,
+            border: IndieHousePalette.ink,
+            shadow: IndieHousePalette.ink,
+            cornerRadius: 2,
+            shadowOffset: 3
+        )
         .overlay(alignment: .leading) {
             if let myPlant = myPlant, let daysUntil = dataLoader.daysUntilWatering(myPlant: myPlant), daysUntil <= 0 {
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .fill(daysUntil < 0 ? Color.red : Color.orange)
+                Rectangle()
+                    .fill(daysUntil < 0 ? IndieHousePalette.red : IndieHousePalette.orange)
                     .frame(width: 4)
                     .padding(.vertical, 8)
                     .padding(.leading, 2)
             }
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(Color.claudeBorder, lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.02), radius: 8, x: 0, y: 3)
+        .padding(.trailing, 3)
+        .padding(.bottom, 3)
     }
 }
 

@@ -1,41 +1,58 @@
-//
-//  HousePlantsUITests.swift
-//  HousePlantsUITests
-//
-//  Created by Aryan Signh on 27/11/25.
-//
-
 import XCTest
 
 final class HousePlantsUITests: XCTestCase {
+    private var app: XCUIApplication!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app = XCUIApplication()
+        app.launchArguments = [
+            "-hasCompletedOnboarding", "YES",
+            "-appearanceMode", "light",
+            "-catalogLayout", "grid"
+        ]
+        app.launch()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        app = nil
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+    func testCatalogOpensNativePlantDetail() throws {
+        XCTAssertTrue(app.tabBars.buttons["Discover"].waitForExistence(timeout: 8))
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let jadeCard = app.descendants(matching: .any)["catalog.card.featured.p_012"].firstMatch
+        XCTAssertTrue(jadeCard.waitForExistence(timeout: 8))
+        jadeCard.tap()
+
+        XCTAssertTrue(app.navigationBars["Jade Plant"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["plant-detail.jungle-toggle"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.tabBars.firstMatch.exists, "The tab bar should stay out of a focused detail flow")
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
-        }
+    func testCatalogFiltersAreReachable() throws {
+        let filters = app.buttons["catalog.filters"]
+        XCTAssertTrue(filters.waitForExistence(timeout: 8))
+        filters.tap()
+
+        XCTAssertTrue(app.navigationBars["Refine plants"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.switches["Pet-safe plants only"].exists)
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Show '")).firstMatch.exists)
+    }
+
+    @MainActor
+    func testToolsCanBeFoundByTask() throws {
+        XCTAssertTrue(app.tabBars.buttons["Tools"].waitForExistence(timeout: 8))
+        app.tabBars.buttons["Tools"].tap()
+
+        let search = app.textFields["tools.search"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("pet safety")
+
+        XCTAssertTrue(app.buttons["Toxicity Checker"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Watering Guide"].exists)
     }
 }

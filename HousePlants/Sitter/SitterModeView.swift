@@ -69,7 +69,7 @@ struct SitterModeView: View {
                                     .foregroundStyle(.green)
                                 VStack(alignment: .leading) {
                                     Text(myPlant.nickname)
-                                    if let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) {
+                                    if let plant = dataLoader.plant(for: myPlant.plantId) {
                                         Text(plant.botanicalName).font(.caption).italic().foregroundStyle(.secondary)
                                     }
                                 }
@@ -122,7 +122,7 @@ struct SitterModeView: View {
         let sitterPlants: [SitterPlant] = profile.myJungle
             .filter { selectedIds.contains($0.plantId) }
             .compactMap { myPlant -> SitterPlant? in
-                guard let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) else { return nil }
+                guard let plant = dataLoader.plant(for: myPlant.plantId) else { return nil }
                 let next: String = {
                     if let s = myPlant.nextWateringDate, let d = DataLoader.isoFormatter.date(from: s) {
                         return d.formatted(date: .abbreviated, time: .omitted)

@@ -7,7 +7,6 @@ struct ProfileView: View {
     @AppStorage("notificationsEnabled") var notificationsEnabled: Bool = true
     @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppAppearance.system.rawValue
     @AppStorage("hapticFeedback") var hapticFeedback: Bool = true
-    @State private var showLogoutAlert = false
     @State private var showDeleteDataAlert = false
     
     // Photo management
@@ -31,7 +30,30 @@ struct ProfileView: View {
     }
     
     private var city: String {
-        dataLoader.isProfileComplete ? (dataLoader.userProfile?.locationSettings.city ?? "Plants Lover") : "Plants Lover"
+        guard dataLoader.isProfileComplete,
+              let city = dataLoader.userProfile?.locationSettings.city,
+              !city.isEmpty,
+              city.lowercased() != "unknown" else {
+            return "Location not set"
+        }
+        return city
+    }
+
+    private var plantCount: Int {
+        dataLoader.userProfile?.myJungle.count ?? 0
+    }
+
+    private var gardenerLevel: String {
+        switch plantCount {
+        case 0: return "Seedling"
+        case 1...3: return "Sprout"
+        case 4...9: return "Plant Keeper"
+        default: return "Botanist"
+        }
+    }
+
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
     }
     
     var body: some View {
@@ -42,7 +64,7 @@ struct ProfileView: View {
                 VStack(spacing: 0) {
                     ClaudeHeader(
                         title: dataLoader.isProfileComplete ? "Profile" : "Welcome!",
-                        subtitle: dataLoader.isProfileComplete ? "Gardener Level: Expert" : "Set up your gardener profile",
+                        subtitle: dataLoader.isProfileComplete ? "\(gardenerLevel) · \(plantCount) plant\(plantCount == 1 ? "" : "s")" : "Set up your gardener profile",
                         location: dataLoader.isProfileComplete ? dataLoader.userProfile?.locationSettings.city : nil
                     )
                     
@@ -78,6 +100,7 @@ struct ProfileView: View {
                                     }
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(profileImage == nil ? "Add profile photo" : "Change profile photo")
                                 .onChange(of: selectedItem) { oldItem, newItem in
                                     Task {
                                         if let data = try? await newItem?.loadTransferable(type: Data.self) {
@@ -115,9 +138,9 @@ struct ProfileView: View {
                                     }
                                 
                                     HStack(spacing: 12) {
-                                        StatView(label: "Plants", value: "\(dataLoader.userProfile?.myJungle.count ?? 0)")
-                                        StatView(label: "Badges", value: dataLoader.isProfileComplete ? "8" : "0")
-                                        StatView(label: "Level", value: dataLoader.isProfileComplete ? "Expert" : "Seedling")
+                                        StatView(label: "Plants", value: "\(plantCount)")
+                                        StatView(label: "Streak", value: "\(dataLoader.userProfile?.currentStreak ?? 0)d")
+                                        StatView(label: "Level", value: gardenerLevel)
                                     }
                                     .padding(.top, 4)
                                 
@@ -180,9 +203,16 @@ struct ProfileView: View {
                     
                         Section(header: Text("Settings").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
                             Toggle(isOn: $notificationsEnabled) {
-                                Label("Watering Reminders", systemImage: "bell.fill")
+                                Label("Care Reminders", systemImage: "bell.fill")
                             }
                             .tint(Color.claudeAccent)
+                            .onChange(of: notificationsEnabled) { _, isEnabled in
+                                if isEnabled {
+                                    dataLoader.syncAllNotifications()
+                                } else {
+                                    NotificationScheduler.shared.cancelAll()
+                                }
+                            }
                         
                             Picker(selection: $appearanceModeRaw) {
                                 ForEach(AppAppearance.allCases) { mode in
@@ -204,18 +234,22 @@ struct ProfileView: View {
                                 Label("Help Center", systemImage: "questionmark.circle.fill")
                             }
                         
-                            Link(destination: URL(string: "https://houseplants.io/privacy")!) {
+                            NavigationLink(destination: PrivacyPolicyView()) {
                                 Label("Privacy Policy", systemImage: "shield.fill")
                             }
                         
-                            Link(destination: URL(string: "https://houseplants.io/terms")!) {
+                            NavigationLink(destination: TermsOfServiceView()) {
                                 Label("Terms of Service", systemImage: "doc.text.fill")
+                            }
+
+                            NavigationLink(destination: AcknowledgementsView()) {
+                                Label("Acknowledgements", systemImage: "heart.text.square.fill")
                             }
                         
                             HStack {
                                 Label("Version", systemImage: "info.circle.fill")
                                 Spacer()
-                                Text("1.2.0")
+                                Text(appVersion)
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -237,29 +271,11 @@ struct ProfileView: View {
                             }
                         }
                     
-                        Section {
-                            Button(role: .destructive) {
-                                showLogoutAlert = true
-                            } label: {
-                                Text("Log Out")
-                                    .frame(maxWidth: .infinity)
-                                    .fontWeight(.semibold)
-                            }
-                        }
                     }
                     .scrollContentBackground(.hidden)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
-            .toolbar(.visible, for: .tabBar)
-            .alert("Log Out", isPresented: $showLogoutAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Log Out", role: .destructive) {
-                    logout()
-                }
-            } message: {
-                Text("Are you sure you want to log out? Your local data will be preserved but you'll need to re-enter your preferences.")
-            }
             .alert("Delete All Data", isPresented: $showDeleteDataAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Delete Everything", role: .destructive) {
@@ -310,29 +326,18 @@ struct ProfileView: View {
         }
     }
     
-    private func logout() {
-        // Reset onboarding state to show WelcomeView again
-        withAnimation { hasCompletedOnboarding = false }
-    }
-    
     private func deleteAllData() {
-        // Remove all stored user data from UserDefaults
-        let keysToRemove = [
-            "username", "city", "country", "profile_image",
-            "userPreferences", "user_favorites", "myJungleExtendedData",
-            "current_streak", "last_streak_date", "streak_history",
-            "appNotifications", "hasCompletedOnboarding",
-            "notificationsEnabled", "appearanceMode", "hapticFeedback"
-        ]
-        
-        for key in keysToRemove {
-            UserDefaults.standard.removeObject(forKey: key)
-        }
-
-        UserDefaults.standard.synchronize()
-
+        dataLoader.resetUserProfile()
+        PlantJournalStore.shared.deleteAll()
         ProfileImageStore.shared.delete()
+        NotificationScheduler.shared.cancelAll()
+        HomeKitSensorManager.shared.stopThresholdMonitoring()
+        CloudSyncManager.shared.clearMirroredData()
         PlantNetService.shared.apiKey = nil
+
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+        }
 
         // Reset app state back to onboarding
         withAnimation {
@@ -350,76 +355,143 @@ struct StatView: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.bold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             Text(label)
                 .font(.system(size: 10))
                 .foregroundStyle(.secondary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label), \(value)")
     }
 }
 
 struct AchievementsView: View {
-    let badges = [
-        AchievementBadge(name: "Seed Sower", icon: "🌱", description: "Added your first plant", isUnlocked: true),
-        AchievementBadge(name: "Water Wizard", icon: "💧", description: "Watered plants 10 times", isUnlocked: true),
-        AchievementBadge(name: "Green Thumb", icon: "👍", description: "Reached 100% health score", isUnlocked: true),
-        AchievementBadge(name: "Jungle Master", icon: "🌳", description: "Have 5+ plants in your collection", isUnlocked: true),
-        AchievementBadge(name: "Sun Seeker", icon: "☀️", description: "Used the Sun Seeker tool", isUnlocked: false),
-        AchievementBadge(name: "Botanist", icon: "🔬", description: "Identified 3 new species", isUnlocked: false),
-        AchievementBadge(name: "Early Bird", icon: "🌅", description: "Morning care routine (before 8 AM)", isUnlocked: true)
-    ]
-    
+    @Environment(DataLoader.self) private var dataLoader
+
+    private var plants: [MyPlant] { dataLoader.userProfile?.myJungle ?? [] }
+
+    private var badges: [AchievementBadge] {
+        let wateringCount = plants.reduce(0) { $0 + ($1.wateringHistory?.count ?? 0) }
+        let healthiestScore = plants.compactMap(\.healthScore).max() ?? 0
+        let favoriteCount = dataLoader.userProfile?.favorites.count ?? 0
+        let streak = dataLoader.userProfile?.currentStreak ?? 0
+
+        return [
+            AchievementBadge(name: "Seed Sower", icon: "🌱", description: "Add your first plant", current: plants.count, target: 1),
+            AchievementBadge(name: "Water Wizard", icon: "💧", description: "Log 10 waterings", current: wateringCount, target: 10),
+            AchievementBadge(name: "Green Thumb", icon: "👍", description: "Reach a 90 health score", current: healthiestScore, target: 90),
+            AchievementBadge(name: "Jungle Keeper", icon: "🌳", description: "Grow a collection of 5 plants", current: plants.count, target: 5),
+            AchievementBadge(name: "Plant Scout", icon: "🔎", description: "Save 5 catalog favorites", current: favoriteCount, target: 5),
+            AchievementBadge(name: "Consistent Carer", icon: "🔥", description: "Build a 7-day care streak", current: streak, target: 7)
+        ]
+    }
+
+    private var unlockedCount: Int { badges.filter(\.isUnlocked).count }
+
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))], spacing: 20) {
-                ForEach(badges) { badge in
-                    VStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(badge.isUnlocked ? Color.orange.opacity(0.1) : Color.gray.opacity(0.1))
-                                .frame(width: 80, height: 80)
-                            
-                            Text(badge.icon)
-                                .font(.system(size: 40))
-                                .grayscale(badge.isUnlocked ? 0 : 1.0)
-                                .opacity(badge.isUnlocked ? 1.0 : 0.4)
-                        }
-                        
-                        VStack(spacing: 4) {
-                            Text(badge.name)
-                                .font(.headline)
-                                .lineLimit(1)
-                            Text(badge.description)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 4)
-                        }
-                        
-                        if !badge.isUnlocked {
-                            Image(systemName: "lock.fill")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+            VStack(spacing: 22) {
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(IndieHousePalette.yellow)
+                            .frame(width: 64, height: 64)
+                        Image(systemName: "trophy.fill")
+                            .font(.title2.bold())
+                            .foregroundStyle(IndieHousePalette.ink)
                     }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("\(unlockedCount) of \(badges.count) unlocked")
+                            .font(.claudeSerif(size: 22, weight: .bold))
+                            .foregroundStyle(Color.claudePrimaryText)
+                        Text("Care for your plants to make progress naturally.")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.claudeSecondaryText)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+                .padding(18)
+                .indiePaperCard(fill: Color.claudeSecondaryBackground, shadowOffset: 4)
+                .accessibilityElement(children: .combine)
+
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 16)], spacing: 18) {
+                    ForEach(badges) { badge in
+                        VStack(spacing: 12) {
+                            ZStack(alignment: .bottomTrailing) {
+                                Circle()
+                                    .fill(badge.isUnlocked ? IndieHousePalette.orange.opacity(0.2) : Color.claudeBorder.opacity(0.12))
+                                    .frame(width: 72, height: 72)
+
+                                Text(badge.icon)
+                                    .font(.system(size: 36))
+                                    .grayscale(badge.isUnlocked ? 0 : 1)
+                                    .opacity(badge.isUnlocked ? 1 : 0.45)
+
+                                if badge.isUnlocked {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(IndieHousePalette.green)
+                                        .background(Color.claudeSecondaryBackground.clipShape(Circle()))
+                                }
+                            }
+
+                            VStack(spacing: 5) {
+                                Text(badge.name)
+                                    .font(.headline)
+                                    .foregroundStyle(Color.claudePrimaryText)
+                                    .multilineTextAlignment(.center)
+                                Text(badge.description)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.claudeSecondaryText)
+                                    .multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            if badge.isUnlocked {
+                                Text("UNLOCKED")
+                                    .font(.caption2.bold())
+                                    .tracking(0.8)
+                                    .foregroundStyle(IndieHousePalette.green)
+                            } else {
+                                VStack(spacing: 5) {
+                                    ProgressView(value: Double(badge.cappedCurrent), total: Double(badge.target))
+                                        .tint(Color.claudeAccent)
+                                    Text("\(badge.cappedCurrent) / \(badge.target)")
+                                        .font(.caption2.monospacedDigit())
+                                        .foregroundStyle(Color.claudeSecondaryText)
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 220, alignment: .top)
+                        .padding(16)
+                        .indiePaperCard(fill: Color.claudeSecondaryBackground, shadowOffset: 4)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("\(badge.name), \(badge.description)")
+                        .accessibilityValue(badge.isUnlocked ? "Unlocked" : "\(badge.cappedCurrent) of \(badge.target)")
+                    }
                 }
             }
-            .padding()
+            .padding(20)
         }
         .background(Color.claudeBackground.ignoresSafeArea())
         .navigationTitle("Achievements")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 struct AchievementBadge: Identifiable {
-    let id = UUID()
+    var id: String { name }
     let name: String
     let icon: String
     let description: String
-    let isUnlocked: Bool
+    let current: Int
+    let target: Int
+
+    var cappedCurrent: Int { min(current, target) }
+    var isUnlocked: Bool { current >= target }
 }
 
 struct EditProfileView: View {

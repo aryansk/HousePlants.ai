@@ -15,7 +15,7 @@ import ARKit
 // Files to create: ARPlantSceneView.swift (UIViewRepresentable wrapping ARView)
 //                  PlantARModels/ (USDZ assets folder)
 //
-// Related flag: AppConfig.features.arPlacement — already true in plants.json for eligible devices.
+// Related flag: AppConfig.features.arPlacement — keep false until real plant models ship.
 
 /// Gate: only reachable when ProManager.shared.isPro == true (enforced in PlantDetailView).
 struct ARPlantPlacementView: View {

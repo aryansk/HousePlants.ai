@@ -2,8 +2,9 @@ import SwiftUI
 
 struct MyJungleView: View {
     @Environment(DataLoader.self) var dataLoader
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Namespace private var filterNamespace
-    @State private var isGridView = true
+    @AppStorage("jungleGridView") private var isGridView = true
     @State private var sortOption: SortOption = .name
     @State private var searchText = ""
     @State private var filterOption: FilterOption = .all
@@ -55,6 +56,14 @@ struct MyJungleView: View {
     }
     @State private var headerVisible = false
     @State private var dashboardVisible = false
+
+    private var hasCollection: Bool {
+        !(dataLoader.userProfile?.myJungle.isEmpty ?? true)
+    }
+
+    private var usesGridLayout: Bool {
+        isGridView && !dynamicTypeSize.isAccessibilitySize
+    }
     
     enum SortOption {
         case name, difficulty, lastWatered, health
@@ -163,12 +172,34 @@ struct MyJungleView: View {
     
     var greetingMessage: String {
         let hour = Calendar.current.component(.hour, from: Date())
+        let base: (String, String)
         switch hour {
-        case 5..<12: return "Good Morning ☀️"
-        case 12..<17: return "Good Afternoon 🌤️"
-        case 17..<22: return "Good Evening 🌙"
-        default: return "Hello Night Owl 🦉"
+        case 5..<12: base = ("Good Morning", "☀️")
+        case 12..<17: base = ("Good Afternoon", "🌤️")
+        case 17..<22: base = ("Good Evening", "🌙")
+        default: base = ("Hello Night Owl", "🦉")
         }
+        if let first = dataLoader.userProfile?.username
+            .trimmingCharacters(in: .whitespaces)
+            .components(separatedBy: " ").first, !first.isEmpty {
+            return "\(base.0), \(first) \(base.1)"
+        }
+        return "\(base.0) \(base.1)"
+    }
+
+    /// Plants that need care right now, independent of the active search/filter,
+    /// so the Today's Care checklist always reflects reality.
+    var careTasks: [Plant] {
+        guard let profile = dataLoader.userProfile else { return [] }
+        return profile.myJungle
+            .filter { dataLoader.needsWatering(myPlant: $0) }
+            .compactMap { dataLoader.plant(for: $0.plantId) }
+            .sorted { $0.commonName < $1.commonName }
+    }
+
+    /// Search is only worth its screen space once the collection is big enough to lose things in.
+    private var showsSearch: Bool {
+        (dataLoader.userProfile?.myJungle.count ?? 0) > 5 || !searchText.isEmpty
     }
 
     var healthStatus: String {
@@ -230,6 +261,8 @@ struct MyJungleView: View {
                                         .foregroundStyle(Color.claudeAccent)
                                         .shadow(color: Color.claudeAccent.opacity(0.3), radius: 5, x: 0, y: 2)
                                 }
+                                .accessibilityLabel("Sort collection")
+                                .accessibilityValue(sortOption.label)
                                 .opacity(headerVisible ? 1 : 0)
                                 .offset(y: headerVisible ? 0 : -8)
                                 .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.22), value: headerVisible)
@@ -244,25 +277,26 @@ struct MyJungleView: View {
                         
                         GeometryReader { geometry in
                             ScrollView {
-                                VStack(spacing: 24) {
+                                VStack(spacing: 18) {
                                 // Stats Dashboard
-                                if dataLoader.userProfile != nil {
-                                    VStack(alignment: .leading, spacing: 16) {
+                                if hasCollection {
+                                    VStack(alignment: .leading, spacing: 0) {
                                         JungleHubDashboard(
                                             totalPlants: myPlants.count,
                                             plantsToWater: plantsNeedingWater,
-                                            averageHealth: averageHealth
+                                            averageHealth: averageHealth,
+                                            onWaterTap: {
+                                                HapticManager.shared.playSelection()
+                                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                    filterOption = plantsNeedingWater > 0 ? .needsWatering : .all
+                                                }
+                                            }
                                         )
                                         .padding(.top, 8)
                                         .opacity(dashboardVisible ? 1 : 0)
                                         .offset(y: dashboardVisible ? 0 : 16)
                                         .animation(.spring(response: 0.6, dampingFraction: 0.82).delay(0.15), value: dashboardVisible)
 
-                                        JungleInsightCard()
-                                            .padding(.horizontal, 20)
-                                            .opacity(dashboardVisible ? 1 : 0)
-                                            .offset(y: dashboardVisible ? 0 : 12)
-                                            .animation(.spring(response: 0.6, dampingFraction: 0.82).delay(0.25), value: dashboardVisible)
                                     }
                                     .transition(.move(edge: .top).combined(with: .opacity))
                                     .onAppear {
@@ -270,13 +304,98 @@ struct MyJungleView: View {
                                     }
                                 }
                                 
+                                if hasCollection {
+                                // Today's Care — one-tap checklist, or a small celebration when done
+                                if searchText.isEmpty && filterOption == .all {
+                                    if !careTasks.isEmpty {
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            HStack {
+                                                IndieCutLabel(text: "Today's care", color: IndieHousePalette.yellow)
+                                                Spacer()
+                                                Text("\(careTasks.count) task\(careTasks.count == 1 ? "" : "s")")
+                                                    .font(.claudeSans(size: 12, weight: .bold))
+                                                    .foregroundStyle(Color.claudeSecondaryText)
+                                            }
+
+                                            VStack(spacing: 0) {
+                                                ForEach(Array(careTasks.prefix(4).enumerated()), id: \.element.id) { index, plant in
+                                                    JungleTaskRow(plant: plant)
+                                                    if index < min(careTasks.count, 4) - 1 {
+                                                        Divider().overlay(IndieHousePalette.ink.opacity(0.15))
+                                                    }
+                                                }
+
+                                                if careTasks.count > 4 {
+                                                    Button(action: {
+                                                        HapticManager.shared.playSelection()
+                                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                            filterOption = .needsWatering
+                                                        }
+                                                    }) {
+                                                        Text("Show all \(careTasks.count) thirsty plants")
+                                                            .font(.claudeSans(size: 13, weight: .bold))
+                                                            .foregroundStyle(Color.claudeAccent)
+                                                            .frame(maxWidth: .infinity)
+                                                            .padding(.vertical, 12)
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                }
+                                            }
+                                            .indiePaperCard(
+                                                fill: Color.claudeSecondaryBackground,
+                                                border: IndieHousePalette.ink,
+                                                shadow: IndieHousePalette.yellow,
+                                                rotation: -0.3,
+                                                cornerRadius: 2,
+                                                shadowOffset: 4
+                                            )
+                                            .padding(.trailing, 4)
+                                            .padding(.bottom, 4)
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: careTasks.map(\.id))
+                                        .transition(.opacity.combined(with: .move(edge: .top)))
+                                    } else {
+                                        HStack(spacing: 12) {
+                                            Image(systemName: "checkmark.seal.fill")
+                                                .font(.title2)
+                                                .foregroundStyle(IndieHousePalette.green)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("All caught up")
+                                                    .font(.claudeSerif(size: 17, weight: .bold))
+                                                    .foregroundStyle(Color.claudePrimaryText)
+                                                Text("Every plant is watered and happy. The jungle thanks you 🌿")
+                                                    .font(.claudeSans(size: 12))
+                                                    .foregroundStyle(Color.claudeSecondaryText)
+                                            }
+                                            Spacer()
+                                        }
+                                        .padding(14)
+                                        .indiePaperCard(
+                                            fill: Color.claudeSecondaryBackground,
+                                            border: IndieHousePalette.ink,
+                                            shadow: IndieHousePalette.green,
+                                            rotation: -0.3,
+                                            cornerRadius: 2,
+                                            shadowOffset: 4
+                                        )
+                                        .padding(.trailing, 4)
+                                        .padding(.bottom, 4)
+                                        .padding(.horizontal, 20)
+                                        .transition(.opacity.combined(with: .move(edge: .top)))
+                                    }
+                                }
+
                                 // Search Bar
+                                if showsSearch {
                                 HStack {
                                     HStack {
                                         Image(systemName: "magnifyingglass")
                                             .foregroundStyle(.secondary)
                                         TextField("Search plants...", text: $searchText)
                                             .textFieldStyle(.plain)
+                                            .submitLabel(.search)
+                                            .accessibilityLabel("Search My Jungle")
                                         
                                         if !searchText.isEmpty {
                                             Button(action: {
@@ -287,15 +406,16 @@ struct MyJungleView: View {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .foregroundStyle(.secondary)
                                             }
+                                            .accessibilityLabel("Clear search")
                                         }
                                     }
                                     .padding(12)
                                     .background(Color.claudeSecondaryBackground)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.claudeBorder, lineWidth: 1))
+                                    .overlay(Rectangle().stroke(IndieHousePalette.ink.opacity(0.45), lineWidth: 1.3))
                                 }
                                 .padding(.horizontal)
-                                
+                                }
+
                                 // Filter Pills
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 10) {
@@ -319,76 +439,84 @@ struct MyJungleView: View {
                                                 .background {
                                                     ZStack {
                                                         if isSelected {
-                                                            Capsule()
+                                                            Rectangle()
                                                                 .fill(Color.claudeAccent)
                                                                 .matchedGeometryEffect(id: "filter_pill_bg", in: filterNamespace)
-                                                                .shadow(color: Color.claudeAccent.opacity(0.35), radius: 6, x: 0, y: 3)
                                                         } else {
-                                                            Capsule()
+                                                            Rectangle()
                                                                 .fill(Color.claudeSecondaryBackground)
-                                                                .overlay(Capsule().stroke(Color.claudeBorder, lineWidth: 1))
                                                         }
                                                     }
                                                 }
+                                                .overlay(Rectangle().stroke(IndieHousePalette.ink.opacity(isSelected ? 1 : 0.4), lineWidth: 1.3))
+                                                .background(
+                                                    IndieHousePalette.ink
+                                                        .opacity(isSelected ? 1 : 0)
+                                                        .offset(x: 3, y: 3)
+                                                )
+                                                .padding(.trailing, 3)
+                                                .padding(.bottom, 3)
                                             }
                                             .buttonStyle(.plain)
+                                            .accessibilityAddTraits(isSelected ? .isSelected : [])
                                         }
                                     }
                                     .padding(.horizontal)
                                     .padding(.vertical, 2)
                                 }
                                 
-                                // Quick Actions
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 10) {
-                                        // Water All — filled primary action
-                                        Button(action: {
-                                            HapticManager.shared.playImpact(style: .medium)
-                                            dataLoader.waterAllPlants()
-                                            showToast(.watered)
-                                        }) {
-                                            HStack(spacing: 7) {
-                                                Image(systemName: "drop.fill")
-                                                    .font(.system(size: 13, weight: .bold))
-                                                Text("Water All")
-                                                    .font(.claudeSans(size: 14, weight: .bold))
-                                            }
-                                            .padding(.horizontal, 18)
+                                // Keep one clear primary action; secondary care tasks live in a menu.
+                                HStack(spacing: 10) {
+                                    Button(action: {
+                                        HapticManager.shared.playImpact(style: .medium)
+                                        dataLoader.waterAllPlants()
+                                        showToast(.watered)
+                                    }) {
+                                        Label("Water all", systemImage: "drop.fill")
+                                            .font(.claudeSans(size: 14, weight: .bold))
+                                            .frame(maxWidth: .infinity)
                                             .padding(.vertical, 13)
-                                            .background(
-                                                LinearGradient(colors: [.blue, Color(red: 0.15, green: 0.5, blue: 0.95)],
-                                                               startPoint: .topLeading, endPoint: .bottomTrailing)
-                                            )
                                             .foregroundStyle(.white)
-                                            .clipShape(Capsule())
-                                            .shadow(color: .blue.opacity(0.32), radius: 8, x: 0, y: 4)
-                                        }
-                                        .buttonStyle(ScaleButtonStyle())
+                                            .background(IndieHousePalette.blue)
+                                            .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.5))
+                                            .background(IndieHousePalette.ink.offset(x: 3, y: 3))
+                                            .padding(.trailing, 3)
+                                            .padding(.bottom, 3)
+                                    }
+                                    .buttonStyle(BubblingButtonStyle())
+                                    .disabled(plantsNeedingWater == 0)
+                                    .opacity(plantsNeedingWater == 0 ? 0.55 : 1)
+                                    .accessibilityHint(plantsNeedingWater == 0 ? "No plants need water" : "Marks every due plant as watered")
 
-                                        QuickActionButton(title: "Fertilize", icon: "leaf.circle.fill", color: .green) {
+                                    Menu {
+                                        Button("Fertilize all", systemImage: "leaf.circle.fill") {
                                             HapticManager.shared.playImpact(style: .light)
                                             dataLoader.fertilizeAllPlants()
                                             showToast(.fertilized)
                                         }
-
-                                        QuickActionButton(title: "Mist All", icon: "humidity.fill", color: Color(red: 0.1, green: 0.7, blue: 0.75)) {
+                                        Button("Mist all", systemImage: "humidity.fill") {
                                             HapticManager.shared.playImpact(style: .light)
                                             dataLoader.mistAllPlants()
                                             showToast(.misted)
                                         }
-
-                                        QuickActionButton(title: "Rotate", icon: "arrow.trianglehead.2.clockwise.rotate.90", color: .orange) {
-                                            HapticManager.shared.playImpact(style: .light)
-                                            dataLoader.addNotification(
-                                                title: "Rotate Your Plants",
-                                                message: "Give each plant a quarter turn toward the light for even, balanced growth.",
-                                                type: .tip
-                                            )
+                                        Button("Set rotation reminder", systemImage: "arrow.trianglehead.2.clockwise.rotate.90") {
+                                            dataLoader.addNotification(title: "Rotate Your Plants", message: "Give each plant a quarter turn toward the light for even, balanced growth.", type: .tip)
                                             showToast(.rotated)
                                         }
+                                    } label: {
+                                        Label("Care", systemImage: "ellipsis")
+                                            .font(.claudeSans(size: 14, weight: .bold))
+                                            .padding(.horizontal, 18)
+                                            .padding(.vertical, 13)
+                                            .foregroundStyle(Color.claudePrimaryText)
+                                            .background(Color.claudeSecondaryBackground)
+                                            .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.5))
+                                            .background(IndieHousePalette.ink.offset(x: 3, y: 3))
+                                            .padding(.trailing, 3)
+                                            .padding(.bottom, 3)
                                     }
-                                    .padding(.horizontal)
                                 }
+                                .padding(.horizontal, 20)
                                 
                                 // View Toggle Header
                                 HStack {
@@ -405,6 +533,7 @@ struct MyJungleView: View {
 
                                     Spacer()
 
+                                    if !dynamicTypeSize.isAccessibilitySize {
                                     HStack(spacing: 2) {
                                         Button(action: {
                                             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -416,12 +545,11 @@ struct MyJungleView: View {
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 7)
                                                 .foregroundStyle(isGridView ? .white : Color.claudeSecondaryText)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                                        .fill(isGridView ? Color.claudeAccent : Color.clear)
-                                                )
+                                                .background(Rectangle().fill(isGridView ? Color.claudeAccent : Color.clear))
                                         }
                                         .buttonStyle(.plain)
+                                        .accessibilityLabel("Grid view")
+                                        .accessibilityAddTraits(isGridView ? .isSelected : [])
 
                                         Button(action: {
                                             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -433,77 +561,39 @@ struct MyJungleView: View {
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 7)
                                                 .foregroundStyle(!isGridView ? .white : Color.claudeSecondaryText)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                                        .fill(!isGridView ? Color.claudeAccent : Color.clear)
-                                                )
+                                                .background(Rectangle().fill(!isGridView ? Color.claudeAccent : Color.clear))
                                         }
                                         .buttonStyle(.plain)
+                                        .accessibilityLabel("List view")
+                                        .accessibilityAddTraits(!isGridView ? .isSelected : [])
                                     }
                                     .padding(4)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        Rectangle()
                                             .fill(Color.claudeSecondaryBackground)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                                    .stroke(Color.claudeBorder, lineWidth: 1)
-                                            )
+                                            .overlay(Rectangle().stroke(IndieHousePalette.ink.opacity(0.45), lineWidth: 1.3))
                                     )
+                                    }
                                 }
                                 .padding(.horizontal)
+                                }
                                 
                                 // Plants List/Grid
                                 if myPlants.isEmpty {
-                                    EmptyJungleView(isSearching: !searchText.isEmpty)
+                                    EmptyJungleView(
+                                        isSearching: hasCollection && (!searchText.isEmpty || filterOption != .all),
+                                        clearFilters: hasCollection ? {
+                                            withAnimation {
+                                                searchText = ""
+                                                filterOption = .all
+                                            }
+                                        } : nil
+                                    )
                                         .padding(.top, 40)
                                 } else {
                                     VStack(alignment: .leading, spacing: 24) {
-                                        // Pending Tasks Section
-                                        if filterOption == .all && searchText.isEmpty {
-                                            let pendingPlants = myPlants.filter { plant in
-                                                guard let myPlant = dataLoader.myJungleLookup[plant.id] else { return false }
-                                                return dataLoader.needsWatering(myPlant: myPlant) || (myPlant.healthScore ?? 80) < 60
-                                            }
-                                            
-                                            if !pendingPlants.isEmpty {
-                                                VStack(alignment: .leading, spacing: 12) {
-                                                    HStack(spacing: 8) {
-                                                        Text("Needs Attention")
-                                                            .font(.claudeSerif(size: 18, weight: .bold))
-                                                            .foregroundStyle(Color.claudePrimaryText)
-
-                                                        Text("\(pendingPlants.count)")
-                                                            .font(.claudeSans(size: 11, weight: .bold))
-                                                            .foregroundStyle(.white)
-                                                            .padding(.horizontal, 7)
-                                                            .padding(.vertical, 3)
-                                                            .background(Capsule().fill(Color.red))
-
-                                                        Spacer()
-                                                    }
-                                                    .padding(.horizontal)
-                                                    
-                                                    ScrollView(.horizontal, showsIndicators: false) {
-                                                        HStack(spacing: 16) {
-                                                            let cardWidth = (geometry.size.width - 48) / 2
-                                                            ForEach(pendingPlants) { plant in
-                                                                NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                                    EnhancedPlantCard(plant: plant,
-                                                                                      onManage: { activeSheet = .care(plant) },
-                                                                                      onInsights: { presentInsights(for: plant) })
-                                                                        .frame(width: cardWidth)
-                                                                }
-                                                                .buttonStyle(ScaleButtonStyle())
-                                                            }
-                                                        }
-                                                        .padding(.horizontal)
-                                                    }
-                                                }
-                                                .transition(.opacity.combined(with: .move(edge: .top)))
-                                            }
-                                        }
                                         Group {
-                                            if isGridView {
+                                            if usesGridLayout {
                                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
                                                     ForEach(myPlants) { plant in
                                                         NavigationLink(destination: PlantDetailView(plant: plant)) {
@@ -528,11 +618,17 @@ struct MyJungleView: View {
                                             }
                                         }
                                         .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.95)), removal: .opacity))
+
+                                        if filterOption == .all && searchText.isEmpty {
+                                            JungleInsightCard()
+                                                .padding(.horizontal)
+                                        }
                                     }
                                 }
                                 }
                                 .frame(width: geometry.size.width)
-                                .padding(.vertical)
+                                .padding(.top, 8)
+                                .padding(.bottom, 108)
                             }
                             .scrollDismissesKeyboard(.immediately)
                         }
@@ -550,16 +646,10 @@ struct MyJungleView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 14)
-                        .background(
-                            Capsule()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [toast.color, toast.color.opacity(0.78)],
-                                        startPoint: .topLeading, endPoint: .bottomTrailing
-                                    )
-                                )
-                                .shadow(color: toast.color.opacity(0.4), radius: 16, x: 0, y: 6)
-                        )
+                        .background(toast.color)
+                        .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.6))
+                        .background(IndieHousePalette.ink.offset(x: 4, y: 4))
+                        .rotationEffect(.degrees(-0.6))
                         .padding(.bottom, 24)
                     }
                     .transition(.asymmetric(
@@ -570,7 +660,6 @@ struct MyJungleView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
-            .toolbar(.visible, for: .tabBar)
             .onAppear {
                 dataLoader.checkAndUpdateStreak()
             }

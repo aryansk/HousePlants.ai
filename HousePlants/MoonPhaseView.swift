@@ -77,9 +77,10 @@ struct CelestialMoonPhaseView: View {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.white)
-                                    .frame(width: 40, height: 40)
+                                    .frame(width: 44, height: 44)
                                     .background(Circle().fill(Color.white.opacity(0.1)))
                             }
+                            .accessibilityLabel("Previous day")
                             
                             Button(action: { withAnimation(.spring()) { showDatePicker.toggle() } }) {
                                 HStack(spacing: 8) {
@@ -95,14 +96,18 @@ struct CelestialMoonPhaseView: View {
                                 .background(Capsule().fill(Color.white.opacity(0.08)))
                                 .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1))
                             }
+                            .frame(minHeight: 44)
+                            .accessibilityLabel("Choose date")
+                            .accessibilityValue(formattedDate(selectedDate))
                             
                             Button(action: { shiftDate(by: 1) }) {
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.white)
-                                    .frame(width: 40, height: 40)
+                                    .frame(width: 44, height: 44)
                                     .background(Circle().fill(Color.white.opacity(0.1)))
                             }
+                            .accessibilityLabel("Next day")
                         }
                         
                         if showDatePicker {

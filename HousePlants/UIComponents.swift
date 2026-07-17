@@ -8,6 +8,16 @@ struct ClaudeHeader: View {
     var trailingActions: AnyView? = nil
     var showBackButton: Bool = false
     @Environment(\.dismiss) var dismiss
+
+    private var displayLocation: String? {
+        guard let location else { return nil }
+        let normalized = location.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty,
+              !["unknown", "not set", "-"].contains(normalized.lowercased()) else {
+            return nil
+        }
+        return normalized
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -26,33 +36,27 @@ struct ClaudeHeader: View {
                 .padding(.bottom, 12)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
-                        if let location = location {
-                            HStack(spacing: 4) {
-                                Image(systemName: "location.fill")
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(Color.claudeAccent)
-                                Text(location)
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.bottom, 2)
+                        if let location = displayLocation {
+                            IndieCutLabel(text: location, color: IndieHousePalette.yellow)
+                                .padding(.bottom, 5)
                         }
                         
                         Text(title)
-                            .font(.claudeSerif(size: 30, weight: .bold))
+                            .font(.claudeSerif(size: 36, weight: .bold))
                             .foregroundStyle(Color.claudePrimaryText)
-                            .minimumScaleFactor(0.8)
-                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
                         
                         if let subtitle = subtitle {
                             Text(subtitle)
-                                .font(.claudeSans(size: 16))
+                                .font(.claudeSans(size: 15, weight: .medium))
                                 .foregroundStyle(Color.claudeSecondaryText)
-                                .minimumScaleFactor(0.7)
-                                .lineLimit(1)
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     .layoutPriority(0)
@@ -68,7 +72,7 @@ struct ClaudeHeader: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 12)
+        .padding(.top, 18)
         .padding(.bottom, 8)
     }
 }
@@ -95,10 +99,9 @@ struct ClaudeTextField: View {
             }
             .padding()
             .background(Color.claudeSecondaryBackground)
-            .cornerRadius(14)
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.claudeBorder, lineWidth: 1)
+                Rectangle()
+                    .stroke(Color.claudeBorder, lineWidth: 1.5)
             )
         }
     }
@@ -230,24 +233,14 @@ struct ClaudeBadge: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background {
-            if isGlassy {
-                Capsule()
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Capsule()
-                            .fill(color.opacity(0.15))
-                    )
-            } else {
-                Capsule()
-                    .fill(color.opacity(0.1))
-            }
+            Rectangle().fill(color.opacity(isGlassy ? 0.2 : 0.12))
         }
-        .foregroundStyle(isGlassy ? color.opacity(0.9) : color)
-        .clipShape(Capsule())
+        .foregroundStyle(Color.claudePrimaryText)
         .overlay(
-            Capsule()
-                .stroke(color.opacity(0.2), lineWidth: 0.5)
+            Rectangle()
+                .stroke(Color.claudePrimaryText, lineWidth: 1)
         )
+        .rotationEffect(.degrees(-1))
     }
 }
 

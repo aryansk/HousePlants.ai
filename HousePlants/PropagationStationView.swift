@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PropagationStationView: View {
     @Environment(DataLoader.self) var dataLoader
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedMethod: PropMethodFilter = .all
     @State private var searchText = ""
     @State private var animateHero = false
@@ -98,7 +99,7 @@ struct PropagationStationView: View {
                                         .frame(width: 100 + CGFloat(i * 35), height: 100 + CGFloat(i * 35))
                                         .scaleEffect(animateHero ? 1.08 : 1.0)
                                         .opacity(animateHero ? 0.4 : 0.15)
-                                        .animation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(Double(i) * 0.25), value: animateHero)
+                                        .animation(reduceMotion ? nil : .easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(Double(i) * 0.25), value: animateHero)
                                 }
                                 
                                 Circle()
@@ -111,7 +112,7 @@ struct PropagationStationView: View {
                                     .rotationEffect(.degrees(-30))
                                     .shadow(color: .green.opacity(0.3), radius: 8)
                             }
-                            .onAppear { animateHero = true }
+                            .onAppear { animateHero = !reduceMotion }
                             
                             Text("From one, many.")
                                 .font(.claudeSans(size: 15))

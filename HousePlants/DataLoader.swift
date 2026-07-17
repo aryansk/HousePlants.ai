@@ -16,6 +16,7 @@ class DataLoader {
     var errorMessage: String?
     var myJungleLookup: [String: MyPlant] = [:]
     var notifications: [AppNotification] = []
+    private var jungleSaveTask: Task<Void, Never>?
     
     var isProfileComplete: Bool {
         UserDefaults.standard.string(forKey: "username") != nil
@@ -182,7 +183,10 @@ class DataLoader {
             self.plants = appData.plantCatalog
             self.plantsById = Dictionary(uniqueKeysWithValues: appData.plantCatalog.map { ($0.id, $0) })
             self.categories = appData.plantCategories
-            self.userProfile = appData.userProfile
+            // The bundled profile is useful fixture data, but it must never become a real
+            // user's collection. Start from its schema/defaults with all personal state blank;
+            // persisted preferences and SwiftData are layered on immediately after this load.
+            self.userProfile = Self.emptyProfile(from: appData.userProfile)
             self.errorMessage = nil
             self.updateLookup()
             
@@ -190,6 +194,36 @@ class DataLoader {
             self.errorMessage = "Error decoding JSON: \(error.localizedDescription)"
             Logger.data.error("Error decoding JSON: \(error)")
         }
+    }
+
+    static func emptyProfile(from template: UserProfile) -> UserProfile {
+        var profile = template
+        profile.username = ""
+        profile.locationSettings.city = ""
+        profile.locationSettings.country = ""
+        profile.preferences.difficultyLevel = "Beginner"
+        profile.preferences.petSafeOnly = false
+        profile.preferences.notifyOnSundays = false
+        profile.favorites = []
+        profile.myJungle = []
+        profile.profileImage = nil
+        profile.currentStreak = nil
+        profile.lastStreakDate = nil
+        profile.streakHistory = nil
+        return profile
+    }
+
+    /// Clears the in-memory profile and every local collection record. File-backed photos,
+    /// notification schedules, defaults, and cloud mirrors are cleared by the settings flow.
+    func resetUserProfile() {
+        jungleSaveTask?.cancel()
+        jungleSaveTask = nil
+        if let template = appData?.userProfile {
+            userProfile = Self.emptyProfile(from: template)
+        }
+        myJungleLookup = [:]
+        notifications = []
+        JungleStore.shared.replaceAll(with: [])
     }
     
     func checkAndUpdateStreak() {
@@ -562,13 +596,30 @@ class DataLoader {
     
     // MARK: - Data Persistence
     
+    /// Coalesce a burst of care edits into one disk/iCloud/watch/notification update.
     func saveMyJungleData() {
-        guard let profile = userProfile else { return }
+        guard let jungle = userProfile?.myJungle else { return }
+        jungleSaveTask?.cancel()
+        jungleSaveTask = Task { @MainActor [weak self, jungle] in
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            self?.persistMyJungleData(jungle)
+        }
+    }
+
+    func flushPendingJungleSave() {
+        guard let jungle = userProfile?.myJungle else { return }
+        jungleSaveTask?.cancel()
+        jungleSaveTask = nil
+        persistMyJungleData(jungle)
+    }
+
+    private func persistMyJungleData(_ jungle: [MyPlant]) {
 
         // SwiftData is the durable store; the UserDefaults blob is kept in step because it is
         // also the iCloud KVS sync medium (see CloudSyncManager).
-        JungleStore.shared.replaceAll(with: profile.myJungle)
-        if let encoded = try? JSONEncoder().encode(profile.myJungle) {
+        JungleStore.shared.replaceAll(with: jungle)
+        if let encoded = try? JSONEncoder().encode(jungle) {
             UserDefaults.standard.set(encoded, forKey: "myJungleExtendedData")
         }
         CloudSyncManager.shared.push()
@@ -579,7 +630,7 @@ class DataLoader {
     /// Rebuilds all system notification schedules from the current jungle state.
     func syncAllNotifications() {
         guard let profile = userProfile else { return }
-        let enabled = true
+        let enabled = UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? true
         let sundaysOnly = profile.preferences.notifyOnSundays
         let now = Date()
 
@@ -711,7 +762,7 @@ class DataLoader {
             self.updateLookup()
         } else {
             // No blob (fresh install or cleared defaults): fall back to whatever SwiftData
-            // holds, keeping the bundled starter jungle if the store is empty too.
+            // holds. The bundled JSON profile is deliberately not treated as user data.
             JungleStore.shared.performMigrationIfNeeded(legacy: [])
             let stored = JungleStore.shared.fetchAll()
             if !stored.isEmpty {

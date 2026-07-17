@@ -19,7 +19,7 @@ struct PlantJournalView: View {
                 } else {
                     ForEach(entries) { entry in
                         HStack(spacing: 12) {
-                            thumbnail(entry)
+                            JournalThumbnail(entry: entry)
                                 .frame(width: 60, height: 60)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             VStack(alignment: .leading) {
@@ -68,15 +68,6 @@ struct PlantJournalView: View {
         }
     }
 
-    @ViewBuilder
-    private func thumbnail(_ entry: JournalEntry) -> some View {
-        if let data = try? Data(contentsOf: entry.url), let ui = UIImage(data: data) {
-            Image(uiImage: ui).resizable().scaledToFill()
-        } else {
-            Color.gray.opacity(0.2)
-        }
-    }
-
     private func reload() {
         entries = PlantJournalStore.shared.photos(for: myPlant.plantId)
     }
@@ -105,5 +96,24 @@ struct PlantJournalView: View {
             gifURL = url
             isGenerating = false
         }
+    }
+}
+
+private struct JournalThumbnail: View {
+    let entry: JournalEntry
+    @State private var image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image).resizable().scaledToFill()
+            } else {
+                Color.gray.opacity(0.2).overlay { ProgressView().controlSize(.small) }
+            }
+        }
+        .task(id: entry.id) {
+            image = await PlantJournalStore.shared.thumbnail(for: entry)
+        }
+        .accessibilityHidden(true)
     }
 }

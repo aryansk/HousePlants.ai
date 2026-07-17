@@ -7,7 +7,7 @@ class LocationSearchManager: NSObject, ObservableObject, MKLocalSearchCompleterD
     @Published var suggestions: [MKLocalSearchCompletion] = []
     
     private let completer: MKLocalSearchCompleter
-    private var cancellables = Set<AnyCancellable>()
+    private var searchDebounceWorkItem: DispatchWorkItem?
     
     override init() {
         self.completer = MKLocalSearchCompleter()
@@ -17,7 +17,12 @@ class LocationSearchManager: NSObject, ObservableObject, MKLocalSearchCompleterD
     }
     
     func updateSearch(query: String) {
-        completer.queryFragment = query
+        searchDebounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.completer.queryFragment = query
+        }
+        searchDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: workItem)
     }
     
     // MARK: - Completer Delegate

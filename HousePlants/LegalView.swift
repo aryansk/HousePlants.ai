@@ -82,7 +82,7 @@ struct PrivacyPolicyView: View {
                 LegalSection(
                     heading: "Data Storage",
                     body: """
-                    Most of your data — profile, plants, journal, and photos — is stored locally on your device. If iCloud sync is enabled, this data is stored in your private iCloud container and is not accessible to us. Photos sent to AI features are transmitted over encrypted connections and are not retained by us after processing.
+                    Your profile, plant collection, journal, and photos are stored locally on your device. When iCloud sync is available, collection details, favorites, preferences, and streak data are mirrored through your private iCloud account; journal and profile photos remain on this device. Photos sent to AI features are transmitted over encrypted connections and are not retained by us after processing.
                     """
                 ),
                 LegalSection(

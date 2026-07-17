@@ -4,6 +4,8 @@ struct PlantDetailView: View {
     let plant: Plant
     @State private var selectedCareInfo: (String, String, String, Color)? = nil
     @Environment(DataLoader.self) var dataLoader
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     // Tools states
     @State private var showWaterCalculator = false
@@ -16,29 +18,31 @@ struct PlantDetailView: View {
     @ObservedObject private var proManager = ProManager.shared
     
     var isInJungle: Bool {
-
         guard let profile = dataLoader.userProfile else { return false }
         return profile.myJungle.contains(where: { $0.plantId == plant.id })
+    }
+
+    private var careColumns: [GridItem] {
+        if dynamicTypeSize.isAccessibilitySize {
+            return [GridItem(.flexible())]
+        }
+        return [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
+    }
+
+    private var heroHeight: CGFloat {
+        horizontalSizeClass == .regular ? 380 : 290
     }
     
     var body: some View {
         ZStack(alignment: .top) {
             Color.claudeBackground.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Standard App Header
-                ClaudeHeader(
-                    title: plant.commonName,
-                    subtitle: plant.botanicalName,
-                    trailingActions: AnyView(favoriteButton),
-                    showBackButton: true
-                )
-                
-                GeometryReader { geometry in
+
+            GeometryReader { geometry in
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 20) {
                         // Card Layout Header
                         headerImage
+                        detailTitle
                         
                         VStack(alignment: .leading, spacing: 20) {
                             // Info & Badges Section
@@ -84,7 +88,7 @@ struct PlantDetailView: View {
                                     .font(.claudeSerif(size: 22, weight: .bold))
                                     .foregroundStyle(Color.claudePrimaryText)
                                 
-                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
+                                LazyVGrid(columns: careColumns, spacing: 14) {
                                     CareItem(icon: "sun.max.fill", title: "Light", value: plant.careGuide.light, color: .orange) {
                                         selectedCareInfo = ("Light Requirements", plant.careGuide.light, "sun.max.fill", .orange)
                                     }
@@ -432,23 +436,30 @@ struct PlantDetailView: View {
                             .padding(.bottom, 10)
                         }
                         .padding(20)
-                        .padding(.bottom, 100)
+                        .padding(.bottom, 24)
                         }
                         .frame(width: geometry.size.width)
                     }
                 }
                 .coordinateSpace(name: "scroll")
-            }
-            
-            // Bottom Action Bar
-            VStack {
-                Spacer()
-                addToJungleButton
-            }
         }
         .background(Color.claudeBackground)
-        .toolbar(.hidden, for: .navigationBar)
-        .toolbar(.visible, for: .tabBar)
+        .navigationTitle(plant.commonName)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                favoriteButton
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            addToJungleButton
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(.ultraThinMaterial)
+                .overlay(alignment: .top) { Divider() }
+        }
 
         .sheet(item: Binding(
             get: { selectedCareInfo.map { CareDetail(id: $0.0, info: $0.1, icon: $0.2, color: $0.3) } },
@@ -509,15 +520,36 @@ struct PlantDetailView: View {
             let isFav = dataLoader.isFavorite(plantId: plant.id)
             Image(systemName: isFav ? "heart.fill" : "heart")
                 .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(isFav ? .red : Color.claudeAccent)
-                .frame(width: 42, height: 42)
-                .background(Circle().fill(Color.claudeSecondaryBackground))
-                .shadow(color: Color.primary.opacity(0.05), radius: 4, x: 0, y: 2)
+                .foregroundStyle(isFav ? IndieHousePalette.ink : Color.claudePrimaryText)
+                .frame(width: 44, height: 44)
+                .background(isFav ? IndieHousePalette.pink : Color.claudeSecondaryBackground)
+                .overlay(Rectangle().stroke(Color.claudeBorder, lineWidth: 1.5))
         }
         .buttonStyle(BubblingButtonStyle())
+        .accessibilityLabel(dataLoader.isFavorite(plantId: plant.id) ? "Remove from favorites" : "Add to favorites")
     }
-    
-    
+
+    private var detailTitle: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            if let category = dataLoader.categories.first(where: { $0.id == plant.categoryId }) {
+                IndieCutLabel(text: category.name, color: IndieHousePalette.green)
+                    .padding(.bottom, 4)
+            }
+            Text(plant.commonName)
+                .font(.claudeSerif(size: 32, weight: .bold))
+                .foregroundStyle(Color.claudePrimaryText)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(plant.botanicalName)
+                .font(.claudeSans(size: 16, weight: .medium))
+                .italic()
+                .foregroundStyle(Color.claudeSecondaryText)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 20)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+
     var headerImage: some View {
         ZStack(alignment: .bottom) {
             PlantImage(plant: plant)
@@ -529,11 +561,14 @@ struct PlantDetailView: View {
                 endPoint: .bottom
             )
         }
-        .frame(height: 380)
         .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .frame(height: heroHeight)
+        .clipped()
+        .indiePaperCard(shadow: IndieHousePalette.green, cornerRadius: 2, shadowOffset: 6)
         .padding(.horizontal, 20)
-        .padding(.top, 8)
+        .padding(.trailing, 6)
+        .padding(.bottom, 6)
+        .accessibilityHidden(true)
     }
     
     var addToJungleButton: some View {
@@ -541,43 +576,33 @@ struct PlantDetailView: View {
             let atLimit = !proManager.isPro &&
                           (dataLoader.userProfile?.myJungle.count ?? 0) >= ProManager.freePlantLimit
             if !isInJungle && atLimit {
+                HapticManager.shared.playNotification(type: .warning)
                 showProUpgrade = true
             } else {
-                withAnimation(.spring()) {
+                HapticManager.shared.playNotification(type: .success)
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.8)) {
                     dataLoader.toggleJungle(plant: plant)
                 }
             }
         }) {
             HStack(spacing: 12) {
-                Image(systemName: isInJungle ? "leaf.fill" : "plus")
-                    .font(.system(size: 20, weight: .bold))
-                Text(isInJungle ? "My Jungle Resident" : "Add to Jungle")
-                    .font(.claudeSans(size: 18, weight: .bold))
+                Image(systemName: isInJungle ? "checkmark" : "plus")
+                    .font(.system(size: 17, weight: .black))
+                Text(isInJungle ? "Added to My Jungle" : "Add to My Jungle")
+                    .font(.claudeSans(size: 17, weight: .bold))
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
-            .background(
-                ZStack {
-                    if isInJungle {
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                Capsule()
-                                    .stroke(.white.opacity(0.5), lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
-                    } else {
-                        Capsule()
-                            .fill(Color.claudeAccent)
-                            .shadow(color: Color.claudeAccent.opacity(0.3), radius: 15, y: 8)
-                    }
-                }
-            )
+            .frame(minHeight: 54)
+            .background(isInJungle ? IndieHousePalette.green : Color.claudeAccent)
             .foregroundStyle(isInJungle ? Color.claudePrimaryText : .white)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 8)
+            .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.5))
+            .background(IndieHousePalette.ink.offset(x: 4, y: 4))
+            .padding(.trailing, 4)
+            .padding(.bottom, 4)
         }
         .buttonStyle(BubblingButtonStyle())
+        .accessibilityIdentifier("plant-detail.jungle-toggle")
+        .accessibilityLabel(isInJungle ? "Added to My Jungle" : "Add to My Jungle")
+        .accessibilityHint(isInJungle ? "Removes this plant from My Jungle" : "Adds this plant to your collection")
     }
 }
-

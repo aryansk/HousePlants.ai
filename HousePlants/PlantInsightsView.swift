@@ -18,7 +18,7 @@ struct PlantInsightsView: View {
     }
 
     private var plant: Plant? {
-        dataLoader.plants.first(where: { $0.id == myPlant.plantId })
+        dataLoader.plant(for: myPlant.plantId)
     }
 
     var body: some View {

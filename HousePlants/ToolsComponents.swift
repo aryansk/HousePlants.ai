@@ -3,6 +3,7 @@ import SwiftUI
 // Tool-specific subviews extracted from ToolsView.
 struct SunSeekerARView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isScanning = false
     @State private var windowDirection: WindowDirection = .south
     @State private var isDirectSun: Bool = true
@@ -108,13 +109,13 @@ struct SunSeekerARView: View {
                                             .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
                                             .scaleEffect(isScanning ? 1.1 : 1.0)
                                             .opacity(isScanning ? 0.3 : 0.1)
-                                            .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: isScanning)
+                                            .animation(reduceMotion ? nil : .easeInOut(duration: 2).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: isScanning)
                                     }
                                     Image(systemName: "sun.max.fill")
                                         .font(.system(size: 60))
                                         .foregroundColor(.orange)
                                         .shadow(color: .orange.opacity(0.3), radius: 10)
-                                        .onAppear { isScanning = true }
+                                        .onAppear { isScanning = !reduceMotion }
                                 }
 
                                 Text(lightStatus.0.uppercased())
@@ -607,4 +608,3 @@ struct RepottingHelperInfoSheet: View {
 #Preview {
     ToolsView()
 }
-

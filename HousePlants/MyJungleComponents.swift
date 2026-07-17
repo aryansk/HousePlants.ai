@@ -5,6 +5,8 @@ struct JungleHubDashboard: View {
     let totalPlants: Int
     let plantsToWater: Int
     let averageHealth: Int
+    /// Tapping the "To Water" tile jumps straight to the thirsty plants.
+    var onWaterTap: (() -> Void)? = nil
 
     @State private var animateRing = false
     @State private var tilesVisible = false
@@ -20,7 +22,7 @@ struct JungleHubDashboard: View {
     }
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             // Overall Health Ring
             VStack(spacing: 6) {
                 ZStack {
@@ -35,7 +37,7 @@ struct JungleHubDashboard: View {
 
                     VStack(spacing: 1) {
                         Text("\(averageHealth)%")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.claudePrimaryText)
                             .contentTransition(.numericText())
                         Text("Health")
@@ -44,7 +46,7 @@ struct JungleHubDashboard: View {
                             .textCase(.uppercase)
                     }
                 }
-                .frame(width: 76, height: 76)
+                .frame(width: 68, height: 68)
 
                 Text(averageHealth >= 80 ? "Thriving" : averageHealth >= 60 ? "Good" : "Needs Care")
                     .font(.claudeSans(size: 11, weight: .semibold))
@@ -52,16 +54,22 @@ struct JungleHubDashboard: View {
                     .opacity(animateRing ? 1 : 0)
                     .animation(.easeIn(duration: 0.3).delay(0.9), value: animateRing)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 16)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
-            .background(Color.claudeSecondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.claudeBorder, lineWidth: 1))
-            .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 5)
+            .indiePaperCard(
+                fill: Color.claudeSecondaryBackground,
+                border: IndieHousePalette.ink,
+                shadow: IndieHousePalette.ink,
+                rotation: -0.4,
+                cornerRadius: 2,
+                shadowOffset: 4
+            )
+            .padding(.trailing, 4)
+            .padding(.bottom, 4)
             .onAppear { animateRing = true }
 
-            VStack(spacing: 10) {
+            VStack(spacing: 8) {
                 // Total Plants
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
@@ -83,42 +91,56 @@ struct JungleHubDashboard: View {
                         .clipShape(Circle())
                 }
                 .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color.claudeSecondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.claudeBorder, lineWidth: 1))
-                .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 3)
+                .padding(.vertical, 9)
+                .indiePaperCard(
+                    fill: Color.claudeSecondaryBackground,
+                    border: IndieHousePalette.ink,
+                    shadow: IndieHousePalette.green,
+                    cornerRadius: 2,
+                    shadowOffset: 3
+                )
+                .padding(.trailing, 3)
+                .padding(.bottom, 3)
                 .opacity(tilesVisible ? 1 : 0)
                 .offset(x: tilesVisible ? 0 : 16)
                 .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: tilesVisible)
 
-                // Needs Water
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("To Water")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                            .textCase(.uppercase)
-                        Text("\(plantsToWater)")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundStyle(plantsToWater > 0 ? Color.blue : Color.claudePrimaryText)
-                            .contentTransition(.numericText())
+                // Needs Water — tappable shortcut to the thirsty plants
+                Button(action: { onWaterTap?() }) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("To Water")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                                .textCase(.uppercase)
+                            Text("\(plantsToWater)")
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .foregroundStyle(plantsToWater > 0 ? Color.blue : Color.claudePrimaryText)
+                                .contentTransition(.numericText())
+                        }
+                        Spacer()
+                        Image(systemName: plantsToWater > 0 ? "drop.fill" : "checkmark.circle.fill")
+                            .foregroundStyle(plantsToWater > 0 ? Color.blue : Color.green)
+                            .font(.system(size: 18))
+                            .padding(8)
+                            .background((plantsToWater > 0 ? Color.blue : Color.green).opacity(0.13))
+                            .clipShape(Circle())
+                            .contentTransition(.symbolEffect(.replace))
                     }
-                    Spacer()
-                    Image(systemName: plantsToWater > 0 ? "drop.fill" : "checkmark.circle.fill")
-                        .foregroundStyle(plantsToWater > 0 ? Color.blue : Color.green)
-                        .font(.system(size: 18))
-                        .padding(8)
-                        .background((plantsToWater > 0 ? Color.blue : Color.green).opacity(0.13))
-                        .clipShape(Circle())
-                        .contentTransition(.symbolEffect(.replace))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    .indiePaperCard(
+                        fill: Color.claudeSecondaryBackground,
+                        border: IndieHousePalette.ink,
+                        shadow: plantsToWater > 0 ? IndieHousePalette.blue : IndieHousePalette.ink,
+                        cornerRadius: 2,
+                        shadowOffset: 3
+                    )
+                    .padding(.trailing, 3)
+                    .padding(.bottom, 3)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color.claudeSecondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.claudeBorder, lineWidth: 1))
-                .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 3)
+                .buttonStyle(BubblingButtonStyle())
+                .accessibilityLabel(plantsToWater > 0 ? "\(plantsToWater) plants to water. Shows thirsty plants." : "All plants watered")
                 .opacity(tilesVisible ? 1 : 0)
                 .offset(x: tilesVisible ? 0 : 16)
                 .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.18), value: tilesVisible)
@@ -129,6 +151,63 @@ struct JungleHubDashboard: View {
         .onAppear {
             withAnimation { tilesVisible = true }
         }
+    }
+}
+
+/// One actionable row in the "Today's Care" checklist: thumbnail, nickname, status, one-tap water.
+struct JungleTaskRow: View {
+    let plant: Plant
+    @Environment(DataLoader.self) var dataLoader
+    @State private var isWatering = false
+
+    var myPlant: MyPlant? { dataLoader.myJungleLookup[plant.id] }
+    var wateringStatus: WateringStatusDisplay { dataLoader.wateringStatusDisplay(for: myPlant) }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            PlantImage(plant: plant, showsProgress: false)
+                .frame(width: 44, height: 44)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+                .overlay(RoundedRectangle(cornerRadius: 3).stroke(IndieHousePalette.ink, lineWidth: 1.2))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(myPlant?.nickname ?? plant.commonName)
+                    .font(.claudeSans(size: 15, weight: .bold))
+                    .foregroundStyle(Color.claudePrimaryText)
+                    .lineLimit(1)
+
+                HStack(spacing: 4) {
+                    Image(systemName: wateringStatus.icon)
+                        .font(.system(size: 9, weight: .bold))
+                    Text(wateringStatus.text)
+                        .font(.claudeSans(size: 11, weight: .semibold))
+                }
+                .foregroundStyle(wateringStatus.color)
+            }
+
+            Spacer()
+
+            Button(action: {
+                guard !isWatering else { return }
+                isWatering = true
+                HapticManager.shared.playImpact(style: .medium)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                    dataLoader.waterPlant(plantId: plant.id)
+                }
+            }) {
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 38, height: 38)
+                    .background(Circle().fill(IndieHousePalette.blue))
+                    .overlay(Circle().stroke(IndieHousePalette.ink, lineWidth: 1.3))
+            }
+            .buttonStyle(BubblingButtonStyle())
+            .accessibilityLabel("Water \(myPlant?.nickname ?? plant.commonName)")
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
     }
 }
 
@@ -206,24 +285,25 @@ struct JungleInsightCard: View {
             Spacer()
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.claudeSecondaryBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(
-                            LinearGradient(colors: [Color.claudeAccent.opacity(0.3), .clear], startPoint: .topLeading, endPoint: .bottomTrailing),
-                            lineWidth: 1
-                        )
-                )
+        .indiePaperCard(
+            fill: Color.claudeSecondaryBackground,
+            border: IndieHousePalette.ink,
+            shadow: IndieHousePalette.pink,
+            rotation: 0.4,
+            cornerRadius: 2,
+            shadowOffset: 4
         )
+        .padding(.trailing, 4)
+        .padding(.bottom, 4)
         .onAppear { isAnimating = true }
     }
 }
 
 struct EmptyJungleView: View {
     let isSearching: Bool
+    var clearFilters: (() -> Void)? = nil
     @Environment(TabSelection.self) var tabSelection
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var floating = false
 
     var body: some View {
@@ -236,14 +316,14 @@ struct EmptyJungleView: View {
                 Circle()
                     .fill(Color.claudeAccent.opacity(0.04))
                     .frame(width: 150, height: 150)
-                    .scaleEffect(floating ? 1.06 : 1.0)
-                    .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: floating)
+                    .scaleEffect(floating && !reduceMotion ? 1.06 : 1.0)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: floating)
 
                 Image(systemName: isSearching ? "doc.text.magnifyingglass" : "leaf.arrow.triangle.circlepath")
                     .font(.system(size: 50))
                     .foregroundStyle(Color.claudeAccent.opacity(0.45))
-                    .offset(y: floating ? -5 : 0)
-                    .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: floating)
+                    .offset(y: floating && !reduceMotion ? -5 : 0)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: floating)
             }
             .onAppear { floating = true }
 
@@ -258,17 +338,34 @@ struct EmptyJungleView: View {
                     .padding(.horizontal, 40)
             }
 
-            if !isSearching {
+            if isSearching, let clearFilters {
+                Button(action: clearFilters) {
+                    Text("Clear search & filters")
+                        .font(.claudeSans(size: 15, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 24)
+                        .frame(minHeight: 48)
+                        .background(Color.claudeAccent)
+                        .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.5))
+                        .background(IndieHousePalette.ink.offset(x: 4, y: 4))
+                        .padding(.trailing, 4)
+                        .padding(.bottom, 4)
+                }
+                .buttonStyle(BubblingButtonStyle())
+            } else if !isSearching {
                 Button(action: { tabSelection.selectedTab = 0 }) {
                     Text("Discover Plants")
                         .font(.claudeSans(size: 16, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 32)
-                        .padding(.vertical, 14)
+                        .frame(minHeight: 48)
                         .background(Color.claudeAccent)
-                        .clipShape(Capsule())
-                        .shadow(color: Color.claudeAccent.opacity(0.3), radius: 10, x: 0, y: 5)
+                        .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.5))
+                        .background(IndieHousePalette.ink.offset(x: 4, y: 4))
+                        .padding(.trailing, 4)
+                        .padding(.bottom, 4)
                 }
+                .buttonStyle(BubblingButtonStyle())
             }
         }
     }
@@ -304,10 +401,13 @@ struct QuickActionButton: View {
 }
 
 struct ScaleButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.96 : 1.0)
+            .opacity(configuration.isPressed && reduceMotion ? 0.72 : 1)
+            .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.75), value: configuration.isPressed)
     }
 }
 
@@ -363,13 +463,14 @@ struct JungleListRow: View {
 
 struct StreakBadge: View {
     let streakCount: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var glowing = false
 
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "flame.fill")
                 .foregroundStyle(streakCount > 0 ? Color.orange : Color.gray)
-                .symbolEffect(.pulse, options: .repeating, isActive: streakCount > 3)
+                .symbolEffect(.pulse, options: .repeating, isActive: streakCount > 3 && !reduceMotion)
             Text("\(streakCount)")
                 .font(.headline)
                 .fontWeight(.bold)
@@ -394,7 +495,7 @@ struct StreakBadge: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(streakCount == 1 ? "1 day streak" : "\(streakCount) day streak")
         .onAppear {
-            if streakCount > 0 {
+            if streakCount > 0 && !reduceMotion {
                 withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
                     glowing = true
                 }

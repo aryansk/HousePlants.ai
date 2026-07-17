@@ -3,6 +3,7 @@ import EventKit
 
 struct SeasonalCareCalendarView: View {
     @Environment(DataLoader.self) var dataLoader
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var proManager = ProManager.shared
 
     @State private var selectedMonth: Int = Calendar.current.component(.month, from: Date())
@@ -55,7 +56,7 @@ struct SeasonalCareCalendarView: View {
                                         .stroke(currentSeason.color.opacity(0.1), lineWidth: 1.5)
                                         .frame(width: 120 + CGFloat(i * 28), height: 120 + CGFloat(i * 28))
                                         .scaleEffect(animateLeaf ? 1.06 : 1.0)
-                                        .animation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: animateLeaf)
+                                        .animation(reduceMotion ? nil : .easeInOut(duration: 2.5).repeatForever(autoreverses: true).delay(Double(i) * 0.3), value: animateLeaf)
                                 }
                                 
                                 Image(systemName: currentSeason.icon)
@@ -65,7 +66,7 @@ struct SeasonalCareCalendarView: View {
                                     )
                                     .shadow(color: currentSeason.color.opacity(0.3), radius: 10)
                             }
-                            .onAppear { animateLeaf = true }
+                            .onAppear { animateLeaf = !reduceMotion }
                             
                             VStack(spacing: 4) {
                                 Text(currentSeason.name)
@@ -280,7 +281,7 @@ struct SeasonalCareCalendarView: View {
         var added = 0
 
         for myPlant in profile.myJungle {
-            guard let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) else { continue }
+            guard let plant = dataLoader.plant(for: myPlant.plantId) else { continue }
             let nickname = myPlant.nickname
 
             // Repotting event

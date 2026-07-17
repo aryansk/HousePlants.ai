@@ -289,8 +289,8 @@ struct PlantGrowthView: View {
     }
 
     private var expectedWateringsIn30Days: Int {
-        guard let plant = dataLoader.plants.first(where: { $0.id == plant.id }) else { return 4 }
-        let freq = dataLoader.getWateringFrequency(for: plant)
+        guard let catalogPlant = dataLoader.plant(for: plant.id) else { return 4 }
+        let freq = dataLoader.getWateringFrequency(for: catalogPlant)
         return max(1, 30 / freq)
     }
 

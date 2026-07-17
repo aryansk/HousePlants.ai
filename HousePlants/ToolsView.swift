@@ -1,10 +1,47 @@
 import SwiftUI
 
+private enum ToolSearchIndex {
+    static let essential = [
+        "Plant Identifier camera photo scan identify species",
+        "Sun Seeker light meter room spot brightness",
+        "Watering Guide water schedule climate hydration",
+        "Fertilizer Guide nutrition feed growth dose",
+        "Soil Mixologist soil substrate recipe mix",
+        "Seasonal Care calendar month season reminder",
+        "Plant Sitter Mode sitter share care PDF travel"
+    ]
+    static let health = [
+        "Plant Doctor diagnose symptoms pests disease treatment",
+        "Repotting Helper pot size roots repot",
+        "Toxicity Checker pet child safety toxic",
+        "Propagation Station cuttings division multiply",
+        "Growth Analytics health timeline watering journal stats"
+    ]
+    static let exploration = [
+        "Climate Matcher city climate environment recommendations",
+        "Skincare Lab botanical beauty remedies recipes",
+        "Moon Gardening lunar phases moon cycles",
+        "Origin Explorer map native habitat countries"
+    ]
+}
+
 struct ToolsView: View {
     @Environment(DataLoader.self) var dataLoader
     @ObservedObject private var proManager = ProManager.shared
     @State private var showProUpgrade = false
     @State private var showGrowthPicker = false
+    @State private var searchText = ""
+    @FocusState private var searchFocused: Bool
+
+    private var matchedToolCount: Int {
+        (ToolSearchIndex.essential + ToolSearchIndex.health + ToolSearchIndex.exploration)
+            .filter(matches)
+            .count
+    }
+
+    private var hasEssentialMatches: Bool { ToolSearchIndex.essential.contains(where: matches) }
+    private var hasHealthMatches: Bool { ToolSearchIndex.health.contains(where: matches) }
+    private var hasExplorationMatches: Bool { ToolSearchIndex.exploration.contains(where: matches) }
 
     var body: some View {
         NavigationStack {
@@ -14,48 +51,91 @@ struct ToolsView: View {
                 VStack(spacing: 0) {
                     ClaudeHeader(
                         title: "Tools",
-                        subtitle: "Advanced aids for your interior ecosystem"
+                        subtitle: "Practical help for every stage of plant care"
                     )
+
+                    ToolSearchBar(searchText: $searchText, isFocused: $searchFocused)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 8)
                     
                     GeometryReader { geometry in
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 28) {
                             // Featured Highlight
-                            FeaturedToolCard()
+                            if searchText.isEmpty {
+                                FeaturedToolCard()
+                                    .padding(.horizontal, 20)
+                            } else {
+                                HStack {
+                                    Text("\(matchedToolCount) matching tool\(matchedToolCount == 1 ? "" : "s")")
+                                        .font(.claudeSans(size: 13, weight: .bold))
+                                        .foregroundStyle(Color.claudeSecondaryText)
+                                    Spacer()
+                                    Button("Clear") { searchText = "" }
+                                        .font(.claudeSans(size: 13, weight: .bold))
+                                        .foregroundStyle(Color.claudeAccent)
+                                }
                                 .padding(.horizontal, 20)
+                            }
                             
                             // Category: Essential Care
-                            ToolSection(title: "Essential Care") {
+                            if hasEssentialMatches {
+                                ToolSection(title: "Essential Care") {
                                 VStack(spacing: 12) {
-                                    ToolNavigationLink(destination: PlantIdentifierView(), icon: "camera.viewfinder", title: "Plant Identifier", description: "Snap a photo to identify any plant instantly.", color: Color(hex: "16A085"))
+                                    if matches(ToolSearchIndex.essential[0]) {
+                                        ToolNavigationLink(destination: PlantIdentifierView(), icon: "camera.viewfinder", title: "Plant Identifier", description: "Snap a photo to identify any plant instantly.", color: Color(hex: "16A085"))
+                                    }
 
-                                    ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "Light meter to find the perfect spot for your plants.", color: .orange)
+                                    if matches(ToolSearchIndex.essential[1]) {
+                                        ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "Light meter to find the perfect spot for your plants.", color: .orange)
+                                    }
                                     
-                                    ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue)
+                                    if matches(ToolSearchIndex.essential[2]) {
+                                        ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue)
+                                    }
                                     
-                                    ToolNavigationLink(destination: FertilizerCalculatorView(), icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition for every growth stage.", color: .green)
+                                    if matches(ToolSearchIndex.essential[3]) {
+                                        ToolNavigationLink(destination: FertilizerCalculatorView(), icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition for every growth stage.", color: .green)
+                                    }
                                     
-                                    ToolNavigationLink(destination: SoilMixBuilderView(), icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates for species.", color: Color(hex: "8B4513"))
+                                    if matches(ToolSearchIndex.essential[4]) {
+                                        ToolNavigationLink(destination: SoilMixBuilderView(), icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates for species.", color: Color(hex: "8B4513"))
+                                    }
                                     
-                                    ToolNavigationLink(destination: SeasonalCareCalendarView(), icon: "calendar.badge.clock", title: "Seasonal Care", description: "Month-by-month care timeline for every season.", color: Color(hex: "4CAF50"))
+                                    if matches(ToolSearchIndex.essential[5]) {
+                                        ToolNavigationLink(destination: SeasonalCareCalendarView(), icon: "calendar.badge.clock", title: "Seasonal Care", description: "Month-by-month care timeline for every season.", color: Color(hex: "4CAF50"))
+                                    }
 
-                                    ToolNavigationLink(destination: SitterModeView(), icon: "person.2.fill", title: "Plant Sitter Mode", description: "Generate a shareable care PDF for your sitter.", color: .pink)
+                                    if matches(ToolSearchIndex.essential[6]) {
+                                        ToolNavigationLink(destination: SitterModeView(), icon: "person.2.fill", title: "Plant Sitter Mode", description: "Generate a shareable care PDF for your sitter.", color: .pink)
+                                    }
                                 }
+                            }
                             }
                             
                             // Category: Health & Growth
-                            ToolSection(title: "Health & Growth") {
+                            if hasHealthMatches {
+                                ToolSection(title: "Health & Growth") {
                                 VStack(spacing: 12) {
-                                    ToolNavigationLink(destination: PlantDoctorView(), icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with symptom lookup.", color: .red)
+                                    if matches(ToolSearchIndex.health[0]) {
+                                        ToolNavigationLink(destination: PlantDoctorView(), icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with symptom lookup.", color: .red)
+                                    }
 
-                                    ToolNavigationLink(destination: PotSizeCalculatorView(), icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size for root expansion.", color: .brown)
+                                    if matches(ToolSearchIndex.health[1]) {
+                                        ToolNavigationLink(destination: PotSizeCalculatorView(), icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size for root expansion.", color: .brown)
+                                    }
 
-                                    ToolNavigationLink(destination: ToxicityCheckerView(), icon: "shield.checkered", title: "Toxicity Checker", description: "Verify pet and child safety for every plant.", color: Color(hex: "2ECC71"))
+                                    if matches(ToolSearchIndex.health[2]) {
+                                        ToolNavigationLink(destination: ToxicityCheckerView(), icon: "shield.checkered", title: "Toxicity Checker", description: "Verify pet and child safety for every plant.", color: Color(hex: "2ECC71"))
+                                    }
 
-                                    ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"))
+                                    if matches(ToolSearchIndex.health[3]) {
+                                        ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"))
+                                    }
 
                                     // Growth Analytics — Pro, opens plant picker then analytics view
-                                    Button(action: {
+                                    if matches(ToolSearchIndex.health[4]) {
+                                        Button(action: {
                                         if proManager.isPro { showGrowthPicker = true } else { showProUpgrade = true }
                                     }) {
                                         HStack(spacing: 16) {
@@ -91,25 +171,44 @@ struct ToolsView: View {
                                                 .foregroundStyle(Color.claudeBorder)
                                         }
                                         .padding(16)
-                                        .background(Color.claudeSecondaryBackground)
-                                        .cornerRadius(16)
-                                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
+                                        .indiePaperCard(shadow: .purple, cornerRadius: 2, shadowOffset: 3)
+                                        .padding(.trailing, 3)
+                                        .padding(.bottom, 3)
                                     }
-                                    .buttonStyle(.plain)
+                                        .buttonStyle(InteractiveCardButtonStyle())
+                                        .accessibilityLabel("Growth Analytics")
+                                        .accessibilityValue(proManager.isPro ? "Available" : "Requires Pro")
+                                    }
                                 }
+                            }
                             }
                             
                             // Category: Deep Exploration
-                            ToolSection(title: "Exploration") {
+                            if hasExplorationMatches {
+                                ToolSection(title: "Exploration") {
                                 VStack(spacing: 12) {
-                                    ToolNavigationLink(destination: ClimateMatcherToolView(), icon: "thermometer.sun.fill", title: "Climate Matcher", description: "Find plants perfectly suited to your local environment.", color: .orange)
+                                    if matches(ToolSearchIndex.exploration[0]) {
+                                        ToolNavigationLink(destination: ClimateMatcherToolView(), icon: "thermometer.sun.fill", title: "Climate Matcher", description: "Find plants perfectly suited to your local environment.", color: .orange)
+                                    }
                                     
-                                     ToolNavigationLink(destination: SkincareLabView(), icon: "flask.fill", title: "Skincare Lab", description: "Botanical remedies from your garden.", color: .purple)
+                                    if matches(ToolSearchIndex.exploration[1]) {
+                                        ToolNavigationLink(destination: SkincareLabView(), icon: "flask.fill", title: "Skincare Lab", description: "Botanical remedies from your garden.", color: .purple)
+                                    }
                                     
-                                    ToolNavigationLink(destination: CelestialMoonPhaseView(), icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting with lunar cycles.", color: .indigo)
+                                    if matches(ToolSearchIndex.exploration[2]) {
+                                        ToolNavigationLink(destination: CelestialMoonPhaseView(), icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting with lunar cycles.", color: .indigo)
+                                    }
                                     
-                                    ToolNavigationLink(destination: OriginExplorerView(), icon: "globe.americas.fill", title: "Origin Explorer", description: "Interactive map of where your plants call home.", color: .teal)
+                                    if matches(ToolSearchIndex.exploration[3]) {
+                                        ToolNavigationLink(destination: OriginExplorerView(), icon: "globe.americas.fill", title: "Origin Explorer", description: "Interactive map of where your plants call home.", color: .teal)
+                                    }
                                 }
+                            }
+                            }
+
+                            if matchedToolCount == 0 {
+                                ToolSearchEmptyView(clearSearch: { searchText = "" })
+                                    .padding(.horizontal, 20)
                             }
                             }
                             .frame(width: geometry.size.width)
@@ -120,7 +219,6 @@ struct ToolsView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
-            .toolbar(.visible, for: .tabBar)
         }
         .sheet(isPresented: $showProUpgrade) {
             ProUpgradeView()
@@ -129,6 +227,87 @@ struct ToolsView: View {
             GrowthPlantPickerView()
                 .environment(dataLoader)
         }
+    }
+
+    private func matches(_ searchableText: String) -> Bool {
+        let tokens = searchText
+            .lowercased()
+            .split(whereSeparator: { $0.isWhitespace })
+        guard !tokens.isEmpty else { return true }
+        let haystack = searchableText.lowercased()
+        return tokens.allSatisfy { haystack.contains($0) }
+    }
+}
+
+private struct ToolSearchBar: View {
+    @Binding var searchText: String
+    var isFocused: FocusState<Bool>.Binding
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(isFocused.wrappedValue ? Color.claudeAccent : Color.claudeSecondaryText)
+                .accessibilityHidden(true)
+
+            TextField("Search tools by task", text: $searchText)
+                .font(.claudeSans(size: 16))
+                .focused(isFocused)
+                .submitLabel(.search)
+                .accessibilityIdentifier("tools.search")
+                .accessibilityLabel("Search plant care tools")
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(Color.claudeSecondaryText)
+                        .frame(width: 44, height: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Clear tool search")
+            }
+        }
+        .padding(.horizontal, 14)
+        .frame(minHeight: 48)
+        .background(Color.claudeSecondaryBackground)
+        .overlay(Rectangle().stroke(isFocused.wrappedValue ? Color.claudeAccent : Color.claudeBorder, lineWidth: isFocused.wrappedValue ? 2 : 1.5))
+        .background(IndieHousePalette.ink.offset(x: 4, y: 4))
+        .padding(.trailing, 4)
+        .padding(.bottom, 4)
+    }
+}
+
+private struct ToolSearchEmptyView: View {
+    let clearSearch: () -> Void
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "wrench.and.screwdriver")
+                .font(.system(size: 40, weight: .light))
+                .foregroundStyle(IndieHousePalette.orange)
+            Text("No matching tools")
+                .font(.claudeSerif(size: 22, weight: .bold))
+            Text("Try a task like water, pet safety, light, or repotting.")
+                .font(.claudeSans(size: 14))
+                .foregroundStyle(Color.claudeSecondaryText)
+                .multilineTextAlignment(.center)
+            Button("Show every tool", action: clearSearch)
+                .font(.claudeSans(size: 14, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .frame(minHeight: 44)
+                .background(Color.claudeAccent)
+                .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.5))
+                .buttonStyle(BubblingButtonStyle())
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .indiePaperCard(shadow: IndieHousePalette.orange, cornerRadius: 2, shadowOffset: 5)
+        .padding(.trailing, 5)
+        .padding(.bottom, 5)
     }
 }
 
@@ -144,7 +323,7 @@ private struct GrowthPlantPickerView: View {
             List {
                 if let jungle = dataLoader.userProfile?.myJungle, !jungle.isEmpty {
                     ForEach(jungle) { myPlant in
-                        if let plant = dataLoader.plants.first(where: { $0.id == myPlant.plantId }) {
+                        if let plant = dataLoader.plant(for: myPlant.plantId) {
                             NavigationLink(destination: PlantGrowthView(plant: plant)
                                 .environment(dataLoader)) {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -256,15 +435,18 @@ struct FeaturedToolCard: View {
                 .foregroundColor(.white)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 16)
-                .background(Color.white.opacity(0.2))
-                .cornerRadius(12)
+                .background(Color.black.opacity(0.2))
+                .overlay(Rectangle().stroke(Color.white.opacity(0.65), lineWidth: 1))
             }
             .padding(24)
             .background(
                 LinearGradient(colors: tool.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing)
             )
-            .cornerRadius(24)
-            .shadow(color: tool.gradientColors.first?.opacity(0.25) ?? Color.claudeAccent.opacity(0.25), radius: 15, x: 0, y: 10)
+            .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 2))
+            .background(IndieHousePalette.ink.offset(x: 7, y: 8))
+            .rotationEffect(.degrees(-0.6))
+            .padding(.trailing, 7)
+            .padding(.bottom, 8)
         }
         .buttonStyle(InteractiveCardButtonStyle())
     }
@@ -302,15 +484,19 @@ struct ToolSection<Content: View>: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(title)
-                .font(.claudeSans(size: 13, weight: .bold))
-                .foregroundStyle(Color.claudeSecondaryText)
-                .textCase(.uppercase)
-                .tracking(1.5)
+            IndieCutLabel(text: title, color: sectionColor)
                 .padding(.horizontal, 24)
             
             content
                 .padding(.horizontal, 20)
+        }
+    }
+
+    private var sectionColor: Color {
+        switch title {
+        case "Essential Care": IndieHousePalette.green
+        case "Health & Growth": IndieHousePalette.yellow
+        default: IndieHousePalette.pink
         }
     }
 }
@@ -339,9 +525,10 @@ struct ToolCardView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
             ZStack {
-                RoundedRectangle(cornerRadius: 14)
+                Rectangle()
                     .fill(color.opacity(0.1))
                     .frame(width: 52, height: 52)
+                    .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1))
                 
                 Image(systemName: icon)
                     .font(.system(size: 22))
@@ -367,16 +554,17 @@ struct ToolCardView: View {
                 .foregroundColor(.claudeBorder)
         }
         .padding(16)
-        .background(Color.claudeSecondaryBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.claudeBorder, lineWidth: 1)
-        )
+        .indiePaperCard(shadowOffset: 3)
+        .padding(.trailing, 3)
+        .padding(.bottom, 3)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue(description)
+        .accessibilityHint("Opens this tool")
     }
 }
 
 #Preview {
     ToolsView()
 }
-

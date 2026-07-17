@@ -5,7 +5,7 @@
         "features": {
             "ml_scanner": true,
             "skincare_lab": true,
-            "ar_placement": true,
+            "ar_placement": false,
             "sun_seeker_ar": true
         }
     },

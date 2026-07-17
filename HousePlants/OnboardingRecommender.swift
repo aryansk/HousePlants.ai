@@ -16,6 +16,14 @@ enum PlantGoal: String, CaseIterable, Identifiable {
         case .decorate: return "sparkles"
         }
     }
+    var subtitle: String {
+        switch self {
+        case .keepAlive: return "Reminders and early warnings before leaves droop"
+        case .growCollection: return "Find your next plant, propagate the ones you love"
+        case .learnMore: return "The botany behind the beauty, minus the jargon"
+        case .decorate: return "Style-first picks that thrive in your rooms"
+        }
+    }
     var color: Color {
         switch self {
         case .keepAlive: return Color(hex: "E74C3C")

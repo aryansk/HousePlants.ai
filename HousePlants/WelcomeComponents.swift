@@ -5,6 +5,9 @@ import SwiftUI
 struct RecommendedPlantCard: View {
     let plant: Plant
     let climateNote: String
+    /// When `onAdd` is provided, the card shows a trailing add-to-jungle button.
+    var isAdded: Bool = false
+    var onAdd: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 14) {
@@ -13,8 +16,11 @@ struct RecommendedPlantCard: View {
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 72, height: 72)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 3)
+                        .stroke(IndieHousePalette.ink, lineWidth: 1.4)
+                )
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(plant.commonName)
@@ -69,13 +75,28 @@ struct RecommendedPlantCard: View {
             }
 
             Spacer()
+
+            if let onAdd {
+                Button(action: onAdd) {
+                    Image(systemName: isAdded ? "checkmark.circle.fill" : "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(isAdded ? IndieHousePalette.green : Color.claudeAccent)
+                        .contentTransition(.symbolEffect(.replace))
+                }
+                .buttonStyle(BubblingButtonStyle())
+                .accessibilityLabel(isAdded ? "\(plant.commonName) added to your jungle" : "Add \(plant.commonName) to your jungle")
+            }
         }
         .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.claudeSecondaryBackground)
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
+        .indiePaperCard(
+            fill: Color.claudeSecondaryBackground,
+            border: IndieHousePalette.ink,
+            shadow: IndieHousePalette.ink,
+            cornerRadius: 2,
+            shadowOffset: 3
         )
+        .padding(.trailing, 4)
+        .padding(.bottom, 4)
     }
 
     private func difficultyIcon(_ diff: String) -> String {

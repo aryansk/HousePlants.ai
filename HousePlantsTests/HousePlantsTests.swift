@@ -93,6 +93,19 @@ struct PlantCatalogTests {
                     "plant \(plant.id) references unknown category \(plant.categoryId)")
         }
     }
+
+    @Test func bundledFixtureDoesNotSeedPersonalState() throws {
+        let url = try #require(Bundle.main.url(forResource: "plants", withExtension: "json"))
+        let data = try Data(contentsOf: url)
+        let appData = try JSONDecoder().decode(AppData.self, from: data)
+        let profile = DataLoader.emptyProfile(from: appData.userProfile)
+
+        #expect(profile.username.isEmpty)
+        #expect(profile.locationSettings.city.isEmpty)
+        #expect(profile.favorites.isEmpty)
+        #expect(profile.myJungle.isEmpty)
+        #expect(profile.currentStreak == nil)
+    }
 }
 
 // MARK: - HealthScoreEngine

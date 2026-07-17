@@ -15,6 +15,7 @@ final class PlantJournalStore {
     static let shared = PlantJournalStore()
 
     private let fm = FileManager.default
+    private let thumbnailCache = NSCache<NSURL, UIImage>()
     private let filenameFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd'T'HH-mm-ss'Z'"
@@ -76,7 +77,41 @@ final class PlantJournalStore {
     }
 
     func deletePhoto(_ entry: JournalEntry) {
+        thumbnailCache.removeObject(forKey: entry.url as NSURL)
         try? fm.removeItem(at: entry.url)
+    }
+
+    func deleteAll() {
+        thumbnailCache.removeAllObjects()
+        guard fm.fileExists(atPath: rootURL.path) else { return }
+        do {
+            try fm.removeItem(at: rootURL)
+        } catch {
+            Logger.persistence.error("Journal reset failed: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    /// Decodes a small ImageIO thumbnail off the view-render path. Full journal JPEGs can be
+    /// several megabytes, so decoding them in a List row causes visible scrolling hitches.
+    func thumbnail(for entry: JournalEntry, maxPixelSize: Int = 180) async -> UIImage? {
+        let key = entry.url as NSURL
+        if let cached = thumbnailCache.object(forKey: key) { return cached }
+
+        return await Task.detached(priority: .userInitiated) { [thumbnailCache] in
+            let options: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceShouldCacheImmediately: true
+            ]
+            guard let source = CGImageSourceCreateWithURL(entry.url as CFURL, nil),
+                  let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+                return nil
+            }
+            let thumbnail = UIImage(cgImage: image)
+            thumbnailCache.setObject(thumbnail, forKey: key)
+            return thumbnail
+        }.value
     }
 
     func generateGIF(for plantId: String, frameDelay: Double = 0.5) async -> URL? {

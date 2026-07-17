@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ToxicityCheckerView: View {
     @Environment(DataLoader.self) var dataLoader
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var searchText = ""
     @State private var filterMode: ToxicityFilter = .all
     @State private var animateShield = false
@@ -81,7 +82,7 @@ struct ToxicityCheckerView: View {
                                         .frame(width: 96 + CGFloat(i * 32), height: 96 + CGFloat(i * 32))
                                         .scaleEffect(animateShield ? 1.06 : 1.0)
                                         .opacity(animateShield ? 0.4 : 0.12)
-                                        .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true).delay(Double(i) * 0.2), value: animateShield)
+                                        .animation(reduceMotion ? nil : .easeInOut(duration: 2.2).repeatForever(autoreverses: true).delay(Double(i) * 0.2), value: animateShield)
                                 }
                                 
                                 Circle()
@@ -97,7 +98,7 @@ struct ToxicityCheckerView: View {
                                     )
                                     .shadow(color: .green.opacity(0.3), radius: 8)
                             }
-                            .onAppear { animateShield = true }
+                            .onAppear { animateShield = !reduceMotion }
                             
                             Text("Protecting paws and whiskers since day one.")
                                 .font(.claudeSans(size: 14))

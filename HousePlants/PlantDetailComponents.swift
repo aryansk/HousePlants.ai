@@ -39,14 +39,15 @@ struct CareItem: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
-            .background(Color.claudeSecondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 24))
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(Color.claudeBorder, lineWidth: 1)
-            )
+            .indiePaperCard(shadow: color, cornerRadius: 2, shadowOffset: 4)
+            .padding(.trailing, 4)
+            .padding(.bottom, 4)
         }
         .buttonStyle(InteractiveCardButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue(value)
+        .accessibilityHint("Shows a detailed care tip")
     }
 }
 
@@ -106,11 +107,15 @@ struct ToolLinkRow: View {
                     .foregroundStyle(Color.claudeBorder)
             }
             .padding(16)
-            .background(Color.claudeSecondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.claudeBorder, lineWidth: 1))
+            .indiePaperCard(shadow: color, cornerRadius: 2, shadowOffset: 4)
+            .padding(.trailing, 4)
+            .padding(.bottom, 4)
         }
         .buttonStyle(InteractiveCardButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue(subtitle)
+        .accessibilityHint("Opens this care tool")
     }
 }
 
