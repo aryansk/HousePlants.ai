@@ -3,7 +3,7 @@ import Foundation
 /// Mirrors a curated set of UserDefaults keys to NSUbiquitousKeyValueStore so a user's plant
 /// state follows them across devices on the same iCloud account.
 ///
-/// Scope: encoded MyPlant array, favorites, streak. ~1MB hard cap on KVS — journal photos
+/// Scope: encoded MyPlant array, favorites, streak, and care experience. ~1MB hard cap on KVS — journal photos
 /// stay on-device.
 ///
 /// TODO: CloudKit — this entire class is a *transitional* sync layer. Once JungleStore is
@@ -29,7 +29,8 @@ final class CloudSyncManager {
         "current_streak",
         "last_streak_date",
         "streak_history",
-        "userPreferences"
+        "userPreferences",
+        "care_experience_v1"
     ]
 
     private var observer: NSObjectProtocol?

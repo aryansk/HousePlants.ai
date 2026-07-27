@@ -342,7 +342,7 @@ struct WaterCalculatorView: View {
                                 text: .constant(""),
                                 icon: "location.magnifyingglass"
                             ) { city, country in
-                                withAnimation {
+                                withMotion(Motion.snappy) {
                                     locationName = "\(city), \(country)"
                                     // Simulate changing conditions based on location
                                     temperature = Double.random(in: 18...28)

@@ -141,7 +141,7 @@ struct PropagationStationView: View {
                             HStack(spacing: 10) {
                                 ForEach(availableMethods, id: \.self) { method in
                                     Button(action: {
-                                        withAnimation(.spring(response: 0.3)) {
+                                        withMotion(Motion.snappy) {
                                             selectedMethod = method
                                         }
                                     }) {
@@ -367,7 +367,7 @@ struct PropagationDetailView: View {
                                 VStack(spacing: 0) {
                                     ForEach(Array(prop.instructions.enumerated()), id: \.offset) { index, instruction in
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.3)) {
+                                            withMotion(Motion.snappy) {
                                                 if completedSteps.contains(index) {
                                                     completedSteps.remove(index)
                                                 } else {

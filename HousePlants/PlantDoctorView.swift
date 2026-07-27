@@ -278,16 +278,16 @@ struct DiagnosticWizardView: View {
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                             PartSelectionCard(part: .leaves, icon: "leaf.fill", color: .green, selected: selectedPart == .leaves) {
-                                withAnimation(.spring()) { selectedPart = .leaves }
+                                withMotion(Motion.bouncy) { selectedPart = .leaves }
                             }
                             PartSelectionCard(part: .stems, icon: "laurel.leading", color: .brown, selected: selectedPart == .stems) {
-                                withAnimation(.spring()) { selectedPart = .stems }
+                                withMotion(Motion.bouncy) { selectedPart = .stems }
                             }
                             PartSelectionCard(part: .wholePlant, icon: "tree.fill", color: .orange, selected: selectedPart == .wholePlant) {
-                                withAnimation(.spring()) { selectedPart = .wholePlant }
+                                withMotion(Motion.bouncy) { selectedPart = .wholePlant }
                             }
                             PartSelectionCard(part: .pests, icon: "ant.fill", color: .red, selected: selectedPart == .pests) {
-                                withAnimation(.spring()) { selectedPart = .pests }
+                                withMotion(Motion.bouncy) { selectedPart = .pests }
                             }
                         }
                         .padding(.horizontal, 20)
@@ -302,7 +302,7 @@ struct DiagnosticWizardView: View {
                                     .tracking(2)
                                 
                                 VStack(spacing: 12) {
-                                    ForEach(filteredSymptoms) { symptom in
+                                    ForEach(Array(filteredSymptoms.enumerated()), id: \.element.id) { index, symptom in
                                         NavigationLink(destination: SymptomDetailView(symptom: symptom)) {
                                             HStack(spacing: 16) {
                                                 Image(systemName: symptom.icon)
@@ -328,11 +328,15 @@ struct DiagnosticWizardView: View {
                                             .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.claudeBorder, lineWidth: 1))
                                         }
                                         .buttonStyle(InteractiveCardButtonStyle())
+                                        .staggeredAppear(index: index, step: 0.04, cap: 8, offset: 10, tilt: 0)
                                     }
                                 }
+                                // Re-keyed per body part so switching selection re-deals the
+                                // symptom list instead of swapping rows silently.
+                                .id(selectedPart)
                             }
                             .padding(.horizontal, 20)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                            .transition(.popOpen)
                         }
                         }
                         .frame(width: geometry.size.width)
@@ -358,7 +362,11 @@ struct PartSelectionCard: View {
                 Image(systemName: icon)
                     .font(.system(size: 30))
                     .foregroundStyle(selected ? .white : color)
-                
+                    // The chosen part's glyph grows and tips, so the selected card is
+                    // obvious from the corner of the eye as well as by colour.
+                    .scaleEffect(selected ? 1.14 : 1)
+                    .rotationEffect(.degrees(selected ? -7 : 0))
+
                 Text(part.rawValue)
                     .font(.headline)
                     .foregroundStyle(selected ? .white : .primary)
@@ -367,12 +375,14 @@ struct PartSelectionCard: View {
             .frame(height: 100)
             .background(selected ? color : Color(UIColor.secondarySystemGroupedBackground))
             .cornerRadius(16)
-            .shadow(color: selected ? color.opacity(0.4) : Color.primary.opacity(0.05), radius: 5, x: 0, y: 2)
+            .shadow(color: selected ? color.opacity(0.4) : Color.primary.opacity(0.05), radius: selected ? 10 : 5, x: 0, y: selected ? 4 : 2)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(selected ? Color.clear : color.opacity(0.2), lineWidth: 1)
             )
+            .motion(Motion.playful, value: selected)
         }
+        .buttonStyle(SquishButtonStyle(scale: 0.94, rotation: -2, haptic: false))
     }
 }
 

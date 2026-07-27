@@ -285,7 +285,7 @@ struct CustomSegmentedToggle: View {
         HStack(spacing: 0) {
             ForEach(FertilizerCalculatorView.Season.allCases) { item in
                 Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    withMotion(Motion.bouncy) {
                         selection = item
                     }
                 }) {

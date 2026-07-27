@@ -2,10 +2,15 @@ import SwiftUI
 
 struct StreakView: View {
     @Environment(DataLoader.self) var dataLoader
+    @Environment(CareExperienceStore.self) private var careExperience
     @Environment(\.dismiss) var dismiss
     
     var streakCount: Int {
         dataLoader.userProfile?.currentStreak ?? 0
+    }
+
+    var rhythm: CareRhythmSummary {
+        careExperience.rhythm()
     }
     
     var body: some View {
@@ -17,7 +22,7 @@ struct StreakView: View {
                     VStack(spacing: 28) {
                         // A static hero keeps the sheet calm and lets the number carry the emphasis.
                         VStack(spacing: 12) {
-                            Text(streakCount == 1 ? "Your first day" : "Your current rhythm")
+                            Text(rhythm.activeDays == 0 ? "A fresh week" : "Your current rhythm")
                                 .font(.claudeSans(size: 15, weight: .semibold))
                                 .foregroundStyle(Color.claudeSecondaryText)
                             ZStack {
@@ -32,13 +37,13 @@ struct StreakView: View {
                             Text("\(streakCount)")
                                 .font(.system(size: 50, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.claudePrimaryText)
-                            Text(streakCount == 1 ? "day streak" : "day streak")
+                            Text("days in a row")
                                 .font(.claudeSerif(size: 24, weight: .bold))
                                 .foregroundStyle(Color.claudePrimaryText)
                         }
                         .padding(.top, 24)
 
-                        Text(streakCount > 0 ? "Come back tomorrow to keep your streak growing." : "Care for a plant today to start your streak.")
+                        Text(rhythm.activeDays > 0 ? "Every caring moment helps your jungle grow. Missed days never take progress away." : "Care for a plant today to begin your rhythm.")
                             .font(.claudeSans(size: 16))
                             .foregroundStyle(Color.claudeSecondaryText)
                             .multilineTextAlignment(.center)
@@ -52,7 +57,7 @@ struct StreakView: View {
                                     .font(.claudeSans(size: 16, weight: .bold))
                                     .foregroundStyle(Color.claudePrimaryText)
                                 Spacer()
-                                Text("\(streakCount) day\(streakCount == 1 ? "" : "s") active")
+                                Text("\(rhythm.activeDays) day\(rhythm.activeDays == 1 ? "" : "s") active")
                                     .font(.claudeSans(size: 13, weight: .medium))
                                     .foregroundStyle(Color.claudeSecondaryText)
                             }
@@ -83,7 +88,7 @@ struct StreakView: View {
                     .padding(.bottom, 28)
                 }
             }
-            .navigationTitle("Your Streak")
+            .navigationTitle("Care Rhythm")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -152,13 +157,20 @@ struct DayCircle: View {
 }
 
 struct MilestoneConfetti: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         ZStack {
-            ForEach(0..<50, id: \.self) { _ in
-                ConfettiPiece()
+            // Reduce Motion suppresses the burst entirely rather than trying to
+            // tone it down — 50 pieces flying across the screen has no calm version.
+            if !reduceMotion {
+                ForEach(0..<50, id: \.self) { _ in
+                    ConfettiPiece()
+                }
             }
         }
         .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 

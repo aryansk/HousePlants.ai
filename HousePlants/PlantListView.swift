@@ -238,7 +238,7 @@ struct PlantListView: View {
                     Spacer(minLength: 4)
 
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withMotion(Motion.fade) {
                             let next: CatalogLayout = catalogLayout == .grid ? .list : .grid
                             catalogLayoutRaw = next.rawValue
                         }
@@ -290,13 +290,14 @@ struct PlantListView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 16) {
-                    ForEach(recommendations) { plant in
+                    ForEach(Array(recommendations.enumerated()), id: \.element.id) { index, plant in
                         NavigationLink(destination: PlantDetailView(plant: plant)) {
                             ModernPlantCard(plant: plant, isFeatured: true)
                                 .frame(width: 224)
                         }
                         .buttonStyle(InteractiveCardButtonStyle())
                         .accessibilityIdentifier("catalog.card.featured.\(plant.id)")
+                        .staggeredAppear(index: index, step: 0.06, cap: 4, animation: Motion.bouncy, offset: 10, tilt: 2)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -323,8 +324,9 @@ struct PlantListView: View {
                     ) {
                         selectCategory(nil)
                     }
+                    .staggeredAppear(index: 0, step: 0.04, cap: 6, animation: Motion.playful, offset: 0, tilt: 3)
 
-                    ForEach(dataLoader.categories) { category in
+                    ForEach(Array(dataLoader.categories.enumerated()), id: \.element.id) { index, category in
                         ModernCategoryPill(
                             title: category.name,
                             icon: category.icon,
@@ -333,6 +335,8 @@ struct PlantListView: View {
                         ) {
                             selectCategory(category.id)
                         }
+                        // +1 so the hard-coded "All" pill reads as index 0 of the row.
+                        .staggeredAppear(index: index + 1, step: 0.04, cap: 6, animation: Motion.playful, offset: 0, tilt: 3)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -367,6 +371,8 @@ struct PlantListView: View {
                 Text("\(filteredPlants.count)")
                     .font(.claudeSans(size: 12, weight: .black))
                     .foregroundStyle(IndieHousePalette.ink)
+                    .contentTransition(.numericText())
+                    .popOnChange(of: filteredPlants.count)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .background(IndieHousePalette.pink)
@@ -380,15 +386,17 @@ struct PlantListView: View {
                     .padding(.horizontal, 20)
             } else if usesListLayout {
                 LazyVStack(spacing: 14) {
-                    ForEach(filteredPlants) { plant in
+                    ForEach(Array(filteredPlants.enumerated()), id: \.element.id) { index, plant in
                         NavigationLink(destination: PlantDetailView(plant: plant)) {
                             CatalogPlantRow(plant: plant)
                         }
                         .buttonStyle(InteractiveCardButtonStyle())
                         .accessibilityIdentifier("catalog.card.result.\(plant.id)")
+                        .staggeredAppear(index: index, step: 0.03, cap: 8, offset: 12)
                     }
                 }
                 .padding(.horizontal, 20)
+                .id(resultsIdentity)
             } else {
                 LazyVGrid(
                     columns: [
@@ -397,17 +405,26 @@ struct PlantListView: View {
                     ],
                     spacing: 14
                 ) {
-                    ForEach(filteredPlants) { plant in
+                    ForEach(Array(filteredPlants.enumerated()), id: \.element.id) { index, plant in
                         NavigationLink(destination: PlantDetailView(plant: plant)) {
                             ModernPlantCard(plant: plant, isFeatured: false)
                         }
                         .buttonStyle(InteractiveCardButtonStyle())
                         .accessibilityIdentifier("catalog.card.result.\(plant.id)")
+                        .staggeredAppear(index: index, step: 0.03, cap: 8)
                     }
                 }
                 .padding(.horizontal, 20)
+                .id(resultsIdentity)
             }
         }
+    }
+
+    /// Changing category, difficulty or layout replaces this identity, which resets every
+    /// card's entrance state so the results visibly re-deal instead of mutating in place.
+    /// Deliberately excludes the search text — re-dealing on every keystroke would be noise.
+    private var resultsIdentity: String {
+        "\(selectedCategory ?? "all")-\(selectedDifficulty ?? "any")-\(petSafeOnly)-\(favoritesOnly)-\(usesListLayout)"
     }
 
     private var recommendationSubtitle: String {
@@ -477,13 +494,13 @@ struct PlantListView: View {
 
     private func selectCategory(_ category: String?) {
         HapticManager.shared.playImpact(style: .light)
-        withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+        withMotion(Motion.bouncy) {
             selectedCategory = category
         }
     }
 
     private func clearRefinements() {
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withMotion(Motion.fade) {
             selectedCategory = nil
             selectedDifficulty = nil
             petSafeOnly = false
@@ -677,7 +694,7 @@ struct DiscoverSearchBar: View {
                     .tint(Color.claudeAccent)
                     .accessibilityLabel("Search plant catalog")
                     .onChange(of: searchFieldFocused.wrappedValue) { _, isFocused in
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                        withMotion(Motion.snappy) {
                             isSearchFocused = isFocused
                         }
                     }
@@ -741,7 +758,7 @@ struct DiscoverSearchBar: View {
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.82), value: isSearchFocused)
+        .motion(Motion.snappy, value: isSearchFocused)
     }
 }
 
@@ -915,11 +932,17 @@ struct ModernCategoryPill: View {
         Button(action: action) {
             HStack(spacing: 7) {
                 if let icon {
-                    if icon.count == 1 {
-                        Text(icon).font(.caption)
-                    } else {
-                        Image(systemName: icon).font(.caption)
+                    Group {
+                        if icon.count == 1 {
+                            Text(icon).font(.caption)
+                        } else {
+                            Image(systemName: icon).font(.caption)
+                        }
                     }
+                    // The glyph tips and swells on selection so the active pill has a
+                    // hand-stuck-on feel rather than just a colour change.
+                    .rotationEffect(.degrees(isSelected ? -8 : 0))
+                    .scaleEffect(isSelected ? 1.15 : 1)
                 }
                 Text(title)
                     .font(.claudeSans(size: 13, weight: .bold))
@@ -938,8 +961,9 @@ struct ModernCategoryPill: View {
                 }
             }
             .foregroundStyle(isSelected ? .white : Color.claudePrimaryText)
+            .motion(Motion.bouncy, value: isSelected)
         }
-        .buttonStyle(BubblingButtonStyle())
+        .buttonStyle(PaperPressButtonStyle(shadowOffset: 3, haptic: false))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint("Filters the catalog by \(title)")
     }

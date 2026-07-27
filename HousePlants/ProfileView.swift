@@ -104,7 +104,7 @@ struct ProfileView: View {
                                 .onChange(of: selectedItem) { oldItem, newItem in
                                     Task {
                                         if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                            withAnimation {
+                                            withMotion(Motion.snappy) {
                                                 dataLoader.updateProfileImage(imageData: data)
                                             }
                                         }
@@ -139,7 +139,7 @@ struct ProfileView: View {
                                 
                                     HStack(spacing: 12) {
                                         StatView(label: "Plants", value: "\(plantCount)")
-                                        StatView(label: "Streak", value: "\(dataLoader.userProfile?.currentStreak ?? 0)d")
+                                        StatView(label: "Care rhythm", value: "\(dataLoader.userProfile?.currentStreak ?? 0)d")
                                         StatView(label: "Level", value: gardenerLevel)
                                     }
                                     .padding(.top, 4)
@@ -256,7 +256,7 @@ struct ProfileView: View {
                     
                         Section(header: Text("App Experience").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
                             Button(action: {
-                                withAnimation { hasCompletedOnboarding = false }
+                                withMotion(Motion.snappy) { hasCompletedOnboarding = false }
                             }) {
                                 Label("Restart Onboarding", systemImage: "arrow.clockwise.circle.fill")
                                     .foregroundColor(Color.claudeAccent)
@@ -293,7 +293,7 @@ struct ProfileView: View {
                                 ForEach(cuteAvatars, id: \.self) { avatar in
                                     Button(action: {
                                         if let image = UIImage(named: avatar), let data = image.pngData() {
-                                            withAnimation {
+                                            withMotion(Motion.snappy) {
                                                 dataLoader.updateProfileImage(imageData: data)
                                             }
                                         }
@@ -340,7 +340,7 @@ struct ProfileView: View {
         }
 
         // Reset app state back to onboarding
-        withAnimation {
+        withMotion(Motion.snappy) {
             hasCompletedOnboarding = false
         }
     }
@@ -383,7 +383,7 @@ struct AchievementsView: View {
             AchievementBadge(name: "Green Thumb", icon: "👍", description: "Reach a 90 health score", current: healthiestScore, target: 90),
             AchievementBadge(name: "Jungle Keeper", icon: "🌳", description: "Grow a collection of 5 plants", current: plants.count, target: 5),
             AchievementBadge(name: "Plant Scout", icon: "🔎", description: "Save 5 catalog favorites", current: favoriteCount, target: 5),
-            AchievementBadge(name: "Consistent Carer", icon: "🔥", description: "Build a 7-day care streak", current: streak, target: 7)
+            AchievementBadge(name: "Consistent Carer", icon: "🌿", description: "Care for plants on 7 days", current: streak, target: 7)
         ]
     }
 

@@ -265,3 +265,99 @@ struct PlantCatalogMatcherTests {
         #expect(PlantCatalogMatcher.match(scientificName: "Quercus robur", in: catalog) == nil)
     }
 }
+
+// MARK: - Care experience
+
+struct CareExperienceStoreTests {
+    private func timestamp(_ date: Date) -> String {
+        DataLoader.isoFormatter.string(from: date)
+    }
+
+    @Test func sprigStagesUseGentleMonotonicThresholds() {
+        #expect(SprigStage.from(actionCount: 0) == .seedling)
+        #expect(SprigStage.from(actionCount: 5) == .sprout)
+        #expect(SprigStage.from(actionCount: 15) == .leafy)
+        #expect(SprigStage.from(actionCount: 40) == .blooming)
+        #expect(SprigStage.from(actionCount: 100) == .blooming)
+    }
+
+    @Test func migrationDerivesWateringEventsAndLegacyDates() throws {
+        let suite = try #require(UserDefaults(suiteName: "CareExperienceStoreTests.migration"))
+        suite.removePersistentDomain(forName: "CareExperienceStoreTests.migration")
+        let day = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 7, day: 26)))
+        let store = CareExperienceStore(defaults: suite, nowProvider: { day })
+        let watering = timestamp(day.addingTimeInterval(-86_400))
+
+        store.bootstrap(
+            plantWateringHistory: ["p1": [watering, watering], "p2": [timestamp(day)]],
+            legacyStreakDates: [timestamp(day.addingTimeInterval(-2 * 86_400))]
+        )
+
+        #expect(store.lifetimeActionCount == 2)
+        #expect(store.events.map(\.plantID).sorted() == ["p1", "p2"])
+        #expect(store.rhythm(now: day).activeDays == 3)
+    }
+
+    @Test func duplicatePlantDayDoesNotAdvanceProgress() throws {
+        let suite = try #require(UserDefaults(suiteName: "CareExperienceStoreTests.duplicates"))
+        suite.removePersistentDomain(forName: "CareExperienceStoreTests.duplicates")
+        let day = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 7, day: 26)))
+        let store = CareExperienceStore(defaults: suite, nowProvider: { day })
+
+        #expect(store.recordEligibleWatering(plantID: "p1", occurredAt: timestamp(day), transactionID: "one") != nil)
+        #expect(store.recordEligibleWatering(plantID: "p1", occurredAt: timestamp(day.addingTimeInterval(60)), transactionID: "two") == nil)
+        #expect(store.lifetimeActionCount == 1)
+    }
+
+    @Test func undoRemovesActionAndRecomputesStage() throws {
+        let suite = try #require(UserDefaults(suiteName: "CareExperienceStoreTests.undo"))
+        suite.removePersistentDomain(forName: "CareExperienceStoreTests.undo")
+        let day = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 7, day: 26)))
+        let store = CareExperienceStore(defaults: suite, nowProvider: { day })
+
+        for index in 0..<5 {
+            let eventDay = day.addingTimeInterval(Double(index) * 86_400)
+            _ = store.recordEligibleWatering(plantID: "p\(index)", occurredAt: timestamp(eventDay), transactionID: "event-\(index)")
+        }
+        #expect(store.stage == .sprout)
+        store.undo(eventID: "event-4")
+        #expect(store.stage == .seedling)
+        #expect(store.lifetimeActionCount == 4)
+    }
+
+    @Test func rhythmCountsActiveDaysInTheLastWeek() throws {
+        let suite = try #require(UserDefaults(suiteName: "CareExperienceStoreTests.rhythm"))
+        suite.removePersistentDomain(forName: "CareExperienceStoreTests.rhythm")
+        let calendar = Calendar.current
+        let today = try #require(calendar.date(from: DateComponents(year: 2026, month: 7, day: 26)))
+        let store = CareExperienceStore(defaults: suite, calendar: calendar, nowProvider: { today })
+
+        _ = store.recordEligibleWatering(plantID: "p1", occurredAt: timestamp(today), transactionID: "today")
+        _ = store.recordEligibleWatering(plantID: "p2", occurredAt: timestamp(today.addingTimeInterval(-86_400)), transactionID: "yesterday")
+        _ = store.recordEligibleWatering(plantID: "p3", occurredAt: timestamp(today.addingTimeInterval(-3 * 86_400)), transactionID: "three-days-ago")
+
+        let rhythm = store.rhythm(now: today)
+        #expect(rhythm.activeDays == 3)
+        #expect(rhythm.currentRun == 2)
+    }
+
+    @Test func recapUsesCalendarWeekBoundaryAndMostCaredPlant() throws {
+        let suite = try #require(UserDefaults(suiteName: "CareExperienceStoreTests.recap"))
+        suite.removePersistentDomain(forName: "CareExperienceStoreTests.recap")
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "en_US_POSIX")
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let wednesday = try #require(calendar.date(from: DateComponents(year: 2026, month: 7, day: 29)))
+        let store = CareExperienceStore(defaults: suite, calendar: calendar, nowProvider: { wednesday })
+
+        _ = store.recordEligibleWatering(plantID: "p1", occurredAt: timestamp(wednesday), transactionID: "recap-1")
+        _ = store.recordEligibleWatering(plantID: "p2", occurredAt: timestamp(wednesday.addingTimeInterval(-86_400)), transactionID: "recap-2")
+        _ = store.recordEligibleWatering(plantID: "p2", occurredAt: timestamp(wednesday.addingTimeInterval(-2 * 86_400)), transactionID: "recap-3")
+
+        let recap = try #require(store.recap(now: wednesday))
+        #expect(recap.activeDays == 3)
+        #expect(recap.actionCount == 3)
+        #expect(recap.plantsCaredFor == 2)
+        #expect(recap.mostCaredPlantID == "p2")
+    }
+}

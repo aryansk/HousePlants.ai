@@ -55,4 +55,34 @@ final class HousePlantsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Toxicity Checker"].waitForExistence(timeout: 3))
         XCTAssertFalse(app.buttons["Watering Guide"].exists)
     }
+
+    @MainActor
+    func testEmptyCollectionStartsOnDiscover() throws {
+        XCTAssertTrue(app.tabBars.buttons["Discover"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.tabBars.buttons["Discover"].isSelected)
+    }
+
+    @MainActor
+    func testPopulatedCollectionOpensTodayHero() throws {
+        app.launchArguments.append("-uiTestSeedJungle")
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.buttons["My Jungle"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.tabBars.buttons["My Jungle"].isSelected)
+        XCTAssertTrue(app.descendants(matching: .any)["today.hero"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["today.sprig"].exists)
+        XCTAssertTrue(app.buttons["today.primaryCareAction"].exists)
+    }
+
+    @MainActor
+    func testOnboardingUsesSprigEntryInsteadOfQuestionnaire() throws {
+        let onboardingApp = XCUIApplication()
+        onboardingApp.launchArguments = ["-hasCompletedOnboarding", "NO"]
+        onboardingApp.launch()
+
+        XCTAssertTrue(onboardingApp.staticTexts["onboarding.title"].waitForExistence(timeout: 8))
+        XCTAssertTrue(onboardingApp.buttons["onboarding.enter"].exists)
+        XCTAssertTrue(onboardingApp.descendants(matching: .any)["onboarding.sprigEntry"].exists)
+        XCTAssertFalse(onboardingApp.staticTexts["What brings you here?"].exists)
+    }
 }

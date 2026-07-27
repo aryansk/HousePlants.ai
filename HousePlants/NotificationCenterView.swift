@@ -72,7 +72,7 @@ struct NotificationCenterView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if !dataLoader.notifications.isEmpty {
                         Button("Clear All") {
-                            withAnimation {
+                            withMotion(Motion.snappy) {
                                 dataLoader.clearNotifications()
                             }
                         }

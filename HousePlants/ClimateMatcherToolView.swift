@@ -131,7 +131,7 @@ struct ClimateMatcherToolView: View {
                         }
                         
                         Button(action: {
-                            withAnimation(.spring()) {
+                            withMotion(Motion.bouncy) {
                                 showingRecommendations = true
                             }
                         }) {

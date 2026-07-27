@@ -2,8 +2,11 @@ import SwiftUI
 
 struct MyJungleView: View {
     @Environment(DataLoader.self) var dataLoader
+    @Environment(CareExperienceStore.self) private var careExperience
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Namespace private var filterNamespace
+    @Namespace private var layoutNamespace
     @AppStorage("jungleGridView") private var isGridView = true
     @State private var sortOption: SortOption = .name
     @State private var searchText = ""
@@ -12,6 +15,9 @@ struct MyJungleView: View {
     @State private var activeSheet: JungleSheet? = nil
     @State private var activeToast: ActiveToast? = nil
     @State private var toastTask: Task<Void, Never>? = nil
+    @State private var showRecap = false
+    @State private var lastWateringTransaction: WateringTransaction?
+    @State private var undoTask: Task<Void, Never>?
 
     /// Single sheet driver for the whole collection, replacing a per-card `.sheet` pair.
     enum JungleSheet: Identifiable {
@@ -27,7 +33,7 @@ struct MyJungleView: View {
     }
 
     enum ActiveToast {
-        case watered, fertilized, misted, rotated
+        case watered, fertilized, misted, rotated, sprigTip
 
         var message: String {
             switch self {
@@ -35,6 +41,7 @@ struct MyJungleView: View {
             case .fertilized: return "All plants fertilized!"
             case .misted:    return "All plants misted!"
             case .rotated:   return "Rotation reminder set!"
+            case .sprigTip:  return "Sprig says: check the underside of leaves for tiny pests."
             }
         }
         var icon: String {
@@ -43,6 +50,7 @@ struct MyJungleView: View {
             case .fertilized: return "leaf.circle.fill"
             case .misted:    return "humidity.fill"
             case .rotated:   return "arrow.trianglehead.2.clockwise.rotate.90"
+            case .sprigTip:  return "sparkles"
             }
         }
         var color: Color {
@@ -51,6 +59,7 @@ struct MyJungleView: View {
             case .fertilized: return .green
             case .misted:    return Color(red: 0.1, green: 0.7, blue: 0.75)
             case .rotated:   return .orange
+            case .sprigTip:  return IndieHousePalette.pink
             }
         }
     }
@@ -66,10 +75,11 @@ struct MyJungleView: View {
     }
     
     enum SortOption {
-        case name, difficulty, lastWatered, health
-        
+        case manual, name, difficulty, lastWatered, health
+
         var label: String {
             switch self {
+            case .manual: return "My Order"
             case .name: return "Name"
             case .difficulty: return "Difficulty"
             case .lastWatered: return "Last Watered"
@@ -133,6 +143,13 @@ struct MyJungleView: View {
         
         // Apply sorting
         switch sortOption {
+        case .manual:
+            // Mirror the order of `profile.myJungle` itself — the array drag-to-reorder
+            // rewrites. Built as a lookup so this stays O(n) rather than O(n²).
+            let position = Dictionary(
+                uniqueKeysWithValues: profile.myJungle.enumerated().map { ($0.element.plantId, $0.offset) }
+            )
+            return plants.sorted { (position[$0.id] ?? .max) < (position[$1.id] ?? .max) }
         case .name:
             return plants.sorted { $0.commonName < $1.commonName }
         case .difficulty:
@@ -237,11 +254,7 @@ struct MyJungleView: View {
 
                             HStack(spacing: 12) {
                                 Button(action: { showStreakSheet = true }) {
-                                    if let streak = dataLoader.userProfile?.currentStreak {
-                                        StreakBadge(streakCount: streak)
-                                    } else {
-                                        StreakBadge(streakCount: 0)
-                                    }
+                                    CareRhythmBadge(rhythm: careExperience.rhythm())
                                 }
                                 .buttonStyle(.plain)
                                 .opacity(headerVisible ? 1 : 0)
@@ -250,6 +263,7 @@ struct MyJungleView: View {
 
                                 Menu {
                                     Picker("Sort By", selection: $sortOption) {
+                                        Text("My Order").tag(SortOption.manual)
                                         Text("Name").tag(SortOption.name)
                                         Text("Difficulty").tag(SortOption.difficulty)
                                         Text("Last Watered").tag(SortOption.lastWatered)
@@ -272,12 +286,27 @@ struct MyJungleView: View {
                         .padding(.top, 16)
                         .padding(.bottom, 12)
                         .onAppear {
-                            withAnimation { headerVisible = true }
+                            withMotion(Motion.gentle) { headerVisible = true }
                         }
                         
                         GeometryReader { geometry in
                             ScrollView {
                                 VStack(spacing: 18) {
+                                if hasCollection {
+                                    TodayCareHero(
+                                        tasks: careTasks,
+                                        dataLoader: dataLoader,
+                                        onWater: waterPrimary,
+                                        onViewAll: {
+                                            withMotion(Motion.bouncy) {
+                                                filterOption = .needsWatering
+                                            }
+                                        },
+                                        onShowRecap: { showRecap = true },
+                                        onSprigTap: { showToast(.sprigTip) }
+                                    )
+                                }
+
                                 // Stats Dashboard
                                 if hasCollection {
                                     VStack(alignment: .leading, spacing: 0) {
@@ -287,7 +316,7 @@ struct MyJungleView: View {
                                             averageHealth: averageHealth,
                                             onWaterTap: {
                                                 HapticManager.shared.playSelection()
-                                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                withMotion(Motion.bouncy) {
                                                     filterOption = plantsNeedingWater > 0 ? .needsWatering : .all
                                                 }
                                             }
@@ -300,92 +329,11 @@ struct MyJungleView: View {
                                     }
                                     .transition(.move(edge: .top).combined(with: .opacity))
                                     .onAppear {
-                                        withAnimation { dashboardVisible = true }
+                                        withMotion(Motion.gentle) { dashboardVisible = true }
                                     }
                                 }
                                 
                                 if hasCollection {
-                                // Today's Care — one-tap checklist, or a small celebration when done
-                                if searchText.isEmpty && filterOption == .all {
-                                    if !careTasks.isEmpty {
-                                        VStack(alignment: .leading, spacing: 12) {
-                                            HStack {
-                                                IndieCutLabel(text: "Today's care", color: IndieHousePalette.yellow)
-                                                Spacer()
-                                                Text("\(careTasks.count) task\(careTasks.count == 1 ? "" : "s")")
-                                                    .font(.claudeSans(size: 12, weight: .bold))
-                                                    .foregroundStyle(Color.claudeSecondaryText)
-                                            }
-
-                                            VStack(spacing: 0) {
-                                                ForEach(Array(careTasks.prefix(4).enumerated()), id: \.element.id) { index, plant in
-                                                    JungleTaskRow(plant: plant)
-                                                    if index < min(careTasks.count, 4) - 1 {
-                                                        Divider().overlay(IndieHousePalette.ink.opacity(0.15))
-                                                    }
-                                                }
-
-                                                if careTasks.count > 4 {
-                                                    Button(action: {
-                                                        HapticManager.shared.playSelection()
-                                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                            filterOption = .needsWatering
-                                                        }
-                                                    }) {
-                                                        Text("Show all \(careTasks.count) thirsty plants")
-                                                            .font(.claudeSans(size: 13, weight: .bold))
-                                                            .foregroundStyle(Color.claudeAccent)
-                                                            .frame(maxWidth: .infinity)
-                                                            .padding(.vertical, 12)
-                                                    }
-                                                    .buttonStyle(.plain)
-                                                }
-                                            }
-                                            .indiePaperCard(
-                                                fill: Color.claudeSecondaryBackground,
-                                                border: IndieHousePalette.ink,
-                                                shadow: IndieHousePalette.yellow,
-                                                rotation: -0.3,
-                                                cornerRadius: 2,
-                                                shadowOffset: 4
-                                            )
-                                            .padding(.trailing, 4)
-                                            .padding(.bottom, 4)
-                                        }
-                                        .padding(.horizontal, 20)
-                                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: careTasks.map(\.id))
-                                        .transition(.opacity.combined(with: .move(edge: .top)))
-                                    } else {
-                                        HStack(spacing: 12) {
-                                            Image(systemName: "checkmark.seal.fill")
-                                                .font(.title2)
-                                                .foregroundStyle(IndieHousePalette.green)
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text("All caught up")
-                                                    .font(.claudeSerif(size: 17, weight: .bold))
-                                                    .foregroundStyle(Color.claudePrimaryText)
-                                                Text("Every plant is watered and happy. The jungle thanks you 🌿")
-                                                    .font(.claudeSans(size: 12))
-                                                    .foregroundStyle(Color.claudeSecondaryText)
-                                            }
-                                            Spacer()
-                                        }
-                                        .padding(14)
-                                        .indiePaperCard(
-                                            fill: Color.claudeSecondaryBackground,
-                                            border: IndieHousePalette.ink,
-                                            shadow: IndieHousePalette.green,
-                                            rotation: -0.3,
-                                            cornerRadius: 2,
-                                            shadowOffset: 4
-                                        )
-                                        .padding(.trailing, 4)
-                                        .padding(.bottom, 4)
-                                        .padding(.horizontal, 20)
-                                        .transition(.opacity.combined(with: .move(edge: .top)))
-                                    }
-                                }
-
                                 // Search Bar
                                 if showsSearch {
                                 HStack {
@@ -399,7 +347,7 @@ struct MyJungleView: View {
                                         
                                         if !searchText.isEmpty {
                                             Button(action: {
-                                                withAnimation {
+                                                withMotion(Motion.snappy) {
                                                     searchText = ""
                                                 }
                                             }) {
@@ -419,16 +367,21 @@ struct MyJungleView: View {
                                 // Filter Pills
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 10) {
-                                        ForEach([FilterOption.all, .needsWatering, .healthy, .needsAttention], id: \.label) { filter in
+                                        ForEach(Array([FilterOption.all, .needsWatering, .healthy, .needsAttention].enumerated()), id: \.element.label) { pillIndex, filter in
                                             let isSelected = filterOption == filter
                                             Button(action: {
-                                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                HapticManager.shared.playSelection()
+                                                withMotion(Motion.bouncy) {
                                                     filterOption = filter
                                                 }
                                             }) {
                                                 HStack(spacing: 6) {
                                                     Image(systemName: filter.icon)
                                                         .font(.system(size: 11, weight: .bold))
+                                                        // The icon leans back as its pill becomes active,
+                                                        // giving the selection a small physical kick.
+                                                        .rotationEffect(.degrees(isSelected ? -6 : 0))
+                                                        .scaleEffect(isSelected ? 1.12 : 1)
                                                     Text(filter.label)
                                                         .font(.subheadline)
                                                         .fontWeight(.bold)
@@ -457,8 +410,9 @@ struct MyJungleView: View {
                                                 .padding(.trailing, 3)
                                                 .padding(.bottom, 3)
                                             }
-                                            .buttonStyle(.plain)
+                                            .buttonStyle(PaperPressButtonStyle(shadowOffset: 3, haptic: false))
                                             .accessibilityAddTraits(isSelected ? .isSelected : [])
+                                            .staggeredAppear(index: pillIndex, step: 0.05, animation: Motion.playful, offset: 0, tilt: 4)
                                         }
                                     }
                                     .padding(.horizontal)
@@ -535,33 +489,46 @@ struct MyJungleView: View {
 
                                     if !dynamicTypeSize.isAccessibilitySize {
                                     HStack(spacing: 2) {
+                                        // The selected chip is a single shared rectangle that slides
+                                        // between the two options, so the control reads as one moving
+                                        // part rather than two independent highlights.
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                isGridView = true
-                                            }
+                                            HapticManager.shared.playSelection()
+                                            withMotion(Motion.bouncy) { isGridView = true }
                                         }) {
                                             Image(systemName: "square.grid.2x2.fill")
                                                 .font(.system(size: 14, weight: .semibold))
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 7)
                                                 .foregroundStyle(isGridView ? .white : Color.claudeSecondaryText)
-                                                .background(Rectangle().fill(isGridView ? Color.claudeAccent : Color.clear))
+                                                .background {
+                                                    if isGridView {
+                                                        Rectangle()
+                                                            .fill(Color.claudeAccent)
+                                                            .matchedGeometryEffect(id: "layout_toggle_bg", in: layoutNamespace)
+                                                    }
+                                                }
                                         }
                                         .buttonStyle(.plain)
                                         .accessibilityLabel("Grid view")
                                         .accessibilityAddTraits(isGridView ? .isSelected : [])
 
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                isGridView = false
-                                            }
+                                            HapticManager.shared.playSelection()
+                                            withMotion(Motion.bouncy) { isGridView = false }
                                         }) {
                                             Image(systemName: "list.bullet")
                                                 .font(.system(size: 14, weight: .semibold))
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 7)
                                                 .foregroundStyle(!isGridView ? .white : Color.claudeSecondaryText)
-                                                .background(Rectangle().fill(!isGridView ? Color.claudeAccent : Color.clear))
+                                                .background {
+                                                    if !isGridView {
+                                                        Rectangle()
+                                                            .fill(Color.claudeAccent)
+                                                            .matchedGeometryEffect(id: "layout_toggle_bg", in: layoutNamespace)
+                                                    }
+                                                }
                                         }
                                         .buttonStyle(.plain)
                                         .accessibilityLabel("List view")
@@ -583,7 +550,7 @@ struct MyJungleView: View {
                                     EmptyJungleView(
                                         isSearching: hasCollection && (!searchText.isEmpty || filterOption != .all),
                                         clearFilters: hasCollection ? {
-                                            withAnimation {
+                                            withMotion(Motion.snappy) {
                                                 searchText = ""
                                                 filterOption = .all
                                             }
@@ -595,29 +562,56 @@ struct MyJungleView: View {
                                         Group {
                                             if usesGridLayout {
                                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
-                                                    ForEach(myPlants) { plant in
+                                                    ForEach(Array(myPlants.enumerated()), id: \.element.id) { index, plant in
                                                         NavigationLink(destination: PlantDetailView(plant: plant)) {
                                                             EnhancedPlantCard(plant: plant,
                                                                               onManage: { activeSheet = .care(plant) },
                                                                               onInsights: { presentInsights(for: plant) })
                                                         }
                                                         .buttonStyle(ScaleButtonStyle())
+                                                        .staggeredAppear(index: index)
+                                                        .careSwipeActions(plant: plant, showToast: showToast)
                                                     }
+                                                    // Dragging only means something when the collection is
+                                                    // in manual order. Under Name or Health the position is
+                                                    // derived, so a drop would snap straight back.
+                                                    .reorderable(isEnabled: sortOption == .manual)
                                                 }
                                                 .padding(.horizontal)
                                             } else {
                                                 LazyVStack(spacing: 12) {
-                                                    ForEach(myPlants) { plant in
+                                                    ForEach(Array(myPlants.enumerated()), id: \.element.id) { index, plant in
                                                         NavigationLink(destination: PlantDetailView(plant: plant)) {
                                                             EnhancedJungleListRow(plant: plant)
                                                         }
                                                         .buttonStyle(ScaleButtonStyle())
+                                                        .staggeredAppear(index: index, step: 0.035)
+                                                        .careSwipeActions(plant: plant, showToast: showToast)
                                                     }
+                                                    .reorderable(isEnabled: sortOption == .manual)
                                                 }
                                                 .padding(.horizontal)
                                             }
                                         }
-                                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.95)), removal: .opacity))
+                                        // Swipe actions and drag-to-reorder both used to require `List`,
+                                        // which this screen can't use — the cut-paper cards need free
+                                        // layout. iOS 27 decouples them from `List` entirely.
+                                        .swipeActionsContainer()
+                                        .reorderContainer(for: Plant.self) { difference in
+                                            // `myPlants` is a filtered, sorted projection, so the drop is
+                                            // resolved against the visible order and then written back to
+                                            // the underlying collection by ID. Plants hidden by the current
+                                            // filter keep their relative position.
+                                            var ordered = myPlants
+                                            difference.apply(to: &ordered)
+                                            dataLoader.reorderJungle(to: ordered.map(\.id))
+                                            HapticManager.shared.playImpact(style: .medium)
+                                        }
+                                        // Re-keying on the filter and layout forces the whole collection to be
+                                        // re-dealt when either changes, so switching filters looks like a fresh
+                                        // hand of cards instead of rows silently swapping in place.
+                                        .id("collection-\(filterOption.label)-\(usesGridLayout)")
+                                        .transition(.safe(.dealtCard, reduceMotion: reduceMotion))
 
                                         if filterOption == .all && searchText.isEmpty {
                                             JungleInsightCard()
@@ -646,26 +640,70 @@ struct MyJungleView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 14)
-                        .background(toast.color)
-                        .overlay(Rectangle().stroke(IndieHousePalette.ink, lineWidth: 1.6))
-                        .background(IndieHousePalette.ink.offset(x: 4, y: 4))
+                        // Floating above the collection, so this is glass rather than
+                        // paper — the painted ink shadow it used to carry made it look
+                        // stuck to the page it's actually hovering over. The tint keeps
+                        // each toast type colour-coded.
+                        .glassOverlaySurface(tint: toast.color)
+                        // The slight angle stays: it's Indie House character, not a
+                        // depth cue, so the material change doesn't affect it.
                         .rotationEffect(.degrees(-0.6))
                         .padding(.bottom, 24)
                     }
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .bottom).combined(with: .opacity),
-                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    .transition(.safe(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom)
+                                .combined(with: .opacity)
+                                .combined(with: .scale(scale: 0.9, anchor: .bottom)),
+                            removal: .move(edge: .bottom).combined(with: .opacity)
+                        ),
+                        reduceMotion: reduceMotion
                     ))
                     .zIndex(100)
                 }
+
+                if let transaction = lastWateringTransaction {
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 12) {
+                            Image(systemName: "drop.fill")
+                            Text("Watered \(dataLoader.plant(for: transaction.plantID)?.commonName ?? "plant")")
+                                .font(.claudeSans(size: 14, weight: .bold))
+                            Spacer(minLength: 0)
+                            Button("Undo") {
+                                if dataLoader.undoWatering(transaction) {
+                                    HapticManager.shared.playImpact(style: .light)
+                                }
+                                withMotion(Motion.bouncy) {
+                                    lastWateringTransaction = nil
+                                }
+                                undoTask?.cancel()
+                            }
+                            .font(.claudeSans(size: 14, weight: .bold))
+                            .foregroundStyle(IndieHousePalette.yellow)
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 13)
+                        // Also a floating overlay. Tinted blue to stay tied to watering.
+                        .glassOverlaySurface(tint: IndieHousePalette.blue)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 24)
+                    }
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(110)
+                    .accessibilityIdentifier("today.undoBanner")
+                }
             }
             .toolbar(.hidden, for: .navigationBar)
-            .onAppear {
-                dataLoader.checkAndUpdateStreak()
-            }
             .sheet(isPresented: $showStreakSheet) {
                 StreakView()
                     .environment(dataLoader)
+                    .environment(careExperience)
+                    // Streak and recap are reflective, full-screen reads rather than
+                    // continuations of a tapped element, so they dissolve in instead of
+                    // sliding — there's no source rectangle for the sheet to grow from.
+                    .navigationTransition(.crossFade)
             }
             .sheet(item: $activeSheet) { sheet in
                 switch sheet {
@@ -677,6 +715,28 @@ struct MyJungleView: View {
                         PlantInsightsView(myPlant: myPlant)
                     }
                     .environment(dataLoader)
+                }
+            }
+            .sheet(isPresented: $showRecap) {
+                JungleRecapView()
+                    .environment(dataLoader)
+                    .environment(careExperience)
+                    .navigationTransition(.crossFade)
+            }
+        }
+    }
+
+    private func waterPrimary(_ plant: Plant) {
+        HapticManager.shared.playImpact(style: .medium)
+        withMotion(Motion.snappy) {
+            guard let transaction = dataLoader.waterPlantTransaction(plantId: plant.id) else { return }
+            lastWateringTransaction = transaction
+            undoTask?.cancel()
+            undoTask = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled else { return }
+                withMotion(Motion.bouncy) {
+                    lastWateringTransaction = nil
                 }
             }
         }
@@ -692,13 +752,13 @@ struct MyJungleView: View {
         // Cancel any in-flight dismissal so a second toast within 2.4s isn't cut short by the
         // first one's timer.
         toastTask?.cancel()
-        withAnimation(.spring(response: 0.45, dampingFraction: 0.78)) {
+        withMotion(Motion.playful) {
             activeToast = toast
         }
         toastTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(2.4))
             guard !Task.isCancelled else { return }
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            withMotion(Motion.gentle) {
                 activeToast = nil
             }
         }
@@ -711,4 +771,5 @@ struct MyJungleView: View {
     MyJungleView()
         .environment(dataLoader)
         .environment(TabSelection())
+        .environment(CareExperienceStore.shared)
 }

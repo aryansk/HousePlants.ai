@@ -82,7 +82,7 @@ struct CelestialMoonPhaseView: View {
                             }
                             .accessibilityLabel("Previous day")
                             
-                            Button(action: { withAnimation(.spring()) { showDatePicker.toggle() } }) {
+                            Button(action: { withMotion(Motion.bouncy) { showDatePicker.toggle() } }) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "calendar")
                                         .font(.system(size: 14))
@@ -179,9 +179,9 @@ struct CelestialMoonPhaseView: View {
                         
                         // Tab Selector
                         HStack(spacing: 0) {
-                            MoonTabButton(title: "Wisdom", isSelected: selectedTab == 0) { withAnimation(.spring()) { selectedTab = 0 } }
-                            MoonTabButton(title: "Activities", isSelected: selectedTab == 1) { withAnimation(.spring()) { selectedTab = 1 } }
-                            MoonTabButton(title: "Forecast", isSelected: selectedTab == 2) { withAnimation(.spring()) { selectedTab = 2 } }
+                            MoonTabButton(title: "Wisdom", isSelected: selectedTab == 0) { withMotion(Motion.bouncy) { selectedTab = 0 } }
+                            MoonTabButton(title: "Activities", isSelected: selectedTab == 1) { withMotion(Motion.bouncy) { selectedTab = 1 } }
+                            MoonTabButton(title: "Forecast", isSelected: selectedTab == 2) { withMotion(Motion.bouncy) { selectedTab = 2 } }
                         }
                         .padding(4)
                         .background(Color.white.opacity(0.06))
@@ -314,7 +314,7 @@ struct CelestialMoonPhaseView: View {
                         let date = Calendar.current.date(byAdding: .day, value: offset, to: Date()) ?? Date()
                         let isSelected = Calendar.current.isDate(date, inSameDayAs: selectedDate)
                         
-                        Button(action: { withAnimation(.spring()) { selectedDate = date } }) {
+                        Button(action: { withMotion(Motion.bouncy) { selectedDate = date } }) {
                             VStack(spacing: 10) {
                                 Text(dayLabel(date))
                                     .font(.claudeSans(size: 11, weight: .bold))
@@ -359,7 +359,7 @@ struct CelestialMoonPhaseView: View {
     // MARK: - Helpers
     
     private func shiftDate(by days: Int) {
-        withAnimation(.spring()) {
+        withMotion(Motion.bouncy) {
             selectedDate = Calendar.current.date(byAdding: .day, value: days, to: selectedDate) ?? selectedDate
         }
     }

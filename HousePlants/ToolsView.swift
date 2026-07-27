@@ -87,27 +87,27 @@ struct ToolsView: View {
                                     }
 
                                     if matches(ToolSearchIndex.essential[1]) {
-                                        ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "Light meter to find the perfect spot for your plants.", color: .orange)
+                                        ToolNavigationLink(destination: SunSeekerARView(), icon: "sun.max.fill", title: "Sun Seeker", description: "Light meter to find the perfect spot for your plants.", color: .orange, index: 1)
                                     }
                                     
                                     if matches(ToolSearchIndex.essential[2]) {
-                                        ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue)
+                                        ToolNavigationLink(destination: WaterCalculatorView(), icon: "drop.fill", title: "Watering Guide", description: "Custom schedules based on your local micro-climate.", color: .blue, index: 2)
                                     }
                                     
                                     if matches(ToolSearchIndex.essential[3]) {
-                                        ToolNavigationLink(destination: FertilizerCalculatorView(), icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition for every growth stage.", color: .green)
+                                        ToolNavigationLink(destination: FertilizerCalculatorView(), icon: "leaf.fill", title: "Fertilizer Guide", description: "Precision nutrition for every growth stage.", color: .green, index: 3)
                                     }
                                     
                                     if matches(ToolSearchIndex.essential[4]) {
-                                        ToolNavigationLink(destination: SoilMixBuilderView(), icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates for species.", color: Color(hex: "8B4513"))
+                                        ToolNavigationLink(destination: SoilMixBuilderView(), icon: "square.stack.3d.up.fill", title: "Soil Mixologist", description: "Craft bespoke substrates for species.", color: Color(hex: "8B4513"), index: 4)
                                     }
                                     
                                     if matches(ToolSearchIndex.essential[5]) {
-                                        ToolNavigationLink(destination: SeasonalCareCalendarView(), icon: "calendar.badge.clock", title: "Seasonal Care", description: "Month-by-month care timeline for every season.", color: Color(hex: "4CAF50"))
+                                        ToolNavigationLink(destination: SeasonalCareCalendarView(), icon: "calendar.badge.clock", title: "Seasonal Care", description: "Month-by-month care timeline for every season.", color: Color(hex: "4CAF50"), index: 5)
                                     }
 
                                     if matches(ToolSearchIndex.essential[6]) {
-                                        ToolNavigationLink(destination: SitterModeView(), icon: "person.2.fill", title: "Plant Sitter Mode", description: "Generate a shareable care PDF for your sitter.", color: .pink)
+                                        ToolNavigationLink(destination: SitterModeView(), icon: "person.2.fill", title: "Plant Sitter Mode", description: "Generate a shareable care PDF for your sitter.", color: .pink, index: 6)
                                     }
                                 }
                             }
@@ -118,19 +118,19 @@ struct ToolsView: View {
                                 ToolSection(title: "Health & Growth") {
                                 VStack(spacing: 12) {
                                     if matches(ToolSearchIndex.health[0]) {
-                                        ToolNavigationLink(destination: PlantDoctorView(), icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with symptom lookup.", color: .red)
+                                        ToolNavigationLink(destination: PlantDoctorView(), icon: "cross.case.fill", title: "Plant Doctor", description: "Diagnose pests and diseases with symptom lookup.", color: .red, index: 0)
                                     }
 
                                     if matches(ToolSearchIndex.health[1]) {
-                                        ToolNavigationLink(destination: PotSizeCalculatorView(), icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size for root expansion.", color: .brown)
+                                        ToolNavigationLink(destination: PotSizeCalculatorView(), icon: "arrow.up.left.and.arrow.down.right.circle.fill", title: "Repotting Helper", description: "Calculate the ideal pot size for root expansion.", color: .brown, index: 1)
                                     }
 
                                     if matches(ToolSearchIndex.health[2]) {
-                                        ToolNavigationLink(destination: ToxicityCheckerView(), icon: "shield.checkered", title: "Toxicity Checker", description: "Verify pet and child safety for every plant.", color: Color(hex: "2ECC71"))
+                                        ToolNavigationLink(destination: ToxicityCheckerView(), icon: "shield.checkered", title: "Toxicity Checker", description: "Verify pet and child safety for every plant.", color: Color(hex: "2ECC71"), index: 2)
                                     }
 
                                     if matches(ToolSearchIndex.health[3]) {
-                                        ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"))
+                                        ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"), index: 3)
                                     }
 
                                     // Growth Analytics — Pro, opens plant picker then analytics view
@@ -188,19 +188,19 @@ struct ToolsView: View {
                                 ToolSection(title: "Exploration") {
                                 VStack(spacing: 12) {
                                     if matches(ToolSearchIndex.exploration[0]) {
-                                        ToolNavigationLink(destination: ClimateMatcherToolView(), icon: "thermometer.sun.fill", title: "Climate Matcher", description: "Find plants perfectly suited to your local environment.", color: .orange)
+                                        ToolNavigationLink(destination: ClimateMatcherToolView(), icon: "thermometer.sun.fill", title: "Climate Matcher", description: "Find plants perfectly suited to your local environment.", color: .orange, index: 0)
                                     }
                                     
                                     if matches(ToolSearchIndex.exploration[1]) {
-                                        ToolNavigationLink(destination: SkincareLabView(), icon: "flask.fill", title: "Skincare Lab", description: "Botanical remedies from your garden.", color: .purple)
+                                        ToolNavigationLink(destination: SkincareLabView(), icon: "flask.fill", title: "Skincare Lab", description: "Botanical remedies from your garden.", color: .purple, index: 1)
                                     }
                                     
                                     if matches(ToolSearchIndex.exploration[2]) {
-                                        ToolNavigationLink(destination: CelestialMoonPhaseView(), icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting with lunar cycles.", color: .indigo)
+                                        ToolNavigationLink(destination: CelestialMoonPhaseView(), icon: "moon.stars.fill", title: "Moon Gardening", description: "Align your planting with lunar cycles.", color: .indigo, index: 2)
                                     }
                                     
                                     if matches(ToolSearchIndex.exploration[3]) {
-                                        ToolNavigationLink(destination: OriginExplorerView(), icon: "globe.americas.fill", title: "Origin Explorer", description: "Interactive map of where your plants call home.", color: .teal)
+                                        ToolNavigationLink(destination: OriginExplorerView(), icon: "globe.americas.fill", title: "Origin Explorer", description: "Interactive map of where your plants call home.", color: .teal, index: 3)
                                     }
                                 }
                             }
@@ -507,12 +507,16 @@ struct ToolNavigationLink<Destination: View>: View {
     let title: String
     let description: String
     let color: Color
-    
+    /// Position within its section, used to stagger the entrance. Defaults to 0 so
+    /// existing call sites keep working and simply appear immediately.
+    var index: Int = 0
+
     var body: some View {
         NavigationLink(destination: destination) {
             ToolCardView(icon: icon, title: title, description: description, color: color)
         }
-        .buttonStyle(InteractiveCardButtonStyle())
+        .buttonStyle(PaperPressButtonStyle(shadowOffset: 3, haptic: false))
+        .staggeredAppear(index: index, step: 0.05, cap: 5, offset: 12, tilt: 1)
     }
 }
 

@@ -67,7 +67,7 @@ struct OriginExplorerView: View {
                                         longitude: plant.origin.coordinates.lng
                                     )) {
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.3)) {
+                                            withMotion(Motion.snappy) {
                                                 selectedPlant = plant
                                             }
                                         }) {
@@ -105,7 +105,7 @@ struct OriginExplorerView: View {
                                         .tracking(1.5)
                                     Spacer()
                                     Button(action: {
-                                        withAnimation { selectedPlant = nil }
+                                        withMotion(Motion.snappy) { selectedPlant = nil }
                                     }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.system(size: 18))
@@ -187,7 +187,7 @@ struct OriginExplorerView: View {
                                 HStack(spacing: 10) {
                                     // All button
                                     Button(action: {
-                                        withAnimation(.spring(response: 0.3)) {
+                                        withMotion(Motion.snappy) {
                                             selectedRegion = nil
                                             mapPosition = .automatic
                                         }
@@ -212,7 +212,7 @@ struct OriginExplorerView: View {
                                     
                                     ForEach(regions, id: \.self) { region in
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.3)) {
+                                            withMotion(Motion.snappy) {
                                                 selectedRegion = region
                                                 // Zoom to region
                                                 if let firstPlant = dataLoader.plants.first(where: { $0.origin.region == region }) {

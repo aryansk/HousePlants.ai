@@ -10,6 +10,7 @@ struct JungleHubDashboard: View {
 
     @State private var animateRing = false
     @State private var tilesVisible = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var ringColor: LinearGradient {
         LinearGradient(
@@ -30,16 +31,20 @@ struct JungleHubDashboard: View {
                         .stroke(Color.gray.opacity(0.13), lineWidth: 9)
 
                     Circle()
-                        .trim(from: 0, to: animateRing ? CGFloat(averageHealth) / 100.0 : 0)
+                        .trim(from: 0, to: (animateRing || reduceMotion) ? CGFloat(averageHealth) / 100.0 : 0)
                         .stroke(ringColor, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                        .animation(.spring(response: 1.4, dampingFraction: 0.75).delay(0.2), value: animateRing)
+                        .animation(reduceMotion ? nil : .spring(response: 1.4, dampingFraction: 0.75).delay(0.2), value: animateRing)
+                        // Later health changes re-sweep quickly instead of replaying the
+                        // slow first-draw curve.
+                        .animation(reduceMotion ? Motion.reduced : Motion.gentle, value: averageHealth)
 
                     VStack(spacing: 1) {
                         Text("\(averageHealth)%")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.claudePrimaryText)
                             .contentTransition(.numericText())
+                            .popOnChange(of: averageHealth)
                         Text("Health")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(.secondary)
@@ -51,8 +56,8 @@ struct JungleHubDashboard: View {
                 Text(averageHealth >= 80 ? "Thriving" : averageHealth >= 60 ? "Good" : "Needs Care")
                     .font(.claudeSans(size: 11, weight: .semibold))
                     .foregroundStyle(averageHealth >= 80 ? Color.green : averageHealth >= 60 ? Color.orange : Color.red)
-                    .opacity(animateRing ? 1 : 0)
-                    .animation(.easeIn(duration: 0.3).delay(0.9), value: animateRing)
+                    .opacity((animateRing || reduceMotion) ? 1 : 0)
+                    .animation(reduceMotion ? nil : .easeIn(duration: 0.3).delay(0.9), value: animateRing)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 12)
@@ -81,6 +86,7 @@ struct JungleHubDashboard: View {
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.claudePrimaryText)
                             .contentTransition(.numericText())
+                            .popOnChange(of: totalPlants, haptic: true)
                     }
                     Spacer()
                     Image(systemName: "leaf.fill")
@@ -103,7 +109,7 @@ struct JungleHubDashboard: View {
                 .padding(.bottom, 3)
                 .opacity(tilesVisible ? 1 : 0)
                 .offset(x: tilesVisible ? 0 : 16)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: tilesVisible)
+                .animation(reduceMotion ? Motion.reduced : Motion.gentle.delay(0.1), value: tilesVisible)
 
                 // Needs Water — tappable shortcut to the thirsty plants
                 Button(action: { onWaterTap?() }) {
@@ -117,6 +123,7 @@ struct JungleHubDashboard: View {
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .foregroundStyle(plantsToWater > 0 ? Color.blue : Color.claudePrimaryText)
                                 .contentTransition(.numericText())
+                                .popOnChange(of: plantsToWater)
                         }
                         Spacer()
                         Image(systemName: plantsToWater > 0 ? "drop.fill" : "checkmark.circle.fill")
@@ -126,6 +133,7 @@ struct JungleHubDashboard: View {
                             .background((plantsToWater > 0 ? Color.blue : Color.green).opacity(0.13))
                             .clipShape(Circle())
                             .contentTransition(.symbolEffect(.replace))
+                            .breathing(plantsToWater > 0, range: 1.0...1.12)
                     }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 9)
@@ -143,13 +151,13 @@ struct JungleHubDashboard: View {
                 .accessibilityLabel(plantsToWater > 0 ? "\(plantsToWater) plants to water. Shows thirsty plants." : "All plants watered")
                 .opacity(tilesVisible ? 1 : 0)
                 .offset(x: tilesVisible ? 0 : 16)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.18), value: tilesVisible)
+                .animation(reduceMotion ? Motion.reduced : Motion.gentle.delay(0.18), value: tilesVisible)
             }
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 20)
         .onAppear {
-            withAnimation { tilesVisible = true }
+            withMotion(Motion.gentle) { tilesVisible = true }
         }
     }
 }
@@ -159,6 +167,7 @@ struct JungleTaskRow: View {
     let plant: Plant
     @Environment(DataLoader.self) var dataLoader
     @State private var isWatering = false
+    @State private var celebrating = false
 
     var myPlant: MyPlant? { dataLoader.myJungleLookup[plant.id] }
     var wateringStatus: WateringStatusDisplay { dataLoader.wateringStatusDisplay(for: myPlant) }
@@ -182,8 +191,10 @@ struct JungleTaskRow: View {
                         .font(.system(size: 9, weight: .bold))
                     Text(wateringStatus.text)
                         .font(.claudeSans(size: 11, weight: .semibold))
+                        .contentTransition(.numericText())
                 }
                 .foregroundStyle(wateringStatus.color)
+                .motion(Motion.snappy, value: wateringStatus.text)
             }
 
             Spacer()
@@ -192,9 +203,10 @@ struct JungleTaskRow: View {
                 guard !isWatering else { return }
                 isWatering = true
                 HapticManager.shared.playImpact(style: .medium)
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                withMotion(Motion.playful) {
                     dataLoader.waterPlant(plantId: plant.id)
                 }
+                celebrating = true
             }) {
                 Image(systemName: "drop.fill")
                     .font(.system(size: 15, weight: .bold))
@@ -203,7 +215,8 @@ struct JungleTaskRow: View {
                     .background(Circle().fill(IndieHousePalette.blue))
                     .overlay(Circle().stroke(IndieHousePalette.ink, lineWidth: 1.3))
             }
-            .buttonStyle(BubblingButtonStyle())
+            .buttonStyle(SquishButtonStyle(scale: 0.84, rotation: -10))
+            .paperBurst($celebrating, count: 10, radius: 40)
             .accessibilityLabel("Water \(myPlant?.nickname ?? plant.commonName)")
         }
         .padding(.horizontal, 14)
@@ -476,7 +489,11 @@ struct StreakBadge: View {
                 .fontWeight(.bold)
                 .foregroundStyle(streakCount > 0 ? Color.orange : Color.gray)
                 .contentTransition(.numericText())
+                // Extending a streak is the single most rewarding number in the app,
+                // so it gets the biggest pop and a haptic to match.
+                .popOnChange(of: streakCount, scale: 1.35, haptic: true)
         }
+        .wiggle(on: streakCount, amount: 5)
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(
@@ -492,6 +509,10 @@ struct StreakBadge: View {
             Capsule()
                 .stroke(streakCount > 0 ? Color.orange.opacity(0.25) : Color.claudeBorder, lineWidth: 1)
         )
+        // Clock-driven, so it reads as an ongoing state rather than a one-off event.
+        // Gated above 3 days to match the existing symbol pulse — a one-day streak
+        // isn't an achievement yet.
+        .rewardShimmer(streakCount > 3, tint: .orange, intensity: 0.45)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(streakCount == 1 ? "1 day streak" : "\(streakCount) day streak")
         .onAppear {

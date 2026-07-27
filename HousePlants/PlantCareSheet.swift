@@ -37,7 +37,7 @@ struct PlantCareSheet: View {
                     HStack(spacing: 12) {
                         Button(action: {
                             dataLoader.waterPlant(plantId: plant.id)
-                            withAnimation {
+                            withMotion(Motion.snappy) {
                                 showWateredMessage = true
                             }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

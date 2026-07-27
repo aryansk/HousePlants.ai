@@ -143,7 +143,7 @@ struct ToxicityCheckerView: View {
                         HStack(spacing: 0) {
                             ForEach(ToxicityFilter.allCases, id: \.self) { filter in
                                 Button(action: {
-                                    withAnimation(.spring(response: 0.3)) {
+                                    withMotion(Motion.snappy) {
                                         filterMode = filter
                                     }
                                 }) {
@@ -239,7 +239,7 @@ struct ToxicityPlantRow: View {
         VStack(spacing: 0) {
             // Main Row
             Button(action: {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                withMotion(Motion.bouncy) {
                     isExpanded.toggle()
                 }
             }) {

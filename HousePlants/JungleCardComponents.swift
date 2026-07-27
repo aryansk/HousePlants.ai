@@ -9,13 +9,23 @@ struct EnhancedPlantCard: View {
     var onInsights: (() -> Void)? = nil
     @Environment(DataLoader.self) var dataLoader
     @State private var justWatered = false
-    
+    @State private var celebrating = false
+    @State private var rippling = false
+
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
     }
-    
+
     var wateringStatus: WateringStatusDisplay {
         dataLoader.wateringStatusDisplay(for: myPlant)
+    }
+
+    /// A plant that has slipped past its watering date gets a slow pulse on its status
+    /// icon — enough peripheral movement to draw the eye while scrolling, not enough
+    /// to be distracting when several cards are overdue at once.
+    private var needsAttention: Bool {
+        guard let myPlant, let days = dataLoader.daysUntilWatering(myPlant: myPlant) else { return false }
+        return days <= 0
     }
 
     /// The user's own name for the plant leads; the species name becomes the byline.
@@ -101,27 +111,34 @@ struct EnhancedPlantCard: View {
                     Image(systemName: wateringStatus.icon)
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(wateringStatus.color)
+                        .breathing(needsAttention && !justWatered, range: 1.0...1.22)
                     Text(wateringStatus.text)
                         .font(.claudeSans(size: 12, weight: .bold))
                         .foregroundStyle(wateringStatus.color)
                         .textCase(.uppercase)
+                        .contentTransition(.numericText())
                 }
-                
+                .motion(Motion.snappy, value: wateringStatus.text)
+
                 // Quick water button
                 Button(action: {
                     HapticManager.shared.playImpact(style: .medium)
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    withMotion(Motion.playful) {
                         dataLoader.waterPlant(plantId: plant.id)
                         justWatered = true
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        withAnimation(.easeOut(duration: 0.4)) { justWatered = false }
-                    }
+                    celebrating = true
+                    rippling = true
+                    withMotion(Motion.gentle, after: 1.5) { justWatered = false }
                 }) {
                     HStack {
                         Image(systemName: justWatered ? "checkmark" : "drop.fill")
                             .font(.system(size: 12, weight: .bold))
                             .contentTransition(.symbolEffect(.replace))
+                            // The droplet tips over and swells the instant it's tapped, so the
+                            // button feels like it poured something rather than just toggling.
+                            .scaleEffect(justWatered ? 1.25 : 1)
+                            .rotationEffect(.degrees(justWatered ? 0 : -8))
                         Text(justWatered ? "Watered!" : "Water")
                             .font(.claudeSans(size: 13, weight: .bold))
                             .contentTransition(.numericText())
@@ -131,9 +148,10 @@ struct EnhancedPlantCard: View {
                     .background(justWatered ? Color.blue.opacity(0.16) : wateringStatus.color.opacity(0.1))
                     .overlay(Rectangle().stroke(justWatered ? Color.blue : wateringStatus.color, lineWidth: 1.3))
                     .foregroundStyle(justWatered ? Color.blue : wateringStatus.color)
-                    .animation(.spring(response: 0.35, dampingFraction: 0.75), value: justWatered)
+                    .motion(Motion.playful, value: justWatered)
                 }
                 .buttonStyle(BubblingButtonStyle())
+                .paperBurst($celebrating, count: 12, radius: 54)
             }
             .padding(16)
         }
@@ -144,6 +162,10 @@ struct EnhancedPlantCard: View {
             cornerRadius: 3,
             shadowOffset: 4
         )
+        // Water visibly travels through the card from the button that poured it.
+        // Applied to the finished card so the ripple distorts the artwork and text
+        // together rather than one layer sliding under another.
+        .waterRipple($rippling, origin: UnitPoint(x: 0.5, y: 0.86))
         .padding(.trailing, 4)
         .padding(.bottom, 4)
         .contextMenu {
@@ -164,13 +186,19 @@ struct EnhancedPlantCard: View {
 struct EnhancedJungleListRow: View {
     let plant: Plant
     @Environment(DataLoader.self) var dataLoader
-    
+    @State private var celebrating = false
+
     var myPlant: MyPlant? {
         dataLoader.myJungleLookup[plant.id]
     }
-    
+
     var wateringStatus: WateringStatusDisplay {
         dataLoader.wateringStatusDisplay(for: myPlant)
+    }
+
+    private var isThirsty: Bool {
+        guard let myPlant, let days = dataLoader.daysUntilWatering(myPlant: myPlant) else { return false }
+        return days <= 0
     }
 
     private var displayName: String {
@@ -219,10 +247,13 @@ struct EnhancedJungleListRow: View {
                     Image(systemName: "drop.fill")
                         .font(.caption2)
                         .foregroundStyle(wateringStatus.color)
+                        .breathing(isThirsty, range: 1.0...1.25)
                     Text(wateringStatus.text)
                         .font(.claudeSans(size: 13, weight: .medium))
                         .foregroundStyle(wateringStatus.color)
+                        .contentTransition(.numericText())
                 }
+                .motion(Motion.snappy, value: wateringStatus.text)
             }
 
             Spacer()
@@ -230,21 +261,26 @@ struct EnhancedJungleListRow: View {
             // Quick water button
             Button(action: {
                 HapticManager.shared.playImpact(style: .light)
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                withMotion(Motion.playful) {
                     dataLoader.waterPlant(plantId: plant.id)
                 }
+                celebrating = true
             }) {
                 ZStack {
                     Circle()
                         .fill(wateringStatus.color.opacity(0.12))
                         .frame(width: 44, height: 44)
-                    
+
                     Image(systemName: "drop.fill")
                         .font(.system(size: 18))
                         .foregroundStyle(wateringStatus.color)
                 }
+                // The whole target re-colours and re-settles when the schedule changes,
+                // so tapping visibly "resets" the row rather than silently updating it.
+                .motion(Motion.playful, value: wateringStatus.color)
             }
-            .buttonStyle(WaterButtonStyle())
+            .buttonStyle(SquishButtonStyle(scale: 0.82, rotation: -8))
+            .paperBurst($celebrating, count: 10, radius: 42)
         }
         .padding(14)
         .indiePaperCard(
@@ -261,8 +297,12 @@ struct EnhancedJungleListRow: View {
                     .frame(width: 4)
                     .padding(.vertical, 8)
                     .padding(.leading, 2)
+                    // Wipes down from the top when a plant becomes due and retracts the
+                    // moment it's watered, so the urgency marker has a beginning and an end.
+                    .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        .motion(Motion.paper, value: isThirsty)
         .padding(.trailing, 3)
         .padding(.bottom, 3)
     }
@@ -271,11 +311,18 @@ struct EnhancedJungleListRow: View {
 struct HealthRing: View {
     let health: Int
     @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var color: Color {
         if health >= 80 { return .green }
         else if health >= 60 { return .yellow }
         else { return .red }
+    }
+
+    /// Fraction the arc should be drawn to. Reduce Motion skips the sweep entirely and
+    /// shows the final value, rather than animating a long 1.1s spring.
+    private var trimEnd: CGFloat {
+        (appeared || reduceMotion) ? CGFloat(health) / 100.0 : 0
     }
 
     var body: some View {
@@ -284,16 +331,20 @@ struct HealthRing: View {
                 .stroke(color.opacity(0.2), lineWidth: 3)
 
             Circle()
-                .trim(from: 0, to: appeared ? CGFloat(health) / 100.0 : 0)
+                .trim(from: 0, to: trimEnd)
                 .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-                .animation(.spring(response: 1.1, dampingFraction: 0.7).delay(0.15), value: appeared)
+                .animation(reduceMotion ? nil : .spring(response: 1.1, dampingFraction: 0.7).delay(0.15), value: appeared)
+                // Later score changes re-sweep with a quicker curve than the first draw.
+                .animation(reduceMotion ? Motion.reduced : Motion.gentle, value: health)
 
             Text("\(health)")
                 .font(.system(size: 10, weight: .bold, design: .rounded))
                 .foregroundStyle(color)
-                .opacity(appeared ? 1 : 0)
-                .animation(.easeIn(duration: 0.3).delay(0.4), value: appeared)
+                .contentTransition(.numericText())
+                .popOnChange(of: health)
+                .opacity((appeared || reduceMotion) ? 1 : 0)
+                .animation(reduceMotion ? nil : .easeIn(duration: 0.3).delay(0.4), value: appeared)
         }
         .background(Circle().fill(Color.claudeBackground.opacity(0.8)))
         .onAppear { appeared = true }
@@ -492,4 +543,67 @@ struct JungleListRowSelectable: View {
     }
     .environment(dataLoader)
     .background(Color.claudeBackground)
+}
+
+// MARK: - Care swipe actions
+
+/// Water / fertilize / mist without leaving the collection.
+///
+/// These actions existed only in the "Care" menu, which acts on every plant at once —
+/// there was no way to fertilize a single plant from this screen. Swipe actions were the
+/// obvious home for them but required `List`, and this screen uses free-form lazy
+/// layouts so the cut-paper cards can size themselves. iOS 27's `swipeActionsContainer`
+/// removes that constraint, so the per-plant actions finally have somewhere to live.
+///
+/// Full swipe is deliberately off: every one of these mutates care history, and an
+/// accidental full-swipe fertilize is a silent data error the user won't notice.
+struct CareSwipeActions: ViewModifier {
+    let plant: Plant
+    let showToast: (MyJungleView.ActiveToast) -> Void
+
+    @Environment(DataLoader.self) private var dataLoader
+
+    func body(content: Content) -> some View {
+        content
+            .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                Button {
+                    HapticManager.shared.playImpact(style: .medium)
+                    withMotion(Motion.playful) {
+                        dataLoader.waterPlant(plantId: plant.id)
+                    }
+                    showToast(.watered)
+                } label: {
+                    Label("Water", systemImage: "drop.fill")
+                }
+                .tint(IndieHousePalette.blue)
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button {
+                    HapticManager.shared.playImpact(style: .light)
+                    dataLoader.fertilizePlant(plantId: plant.id)
+                    showToast(.fertilized)
+                } label: {
+                    Label("Feed", systemImage: "leaf.circle.fill")
+                }
+                .tint(IndieHousePalette.green)
+
+                Button {
+                    HapticManager.shared.playImpact(style: .light)
+                    dataLoader.mistPlant(plantId: plant.id)
+                    showToast(.misted)
+                } label: {
+                    Label("Mist", systemImage: "humidity.fill")
+                }
+                .tint(IndieHousePalette.orange)
+            }
+    }
+}
+
+extension View {
+    func careSwipeActions(
+        plant: Plant,
+        showToast: @escaping (MyJungleView.ActiveToast) -> Void
+    ) -> some View {
+        modifier(CareSwipeActions(plant: plant, showToast: showToast))
+    }
 }

@@ -15,6 +15,8 @@ struct PlantDetailView: View {
     @State private var showGrowthView = false
     @State private var showARPlacement = false
     @State private var showProUpgrade = false
+    @State private var favoriteCelebrating = false
+    @State private var jungleCelebrating = false
     @ObservedObject private var proManager = ProManager.shared
     
     var isInJungle: Bool {
@@ -92,21 +94,27 @@ struct PlantDetailView: View {
                                     CareItem(icon: "sun.max.fill", title: "Light", value: plant.careGuide.light, color: .orange) {
                                         selectedCareInfo = ("Light Requirements", plant.careGuide.light, "sun.max.fill", .orange)
                                     }
+                                    .staggeredAppear(index: 0, step: 0.05, animation: Motion.bouncy, offset: 12)
                                     CareItem(icon: "drop.fill", title: "Water", value: plant.careGuide.water, color: .blue) {
                                         selectedCareInfo = ("Watering Schedule", plant.careGuide.water, "drop.fill", .blue)
                                     }
+                                    .staggeredAppear(index: 1, step: 0.05, animation: Motion.bouncy, offset: 12)
                                     CareItem(icon: "thermometer.medium", title: "Temperature", value: plant.careGuide.temperatureRange, color: .red) {
                                         selectedCareInfo = ("Temperature", plant.careGuide.temperatureRange, "thermometer.medium", .red)
                                     }
+                                    .staggeredAppear(index: 2, step: 0.05, animation: Motion.bouncy, offset: 12)
                                     CareItem(icon: "humidity.fill", title: "Humidity", value: plant.careGuide.humidity, color: .green) {
                                         selectedCareInfo = ("Humidity Levels", plant.careGuide.humidity, "humidity.fill", .green)
                                     }
+                                    .staggeredAppear(index: 3, step: 0.05, animation: Motion.bouncy, offset: 12)
                                     CareItem(icon: "leaf.fill", title: "Soil", value: plant.careGuide.soil, color: .brown) {
                                         selectedCareInfo = ("Soil & Potting", plant.careGuide.soil, "leaf.fill", .brown)
                                     }
+                                    .staggeredAppear(index: 4, step: 0.05, animation: Motion.bouncy, offset: 12)
                                     CareItem(icon: "sparkles", title: "Difficulty", value: plant.careGuide.difficulty, color: .purple) {
                                         selectedCareInfo = ("Care Level", plant.careGuide.difficulty, "sparkles", .purple)
                                     }
+                                    .staggeredAppear(index: 5, step: 0.05, animation: Motion.bouncy, offset: 12)
                                 }
                             }
                             .padding(.bottom, 4)
@@ -511,22 +519,32 @@ struct PlantDetailView: View {
 
     
     private var favoriteButton: some View {
-        Button(action: {
+        let isFav = dataLoader.isFavorite(plantId: plant.id)
+        return Button(action: {
             HapticManager.shared.playImpact(style: .medium)
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+            withMotion(Motion.playful) {
                 dataLoader.toggleFavorite(plantId: plant.id)
             }
+            // Only favouriting is worth celebrating; un-favouriting should be quiet.
+            if !isFav { favoriteCelebrating = true }
         }) {
-            let isFav = dataLoader.isFavorite(plantId: plant.id)
             Image(systemName: isFav ? "heart.fill" : "heart")
                 .font(.system(size: 16, weight: .bold))
+                // Applied directly to the symbol, before any background or overlay,
+                // so the outline actually morphs into the fill rather than cross-fading.
+                .contentTransition(.symbolEffect(.replace))
                 .foregroundStyle(isFav ? IndieHousePalette.ink : Color.claudePrimaryText)
                 .frame(width: 44, height: 44)
                 .background(isFav ? IndieHousePalette.pink : Color.claudeSecondaryBackground)
                 .overlay(Rectangle().stroke(Color.claudeBorder, lineWidth: 1.5))
+                // The heart overshoots on the way in, which sells the fill as a
+                // deliberate act rather than a state flag flipping.
+                .scaleEffect(isFav ? 1.06 : 1)
+                .motion(Motion.playful, value: isFav)
         }
-        .buttonStyle(BubblingButtonStyle())
-        .accessibilityLabel(dataLoader.isFavorite(plantId: plant.id) ? "Remove from favorites" : "Add to favorites")
+        .buttonStyle(SquishButtonStyle(scale: 0.85, rotation: -8, haptic: false))
+        .paperBurst($favoriteCelebrating, count: 10, radius: 44)
+        .accessibilityLabel(isFav ? "Remove from favorites" : "Add to favorites")
     }
 
     private var detailTitle: some View {
@@ -546,6 +564,7 @@ struct PlantDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 20)
+        .appearsIn(delay: 0.08, animation: Motion.gentle, offset: 14)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
     }
@@ -568,6 +587,9 @@ struct PlantDetailView: View {
         .padding(.horizontal, 20)
         .padding(.trailing, 6)
         .padding(.bottom, 6)
+        // The hero settles first and the title follows a beat later, so arriving on
+        // the screen reads as a short sequence instead of one flat fade.
+        .appearsIn(animation: Motion.gentle, offset: 22)
         .accessibilityHidden(true)
     }
     
@@ -580,16 +602,24 @@ struct PlantDetailView: View {
                 showProUpgrade = true
             } else {
                 HapticManager.shared.playNotification(type: .success)
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.8)) {
+                let wasIn = isInJungle
+                withMotion(Motion.playful) {
                     dataLoader.toggleJungle(plant: plant)
                 }
+                if !wasIn { jungleCelebrating = true }
             }
         }) {
             HStack(spacing: 12) {
                 Image(systemName: isInJungle ? "checkmark" : "plus")
                     .font(.system(size: 17, weight: .black))
+                    .contentTransition(.symbolEffect(.replace))
+                    // The plus spins into a checkmark — the single biggest state change
+                    // on this screen, so it earns the most movement.
+                    .rotationEffect(.degrees(isInJungle ? 0 : -90))
+                    .scaleEffect(isInJungle ? 1.15 : 1)
                 Text(isInJungle ? "Added to My Jungle" : "Add to My Jungle")
                     .font(.claudeSans(size: 17, weight: .bold))
+                    .contentTransition(.numericText())
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: 54)
@@ -599,8 +629,10 @@ struct PlantDetailView: View {
             .background(IndieHousePalette.ink.offset(x: 4, y: 4))
             .padding(.trailing, 4)
             .padding(.bottom, 4)
+            .motion(Motion.playful, value: isInJungle)
         }
-        .buttonStyle(BubblingButtonStyle())
+        .buttonStyle(PaperPressButtonStyle(shadowOffset: 4, haptic: false))
+        .paperBurst($jungleCelebrating, count: 18, radius: 92)
         .accessibilityIdentifier("plant-detail.jungle-toggle")
         .accessibilityLabel(isInJungle ? "Added to My Jungle" : "Add to My Jungle")
         .accessibilityHint(isInJungle ? "Removes this plant from My Jungle" : "Adds this plant to your collection")

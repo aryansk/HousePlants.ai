@@ -87,7 +87,7 @@ struct SeasonalCareCalendarView: View {
                                 HStack(spacing: 8) {
                                     ForEach(1...12, id: \.self) { month in
                                         Button(action: {
-                                            withAnimation(.spring(response: 0.3)) {
+                                            withMotion(Motion.snappy) {
                                                 selectedMonth = month
                                             }
                                         }) {
@@ -119,7 +119,7 @@ struct SeasonalCareCalendarView: View {
                                 proxy.scrollTo(selectedMonth, anchor: .center)
                             }
                             .onChange(of: selectedMonth) { _, newValue in
-                                withAnimation {
+                                withMotion(Motion.snappy) {
                                     proxy.scrollTo(newValue, anchor: .center)
                                 }
                             }

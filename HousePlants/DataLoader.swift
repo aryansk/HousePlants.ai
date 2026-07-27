@@ -2,6 +2,15 @@ import Foundation
 import Observation
 import os
 
+struct WateringTransaction: Identifiable, Equatable {
+    let id: String
+    let plantID: String
+    let occurredAt: String
+    let wasDue: Bool
+    let previous: MyPlant
+    let updated: MyPlant
+}
+
 @Observable
 class DataLoader {
     static let shared = DataLoader()
@@ -34,6 +43,8 @@ class DataLoader {
         loadUserPreferences()
         loadMyJungleExtendedData()
         loadNotifications()
+        seedUITestJungleIfRequested()
+        CareExperienceStore.shared.bootstrap(using: self)
         // Notification authorization is requested when the first reminder is scheduled, and
         // HomeKit is only touched once the user binds a sensor — never blanket-prompt at launch.
         NotificationCenter.default.addObserver(self,
@@ -224,53 +235,53 @@ class DataLoader {
         myJungleLookup = [:]
         notifications = []
         JungleStore.shared.replaceAll(with: [])
+        CareExperienceStore.shared.reset()
     }
-    
+
+    #if DEBUG
+    private func seedUITestJungleIfRequested() {
+        guard ProcessInfo.processInfo.arguments.contains("-uiTestSeedJungle"),
+              var profile = userProfile,
+              let template = appData?.userProfile else { return }
+        var seeded = Array(template.myJungle.prefix(2))
+        for index in seeded.indices {
+            seeded[index].wateringHistory = []
+            seeded[index].nextWateringDate = nil
+        }
+        profile.username = "Test Gardener"
+        profile.myJungle = seeded
+        userProfile = profile
+        updateLookup()
+    }
+    #else
+    private func seedUITestJungleIfRequested() {}
+    #endif
+
+    /// Kept as a source-compatible no-op for older callers. A care day is now recorded only
+    /// after a real eligible care action, never merely because My Jungle appeared.
     func checkAndUpdateStreak() {
+        // Intentionally empty.
+    }
+
+    func recordCareDay(at now: Date = Date()) {
         guard var profile = userProfile else { return }
-        let now = Date()
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
         let todayString = DataLoader.isoFormatter.string(from: today)
-        
+
         var streak = profile.currentStreak ?? 0
         var history = profile.streakHistory ?? []
-        var changed = false
 
-        if let lastDateString = profile.lastStreakDate,
-           let lastDate = DataLoader.isoFormatter.date(from: lastDateString) {
-            let startOfLast = calendar.startOfDay(for: lastDate)
-
-            if let days = calendar.dateComponents([.day], from: startOfLast, to: today).day {
-                if days == 1 {
-                    streak += 1
-                    profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
-                    if !history.contains(todayString) { history.append(todayString) }
-                    changed = true
-                } else if days > 1 {
-                    streak = 1
-                    profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
-                    if !history.contains(todayString) { history.append(todayString) }
-                    changed = true
-                } else if days == 0 {
-                    // Same day — nothing to bump. Only touch history if today is somehow missing.
-                    if !history.contains(todayString) {
-                        history.append(todayString)
-                        changed = true
-                    }
-                }
-            }
+        guard !history.contains(todayString) else { return }
+        if let lastDate = history.compactMap({ DataLoader.isoFormatter.date(from: $0) }).max() {
+            let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: lastDate), to: today).day ?? 2
+            streak = days == 1 ? max(1, streak + 1) : 1
         } else {
             streak = 1
-            profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
-            history.append(todayString)
-            changed = true
         }
 
-        // The common case — opening the app again the same day — is a no-op, so we skip the
-        // profile write and the iCloud push it would trigger.
-        guard changed else { return }
-
+        profile.lastStreakDate = DataLoader.isoFormatter.string(from: now)
+        history.append(todayString)
         profile.currentStreak = streak
         profile.streakHistory = history
         self.userProfile = profile
@@ -337,14 +348,17 @@ class DataLoader {
     
     // MARK: - Watering Management
     
-    func waterPlant(plantId: String) {
+    @discardableResult
+    func waterPlantTransaction(plantId: String) -> WateringTransaction? {
         guard var profile = userProfile,
               let plantIndex = profile.myJungle.firstIndex(where: { $0.plantId == plantId }),
-              let plant = plant(for: plantId) else { return }
-        
+              let plant = plant(for: plantId) else { return nil }
+
         let now = Date()
         let dateString = DataLoader.isoFormatter.string(from: now)
-        
+        let previous = profile.myJungle[plantIndex]
+        let wasDue = needsWatering(myPlant: previous)
+
         // Update watering history
         var history = profile.myJungle[plantIndex].wateringHistory ?? []
         history.append(dateString)
@@ -355,12 +369,50 @@ class DataLoader {
         
         // Calculate next watering date
         let frequencyDays = profile.myJungle[plantIndex].customWateringFrequencyDays ?? getWateringFrequency(for: plant)
-        guard let nextDate = Calendar.current.date(byAdding: .day, value: frequencyDays, to: now) else { return }
+        guard let nextDate = Calendar.current.date(byAdding: .day, value: frequencyDays, to: now) else { return nil }
         profile.myJungle[plantIndex].nextWateringDate = DataLoader.isoFormatter.string(from: nextDate)
         
         self.userProfile = profile
         self.updateLookup()
         saveMyJungleData()
+
+        let transaction = WateringTransaction(
+            id: UUID().uuidString,
+            plantID: plantId,
+            occurredAt: dateString,
+            wasDue: wasDue,
+            previous: previous,
+            updated: profile.myJungle[plantIndex]
+        )
+        if wasDue {
+            _ = CareExperienceStore.shared.recordEligibleWatering(
+                plantID: plantId,
+                occurredAt: dateString,
+                transactionID: transaction.id
+            )
+            recordCareDay(at: now)
+        }
+        return transaction
+    }
+
+    func waterPlant(plantId: String) {
+        _ = waterPlantTransaction(plantId: plantId)
+    }
+
+    @discardableResult
+    func undoWatering(_ transaction: WateringTransaction) -> Bool {
+        guard var profile = userProfile,
+              let plantIndex = profile.myJungle.firstIndex(where: { $0.plantId == transaction.plantID }),
+              profile.myJungle[plantIndex] == transaction.updated else { return false }
+
+        profile.myJungle[plantIndex] = transaction.previous
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
+        if transaction.wasDue {
+            CareExperienceStore.shared.undo(eventID: transaction.id)
+        }
+        return true
     }
     
     /// Waters every plant that needs it in a single pass, then persists once. Previously this
@@ -373,6 +425,7 @@ class DataLoader {
         let dateString = DataLoader.isoFormatter.string(from: now)
         let lastWateredDisplay = now.formatted(date: .numeric, time: .omitted)
         var changed = false
+        var eligiblePlantIDs: [String] = []
 
         for index in profile.myJungle.indices {
             guard needsWatering(myPlant: profile.myJungle[index]),
@@ -387,6 +440,7 @@ class DataLoader {
             if let nextDate = Calendar.current.date(byAdding: .day, value: frequencyDays, to: now) {
                 profile.myJungle[index].nextWateringDate = DataLoader.isoFormatter.string(from: nextDate)
             }
+            eligiblePlantIDs.append(profile.myJungle[index].plantId)
             changed = true
         }
 
@@ -394,6 +448,14 @@ class DataLoader {
         self.userProfile = profile
         self.updateLookup()
         saveMyJungleData()
+        for plantID in eligiblePlantIDs {
+            _ = CareExperienceStore.shared.recordEligibleWatering(
+                plantID: plantID,
+                occurredAt: dateString,
+                transactionID: "batch-\(dateString)-\(plantID)"
+            )
+        }
+        if !eligiblePlantIDs.isEmpty { recordCareDay(at: now) }
     }
     
     func needsWatering(myPlant: MyPlant) -> Bool {
@@ -577,6 +639,65 @@ class DataLoader {
         for index in profile.myJungle.indices {
             profile.myJungle[index].lastMisted = now
         }
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
+    }
+
+    // MARK: - Single-plant care
+    //
+    // Bulk `…AllPlants` variants already existed because the only entry point was the
+    // "Care" menu, which acts on the whole collection. Swipe actions act on one row, so
+    // they need single-plant equivalents.
+
+    func fertilizePlant(plantId: String) {
+        guard var profile = userProfile,
+              let index = profile.myJungle.firstIndex(where: { $0.plantId == plantId }) else { return }
+
+        profile.myJungle[index].lastFertilized = DataLoader.isoFormatter.string(from: Date())
+
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
+    }
+
+    func mistPlant(plantId: String) {
+        guard var profile = userProfile,
+              let index = profile.myJungle.firstIndex(where: { $0.plantId == plantId }) else { return }
+
+        profile.myJungle[index].lastMisted = DataLoader.isoFormatter.string(from: Date())
+
+        self.userProfile = profile
+        self.updateLookup()
+        saveMyJungleData()
+    }
+
+    // MARK: - Manual ordering
+    //
+    // `myJungle` is an ordered array that happens to be persisted in order, so it can
+    // back drag-to-reorder directly — no extra sort-index field on `MyPlant`, and no
+    // migration for existing users, whose current array order becomes their manual order.
+
+    /// Rewrites the collection to match an explicit ID order. IDs not present are left
+    /// in their existing relative order at the end, so a reorder performed on a filtered
+    /// view can't silently drop the plants that were filtered out.
+    func reorderJungle(to orderedPlantIds: [String]) {
+        guard var profile = userProfile else { return }
+
+        var remaining = profile.myJungle
+        var reordered: [MyPlant] = []
+        reordered.reserveCapacity(remaining.count)
+
+        for id in orderedPlantIds {
+            if let index = remaining.firstIndex(where: { $0.plantId == id }) {
+                reordered.append(remaining.remove(at: index))
+            }
+        }
+        reordered.append(contentsOf: remaining)
+
+        guard reordered.map(\.plantId) != profile.myJungle.map(\.plantId) else { return }
+
+        profile.myJungle = reordered
         self.userProfile = profile
         self.updateLookup()
         saveMyJungleData()

@@ -49,7 +49,7 @@ struct SoilMixBuilderView: View {
     }
     
     func applyPreset(_ preset: SoilPreset) {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+        withMotion(Motion.gentle) {
             switch preset {
             case .aroid:
                 components = SoilComponents(base: 30, aeration: 30, drainage: 30, additive: 10)

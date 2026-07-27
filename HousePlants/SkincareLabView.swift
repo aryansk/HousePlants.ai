@@ -64,7 +64,7 @@ struct SkincareLabView: View {
                                         .lineSpacing(3)
                                 }
                                 
-                                Button(action: { withAnimation { showDisclaimer = false } }) {
+                                Button(action: { withMotion(Motion.snappy) { showDisclaimer = false } }) {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 12, weight: .bold))
                                         .foregroundColor(.claudeSecondaryText)
@@ -82,7 +82,7 @@ struct SkincareLabView: View {
                             HStack(spacing: 12) {
                                 ForEach(categories, id: \.self) { category in
                                     Button(action: {
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                        withMotion(Motion.playful) {
                                             selectedCategory = category
                                         }
                                     }) {
