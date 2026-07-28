@@ -32,8 +32,8 @@ struct ContentView: View {
 
                     // My Jungle is the app's home for anyone with a collection and the
                     // destination for every care action, so it takes the prominent role
-                    // and separates to the trailing edge.
-                    Tab("My Jungle", systemImage: "heart.fill", value: 2, role: .prominent) {
+                    // and separates to the trailing edge where that role exists.
+                    Tab("My Jungle", systemImage: "heart.fill", value: 2, role: .prominentIfAvailable) {
                         MyJungleView()
                     }
 

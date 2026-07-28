@@ -3,10 +3,6 @@ import SwiftUI
 // MARK: - Enhanced Plant Card (Grid View)
 struct EnhancedPlantCard: View {
     let plant: Plant
-    /// Provided by the parent list so the "Manage"/"Insights" sheets are presented once at the
-    /// list level rather than one hidden `.sheet` per card.
-    var onManage: (() -> Void)? = nil
-    var onInsights: (() -> Void)? = nil
     @Environment(DataLoader.self) var dataLoader
     @State private var justWatered = false
     @State private var celebrating = false
@@ -168,17 +164,6 @@ struct EnhancedPlantCard: View {
         .waterRipple($rippling, origin: UnitPoint(x: 0.5, y: 0.86))
         .padding(.trailing, 4)
         .padding(.bottom, 4)
-        .contextMenu {
-            Button(action: { onManage?() }) {
-                Label("Manage Plant", systemImage: "slider.horizontal.3")
-            }
-            Button(action: { onInsights?() }) {
-                Label("Insights", systemImage: "chart.bar.doc.horizontal")
-            }
-            Button(action: { dataLoader.waterPlant(plantId: plant.id) }) {
-                Label("Water Plant", systemImage: "drop.fill")
-            }
-        }
     }
 }
 
@@ -551,59 +536,90 @@ struct JungleListRowSelectable: View {
 ///
 /// These actions existed only in the "Care" menu, which acts on every plant at once —
 /// there was no way to fertilize a single plant from this screen. Swipe actions were the
-/// obvious home for them but required `List`, and this screen uses free-form lazy
-/// layouts so the cut-paper cards can size themselves. iOS 27's `swipeActionsContainer`
-/// removes that constraint, so the per-plant actions finally have somewhere to live.
+/// obvious home for them but required `List`, and this screen uses free-form lazy layouts
+/// so the cut-paper cards can size themselves. iOS 27's `swipeActionsContainer` removes
+/// that constraint.
+///
+/// On iOS 26 the swipe half is inert, so the same three commands are also exposed through
+/// a context menu. That isn't only a fallback — swipe is faster once you know it's there,
+/// long-press is how you find out — so both routes stay live on iOS 27 rather than the
+/// menu being conditionally compiled away.
 ///
 /// Full swipe is deliberately off: every one of these mutates care history, and an
 /// accidental full-swipe fertilize is a silent data error the user won't notice.
-struct CareSwipeActions: ViewModifier {
+struct CareSwipeActions<MenuItems: View>: ViewModifier {
     let plant: Plant
     let showToast: (MyJungleView.ActiveToast) -> Void
+    /// Extra commands the host row wants in the same menu, so a row doesn't end up with
+    /// two separate context menus fighting for the same long-press.
+    @ViewBuilder var additionalMenuItems: MenuItems
 
     @Environment(DataLoader.self) private var dataLoader
+
+    private func water() {
+        HapticManager.shared.playImpact(style: .medium)
+        withMotion(Motion.playful) {
+            dataLoader.waterPlant(plantId: plant.id)
+        }
+        showToast(.watered)
+    }
+
+    private func feed() {
+        HapticManager.shared.playImpact(style: .light)
+        dataLoader.fertilizePlant(plantId: plant.id)
+        showToast(.fertilized)
+    }
+
+    private func mist() {
+        HapticManager.shared.playImpact(style: .light)
+        dataLoader.mistPlant(plantId: plant.id)
+        showToast(.misted)
+    }
 
     func body(content: Content) -> some View {
         content
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                Button {
-                    HapticManager.shared.playImpact(style: .medium)
-                    withMotion(Motion.playful) {
-                        dataLoader.waterPlant(plantId: plant.id)
-                    }
-                    showToast(.watered)
-                } label: {
+                Button(action: water) {
                     Label("Water", systemImage: "drop.fill")
                 }
                 .tint(IndieHousePalette.blue)
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button {
-                    HapticManager.shared.playImpact(style: .light)
-                    dataLoader.fertilizePlant(plantId: plant.id)
-                    showToast(.fertilized)
-                } label: {
+                Button(action: feed) {
                     Label("Feed", systemImage: "leaf.circle.fill")
                 }
                 .tint(IndieHousePalette.green)
 
-                Button {
-                    HapticManager.shared.playImpact(style: .light)
-                    dataLoader.mistPlant(plantId: plant.id)
-                    showToast(.misted)
-                } label: {
+                Button(action: mist) {
                     Label("Mist", systemImage: "humidity.fill")
                 }
                 .tint(IndieHousePalette.orange)
+            }
+            .contextMenu {
+                additionalMenuItems
+                Button(action: water) {
+                    Label("Water Plant", systemImage: "drop.fill")
+                }
+                Button(action: feed) {
+                    Label("Feed Plant", systemImage: "leaf.circle.fill")
+                }
+                Button(action: mist) {
+                    Label("Mist Plant", systemImage: "humidity.fill")
+                }
             }
     }
 }
 
 extension View {
-    func careSwipeActions(
+    func careSwipeActions<MenuItems: View>(
         plant: Plant,
-        showToast: @escaping (MyJungleView.ActiveToast) -> Void
+        showToast: @escaping (MyJungleView.ActiveToast) -> Void,
+        @ViewBuilder additionalMenuItems: () -> MenuItems = { EmptyView() }
     ) -> some View {
-        modifier(CareSwipeActions(plant: plant, showToast: showToast))
+        modifier(CareSwipeActions(
+            plant: plant,
+            showToast: showToast,
+            additionalMenuItems: additionalMenuItems()
+        ))
     }
 }

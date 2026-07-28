@@ -263,7 +263,9 @@ struct MyJungleView: View {
 
                                 Menu {
                                     Picker("Sort By", selection: $sortOption) {
-                                        Text("My Order").tag(SortOption.manual)
+                                        if PlatformCapability.hasContainerInteractions {
+                                            Text("My Order").tag(SortOption.manual)
+                                        }
                                         Text("Name").tag(SortOption.name)
                                         Text("Difficulty").tag(SortOption.difficulty)
                                         Text("Last Watered").tag(SortOption.lastWatered)
@@ -564,18 +566,27 @@ struct MyJungleView: View {
                                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)], spacing: 16) {
                                                     ForEach(Array(myPlants.enumerated()), id: \.element.id) { index, plant in
                                                         NavigationLink(destination: PlantDetailView(plant: plant)) {
-                                                            EnhancedPlantCard(plant: plant,
-                                                                              onManage: { activeSheet = .care(plant) },
-                                                                              onInsights: { presentInsights(for: plant) })
+                                                            EnhancedPlantCard(plant: plant)
                                                         }
                                                         .buttonStyle(ScaleButtonStyle())
                                                         .staggeredAppear(index: index)
-                                                        .careSwipeActions(plant: plant, showToast: showToast)
+                                                        .careSwipeActions(plant: plant, showToast: showToast) {
+                                                            // Manage and Insights used to be the card's own
+                                                            // context menu; they're folded into the shared one
+                                                            // so a long-press has a single target.
+                                                            Button { activeSheet = .care(plant) } label: {
+                                                                Label("Manage Plant", systemImage: "slider.horizontal.3")
+                                                            }
+                                                            Button { presentInsights(for: plant) } label: {
+                                                                Label("Insights", systemImage: "chart.bar.doc.horizontal")
+                                                            }
+                                                            Divider()
+                                                        }
                                                     }
                                                     // Dragging only means something when the collection is
                                                     // in manual order. Under Name or Health the position is
                                                     // derived, so a drop would snap straight back.
-                                                    .reorderable(isEnabled: sortOption == .manual)
+                                                    .reorderableIfAvailable(isEnabled: sortOption == .manual)
                                                 }
                                                 .padding(.horizontal)
                                             } else {
@@ -588,7 +599,7 @@ struct MyJungleView: View {
                                                         .staggeredAppear(index: index, step: 0.035)
                                                         .careSwipeActions(plant: plant, showToast: showToast)
                                                     }
-                                                    .reorderable(isEnabled: sortOption == .manual)
+                                                    .reorderableIfAvailable(isEnabled: sortOption == .manual)
                                                 }
                                                 .padding(.horizontal)
                                             }
@@ -596,14 +607,12 @@ struct MyJungleView: View {
                                         // Swipe actions and drag-to-reorder both used to require `List`,
                                         // which this screen can't use — the cut-paper cards need free
                                         // layout. iOS 27 decouples them from `List` entirely.
-                                        .swipeActionsContainer()
-                                        .reorderContainer(for: Plant.self) { difference in
-                                            // `myPlants` is a filtered, sorted projection, so the drop is
-                                            // resolved against the visible order and then written back to
-                                            // the underlying collection by ID. Plants hidden by the current
-                                            // filter keep their relative position.
-                                            var ordered = myPlants
-                                            difference.apply(to: &ordered)
+                                        .swipeActionsContainerIfAvailable()
+                                        // `myPlants` is a filtered, sorted projection, so the drop is
+                                        // resolved against the visible order and then written back to
+                                        // the underlying collection by ID. Plants hidden by the current
+                                        // filter keep their relative position.
+                                        .plantReorderContainerIfAvailable(visibleOrder: { myPlants }) { ordered in
                                             dataLoader.reorderJungle(to: ordered.map(\.id))
                                             HapticManager.shared.playImpact(style: .medium)
                                         }
@@ -703,7 +712,7 @@ struct MyJungleView: View {
                     // Streak and recap are reflective, full-screen reads rather than
                     // continuations of a tapped element, so they dissolve in instead of
                     // sliding — there's no source rectangle for the sheet to grow from.
-                    .navigationTransition(.crossFade)
+                    .crossFadeTransitionIfAvailable()
             }
             .sheet(item: $activeSheet) { sheet in
                 switch sheet {
@@ -721,7 +730,7 @@ struct MyJungleView: View {
                 JungleRecapView()
                     .environment(dataLoader)
                     .environment(careExperience)
-                    .navigationTransition(.crossFade)
+                    .crossFadeTransitionIfAvailable()
             }
         }
     }
