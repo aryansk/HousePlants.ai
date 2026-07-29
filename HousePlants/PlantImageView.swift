@@ -15,24 +15,28 @@ struct PlantImage: View {
     var showsProgress: Bool = true
 
     var body: some View {
-        if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
-            AsyncImage(url: url, transaction: Transaction(animation: .easeIn(duration: 0.2))) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().aspectRatio(contentMode: contentMode)
-                case .failure:
-                    placeholder(failed: true)
-                case .empty:
-                    placeholder(failed: false)
-                @unknown default:
-                    Color.claudeSecondaryBackground
+        Group {
+            if plant.images.main.hasPrefix("http"), let url = URL(string: plant.images.main) {
+                AsyncImage(url: url, transaction: Transaction(animation: .easeIn(duration: 0.2))) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable().aspectRatio(contentMode: contentMode)
+                    case .failure:
+                        placeholder(failed: true)
+                    case .empty:
+                        placeholder(failed: false)
+                    @unknown default:
+                        Color.claudeSecondaryBackground
+                    }
                 }
+            } else {
+                Image(plant.assetImageName)
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
             }
-        } else {
-            Image(plant.assetImageName)
-                .resizable()
-                .aspectRatio(contentMode: contentMode)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(plant.commonName) plant"))
     }
 
     @ViewBuilder

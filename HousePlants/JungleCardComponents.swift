@@ -552,7 +552,7 @@ struct CareSwipeActions<MenuItems: View>: ViewModifier {
     let showToast: (MyJungleView.ActiveToast) -> Void
     /// Extra commands the host row wants in the same menu, so a row doesn't end up with
     /// two separate context menus fighting for the same long-press.
-    @ViewBuilder var additionalMenuItems: MenuItems
+    let additionalMenuItems: () -> MenuItems
 
     @Environment(DataLoader.self) private var dataLoader
 
@@ -596,7 +596,7 @@ struct CareSwipeActions<MenuItems: View>: ViewModifier {
                 .tint(IndieHousePalette.orange)
             }
             .contextMenu {
-                additionalMenuItems
+                additionalMenuItems()
                 Button(action: water) {
                     Label("Water Plant", systemImage: "drop.fill")
                 }
@@ -614,12 +614,12 @@ extension View {
     func careSwipeActions<MenuItems: View>(
         plant: Plant,
         showToast: @escaping (MyJungleView.ActiveToast) -> Void,
-        @ViewBuilder additionalMenuItems: () -> MenuItems = { EmptyView() }
+        @ViewBuilder additionalMenuItems: @escaping () -> MenuItems = { EmptyView() }
     ) -> some View {
         modifier(CareSwipeActions(
             plant: plant,
             showToast: showToast,
-            additionalMenuItems: additionalMenuItems()
+            additionalMenuItems: additionalMenuItems
         ))
     }
 }

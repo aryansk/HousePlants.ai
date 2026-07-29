@@ -5,6 +5,7 @@
 
 import Foundation
 import Testing
+import UIKit
 @testable import HousePlants
 
 // MARK: - Fixtures
@@ -105,6 +106,19 @@ struct PlantCatalogTests {
         #expect(profile.favorites.isEmpty)
         #expect(profile.myJungle.isEmpty)
         #expect(profile.currentStreak == nil)
+    }
+
+    @Test @MainActor func bundledCatalogImagesResolve() throws {
+        let url = try #require(Bundle.main.url(forResource: "plants", withExtension: "json"))
+        let data = try Data(contentsOf: url)
+        let appData = try JSONDecoder().decode(AppData.self, from: data)
+
+        for plant in appData.plantCatalog where !plant.images.main.hasPrefix("http") {
+            #expect(
+                UIImage(named: plant.assetImageName) != nil,
+                "missing bundled image \(plant.assetImageName) for \(plant.id)"
+            )
+        }
     }
 }
 

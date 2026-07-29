@@ -21,7 +21,9 @@ enum PlatformCapability {
     /// non-`List` container, so the app treats them as one capability rather than
     /// checking two versions that will always agree.
     static var hasContainerInteractions: Bool {
+        #if compiler(>=6.4)
         if #available(iOS 27, *) { return true }
+        #endif
         return false
     }
 }
@@ -35,11 +37,15 @@ extension View {
     /// why callers pair it with a context menu carrying the same commands.
     @ViewBuilder
     func swipeActionsContainerIfAvailable() -> some View {
+        #if compiler(>=6.4)
         if #available(iOS 27, *) {
             swipeActionsContainer()
         } else {
             self
         }
+        #else
+        self
+        #endif
     }
 }
 
@@ -49,11 +55,15 @@ extension View {
     /// Marks items as draggable for reordering where supported.
     @ViewBuilder
     func reorderableIfAvailable(isEnabled: Bool) -> some View {
+        #if compiler(>=6.4)
         if #available(iOS 27, *) {
             reorderable(isEnabled: isEnabled)
         } else {
             self
         }
+        #else
+        self
+        #endif
     }
 
     /// Receives reorder drops and reports the resulting order.
@@ -72,6 +82,7 @@ extension View {
         visibleOrder: @escaping () -> [Plant],
         onReorder: @escaping ([Plant]) -> Void
     ) -> some View {
+        #if compiler(>=6.4)
         if #available(iOS 27, *) {
             reorderContainer(for: Plant.self) { difference in
                 var ordered = visibleOrder()
@@ -81,6 +92,9 @@ extension View {
         } else {
             self
         }
+        #else
+        self
+        #endif
     }
 }
 
@@ -94,11 +108,15 @@ extension View {
     /// slide is used, which is correct — just less considered.
     @ViewBuilder
     func crossFadeTransitionIfAvailable() -> some View {
+        #if compiler(>=6.4)
         if #available(iOS 27, *) {
             navigationTransition(.crossFade)
         } else {
             self
         }
+        #else
+        self
+        #endif
     }
 }
 
@@ -111,7 +129,9 @@ extension TabRole {
     /// branching inside the `TabView` builder — a conditional there would change the
     /// static structure of the tab content, which the builder isn't designed for.
     static var prominentIfAvailable: TabRole? {
+        #if compiler(>=6.4)
         if #available(iOS 27, *) { return .prominent }
+        #endif
         return nil
     }
 }

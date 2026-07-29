@@ -1,14 +1,8 @@
-import json
+#!/usr/bin/env python3
+"""Compatibility entry point for the plant-image catalog audit."""
 
-with open("HousePlants/jason.json", "r") as f:
-    data = json.load(f)
+from audit_plant_images import main
 
-plants = data.get("plant_catalog", [])
 
-missing = []
-for p in plants:
-    if "images" not in p:
-        missing.append(p["id"])
-
-print(f"Missing images in {len(missing)} plants:")
-print(missing)
+if __name__ == "__main__":
+    raise SystemExit(main())

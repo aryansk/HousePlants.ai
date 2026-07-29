@@ -1,97 +1,81 @@
+#!/usr/bin/env python3
+"""Install a reviewed local image into one plant asset set.
+
+This replaces the former network downloader. It never fetches or invents assets:
+the caller must provide an already-reviewed JPEG or PNG.
+"""
+
+from __future__ import annotations
+
+import argparse
 import json
-import os
-import urllib.request
-import urllib.parse
-import time
-import ssl
+import shutil
+import subprocess
+from pathlib import Path
 
-jason_path = "/Users/aryan/Documents/HousePlants.ai/HousePlants/jason.json"
-assets_path = "/Users/aryan/Documents/HousePlants.ai/HousePlants/Assets.xcassets"
 
-def replace_all_images():
-    print(f"Loading plant data from {jason_path}...")
-    with open(jason_path, 'r') as f:
-        data = json.load(f)
-    
-    plants = data.get("plant_catalog", [])
-    total = len(plants)
-    
-    print(f"Found {total} plants. Starting download...\n")
-    
-    success = 0
-    failed = []
-    
-    for i, plant in enumerate(plants, 1):
-        pid = plant.get("id")
-        name = plant.get("botanical_name", plant.get("common_name"))
-        image_name = f"{pid}_main"
-        imageset_dir = os.path.join(assets_path, f"{image_name}.imageset")
-        
-        # Create directory if it doesn't exist
-        if not os.path.exists(imageset_dir):
-            os.makedirs(imageset_dir)
-            
-        # Create Contents.json
-        contents_json = {
-            "images": [
-                {
-                    "filename": f"{image_name}.jpg",
-                    "idiom": "universal",
-                    "scale": "1x"
-                },
-                {
-                    "idiom": "universal",
-                    "scale": "2x"
-                },
-                {
-                    "idiom": "universal",
-                    "scale": "3x"
-                }
+ROOT = Path(__file__).resolve().parents[1]
+CATALOG = ROOT / "HousePlants" / "plants.json"
+ASSETS = ROOT / "HousePlants" / "Assets.xcassets"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("plant_id", help="Catalog id such as p_091")
+    parser.add_argument("source", type=Path, help="Reviewed local JPEG or PNG")
+    parser.add_argument("--quality", type=int, default=86)
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    source = args.source.expanduser().resolve()
+    if not source.is_file():
+        raise SystemExit(f"source image not found: {source}")
+    if source.suffix.lower() not in {".jpg", ".jpeg", ".png"}:
+        raise SystemExit("source must be a JPEG or PNG")
+
+    data = json.loads(CATALOG.read_text())
+    plant = next(
+        (item for item in data["plant_catalog"] if item["id"] == args.plant_id),
+        None,
+    )
+    if plant is None:
+        raise SystemExit(f"unknown plant id: {args.plant_id}")
+
+    asset_name = Path(plant["images"]["main"]).stem
+    imageset = ASSETS / f"{asset_name}.imageset"
+    imageset.mkdir(parents=True, exist_ok=True)
+    destination = imageset / f"{asset_name}.jpg"
+
+    sips = Path("/usr/bin/sips")
+    if sips.is_file():
+        subprocess.run(
+            [
+                str(sips), "-z", "1024", "1024", "-s", "format", "jpeg",
+                "-s", "formatOptions", str(args.quality), str(source),
+                "--out", str(destination),
             ],
-            "info": {
-                "author": "xcode",
-                "version": 1
-            }
-        }
-        
-        with open(os.path.join(imageset_dir, "Contents.json"), 'w') as f:
-            json.dump(contents_json, f, indent=2)
-            
-        # Download Image with improved prompt
-        image_path = os.path.join(imageset_dir, f"{image_name}.jpg")
-        
-        print(f"[{i}/{total}] Downloading {name} ({pid})...", end=" ")
-        
-        try:
-            # Improved prompt for natural, realistic photos
-            prompt = f"natural realistic photograph of {name} houseplant in home setting, natural lighting, authentic indoor plant photography, high quality"
-            encoded_prompt = urllib.parse.quote(prompt)
-            url = f"https://gen.pollinations.ai/image/{encoded_prompt}?width=1024&height=1024&seed={i}&nologo=true"
-            
-            # Create unverified SSL context
-            context = ssl._create_unverified_context()
-            
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, context=context, timeout=45) as response:
-                if response.status == 200:
-                    with open(image_path, 'wb') as f:
-                        f.write(response.read())
-                    print("✓")
-                    success += 1
-                else:
-                    print(f"✗ (Status {response.status})")
-                    failed.append(pid)
-        except Exception as e:
-            print(f"✗ ({str(e)[:50]})")
-            failed.append(pid)
-        
-        # Be nice to the API
-        time.sleep(0.5)
-    
-    print(f"\n{'='*60}")
-    print(f"Complete! Success: {success}/{total}")
-    if failed:
-        print(f"Failed IDs: {failed}")
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+    elif source.suffix.lower() in {".jpg", ".jpeg"}:
+        shutil.copy2(source, destination)
+    else:
+        raise SystemExit("PNG conversion requires /usr/bin/sips on this machine")
+
+    contents = {
+        "images": [
+            {"filename": destination.name, "idiom": "universal", "scale": "1x"},
+            {"idiom": "universal", "scale": "2x"},
+            {"idiom": "universal", "scale": "3x"},
+        ],
+        "info": {"author": "xcode", "version": 1},
+    }
+    (imageset / "Contents.json").write_text(json.dumps(contents, indent=2) + "\n")
+    print(f"installed {args.plant_id}: {destination.relative_to(ROOT)}")
+    return 0
+
 
 if __name__ == "__main__":
-    replace_all_images()
+    raise SystemExit(main())
