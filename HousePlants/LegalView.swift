@@ -41,7 +41,7 @@ private struct LegalDocumentView: View {
 
                 Divider().padding(.vertical, 8)
 
-                Text("Questions? Contact us at support@houseplants.io")
+                Text("Questions? Contact us at indiehouseapps@gmail.com")
                     .font(.footnote)
                     .foregroundStyle(Color.claudeSecondaryText)
             }
@@ -58,41 +58,41 @@ struct PrivacyPolicyView: View {
     var body: some View {
         LegalDocumentView(
             title: "Privacy Policy",
-            lastUpdated: "May 18, 2026",
-            intro: "HousePlants.ai (\"we\", \"our\", \"the app\") respects your privacy. This policy explains what data the app collects, how it is used, and the choices you have.",
+            lastUpdated: "August 14, 2026",
+            intro: "HousePlants.ai (\"we\", \"our\", \"the app\") is a local-first plant-care app. We do not operate user accounts or sell personal information. This policy explains the optional data flows used by the app.",
             sections: [
                 LegalSection(
                     heading: "Information We Collect",
                     body: """
-                    • Profile data you provide: username, city, country, and an optional profile photo.
-                    • Plant collection data: plants you add, watering history, journal entries, photos of your plants, and care preferences.
-                    • Device data: notification preferences, app settings, and locally cached weather and location information used for care recommendations.
-                    • Approximate location (city level) if you grant permission, used to tailor seasonal and climate-based care tips.
+                    • Information you enter in the app, such as a username, city, plant collection, watering history, journal entries, care preferences, and optional photos. This information is stored on your device.
+                    • A plant photo only when you choose to use Plant Identifier. The selected image is sent over HTTPS to the Pl@ntNet service to return identification results.
+                    • Approximate location only when you grant Location permission and use climate-aware care. The app uses it to request a weather forecast from Apple WeatherKit.
                     """
                 ),
                 LegalSection(
                     heading: "How We Use Your Information",
                     body: """
-                    • To provide personalized plant care reminders, identification, and recommendations.
-                    • To power AI features such as plant identification, health diagnosis, and skincare/toxicity checks. Photos you submit to these features may be processed by trusted third-party AI providers strictly to return a result to you.
-                    • To improve the app and fix bugs.
-                    We do not sell your personal information. We do not use your photos or content to train third-party AI models without your consent.
+                    • To provide plant-care reminders, local recommendations, health calculations, and journal features.
+                    • To return plant identification results when you submit a photo to Pl@ntNet. Pl@ntNet processes that request under its own terms and privacy policy.
+                    • To calculate climate-aware care adjustments from an Apple WeatherKit forecast when you enable location access.
+                    • To synchronize a limited set of plant state and preferences through Apple's private iCloud key-value store when iCloud is available.
+                    We do not use analytics or advertising tracking, and we do not sell your personal information.
                     """
                 ),
                 LegalSection(
                     heading: "Data Storage",
                     body: """
-                    Your profile, plant collection, journal, and photos are stored locally on your device. When iCloud sync is available, collection details, favorites, preferences, and streak data are mirrored through your private iCloud account; journal and profile photos remain on this device. Photos sent to AI features are transmitted over encrypted connections and are not retained by us after processing.
+                    Your profile, plant collection, journal, and photos are stored locally on your device. When iCloud sync is available, selected collection details, favorites, preferences, and streak data are mirrored through your private iCloud account; journal and profile photos remain on this device. The Pl@ntNet API key you provide is stored in the iOS Keychain. Photos sent to Pl@ntNet are transmitted over an encrypted connection and are handled under Pl@ntNet's own privacy terms.
                     """
                 ),
                 LegalSection(
                     heading: "Third-Party Services",
                     body: """
-                    The app may use the following categories of third-party services:
-                    • AI providers (for plant identification and diagnosis).
-                    • Weather data providers (for climate-aware recommendations).
-                    • Apple services (iCloud, HealthKit/HomeKit where you opt in, Notifications).
-                    These providers handle data under their own privacy terms.
+                    The app may use:
+                    • Pl@ntNet, when you request plant identification. You provide and control the API key used for this request.
+                    • Apple WeatherKit, when you enable location access and use climate-aware recommendations.
+                    • Apple services such as iCloud key-value storage, HomeKit, Calendar, and Notifications when you opt in or use the related feature.
+                    These providers handle data under their own privacy terms and service agreements.
                     """
                 ),
                 LegalSection(
@@ -113,7 +113,7 @@ struct PrivacyPolicyView: View {
                 ),
                 LegalSection(
                     heading: "Contact",
-                    body: "For questions or data requests, contact support@houseplants.io."
+                    body: "For questions or data requests, contact indiehouseapps@gmail.com."
                 )
             ]
         )
@@ -124,7 +124,7 @@ struct TermsOfServiceView: View {
     var body: some View {
         LegalDocumentView(
             title: "Terms of Service",
-            lastUpdated: "May 18, 2026",
+            lastUpdated: "August 14, 2026",
             intro: "By using HousePlants.ai you agree to these Terms of Service. Please read them carefully.",
             sections: [
                 LegalSection(
@@ -144,10 +144,6 @@ struct TermsOfServiceView: View {
                     body: "You retain ownership of photos and content you create in the app. By using AI features that require uploading content, you grant us a limited right to process that content solely to deliver the requested result."
                 ),
                 LegalSection(
-                    heading: "Subscriptions and Purchases",
-                    body: "If the app offers paid features, purchases are processed by Apple and governed by the Apple Media Services Terms. Refunds are handled by Apple."
-                ),
-                LegalSection(
                     heading: "Disclaimer of Warranties",
                     body: "The app is provided \"as is\" without warranty of any kind. To the maximum extent permitted by law, we disclaim all warranties, express or implied."
                 ),
@@ -165,7 +161,7 @@ struct TermsOfServiceView: View {
                 ),
                 LegalSection(
                     heading: "Contact",
-                    body: "Questions about these Terms can be sent to support@houseplants.io."
+                    body: "Questions about these Terms can be sent to indiehouseapps@gmail.com."
                 )
             ]
         )

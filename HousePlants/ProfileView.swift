@@ -230,7 +230,7 @@ struct ProfileView: View {
                         }
                     
                         Section(header: Text("Support").font(.claudeSans(size: 14)).fontWeight(.semibold).foregroundStyle(Color.claudeSecondaryText)) {
-                            Link(destination: URL(string: "https://houseplants.io")!) {
+                            Link(destination: URL(string: "https://indiehouse.vercel.app/support")!) {
                                 Label("Help Center", systemImage: "questionmark.circle.fill")
                             }
                         

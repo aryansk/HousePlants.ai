@@ -27,8 +27,6 @@ private enum ToolSearchIndex {
 
 struct ToolsView: View {
     @Environment(DataLoader.self) var dataLoader
-    @ObservedObject private var proManager = ProManager.shared
-    @State private var showProUpgrade = false
     @State private var showGrowthPicker = false
     @State private var searchText = ""
     @FocusState private var searchFocused: Bool
@@ -133,11 +131,11 @@ struct ToolsView: View {
                                         ToolNavigationLink(destination: PropagationStationView(), icon: "scissors", title: "Propagation Station", description: "Step-by-step guides to multiply your collection.", color: Color(hex: "8E44AD"), index: 3)
                                     }
 
-                                    // Growth Analytics — Pro, opens plant picker then analytics view
+                                    // Growth Analytics opens the plant picker then analytics view.
                                     if matches(ToolSearchIndex.health[4]) {
                                         Button(action: {
-                                        if proManager.isPro { showGrowthPicker = true } else { showProUpgrade = true }
-                                    }) {
+                                            showGrowthPicker = true
+                                        }) {
                                         HStack(spacing: 16) {
                                             ZStack {
                                                 Circle()
@@ -152,21 +150,13 @@ struct ToolsView: View {
                                                     Text("Growth Analytics")
                                                         .font(.claudeSans(size: 16, weight: .bold))
                                                         .foregroundStyle(Color.claudePrimaryText)
-                                                    if !proManager.isPro {
-                                                        Text("PRO")
-                                                            .font(.system(size: 9, weight: .bold))
-                                                            .foregroundStyle(.white)
-                                                            .padding(.horizontal, 5)
-                                                            .padding(.vertical, 2)
-                                                            .background(Capsule().fill(Color.orange))
-                                                    }
                                                 }
                                                 Text("Per-plant health timeline, watering adherence & journal stats.")
                                                     .font(.claudeSans(size: 13))
                                                     .foregroundStyle(Color.claudeSecondaryText)
                                             }
                                             Spacer()
-                                            Image(systemName: proManager.isPro ? "chevron.right" : "lock.fill")
+                                            Image(systemName: "chevron.right")
                                                 .font(.system(size: 14, weight: .bold))
                                                 .foregroundStyle(Color.claudeBorder)
                                         }
@@ -177,7 +167,7 @@ struct ToolsView: View {
                                     }
                                         .buttonStyle(InteractiveCardButtonStyle())
                                         .accessibilityLabel("Growth Analytics")
-                                        .accessibilityValue(proManager.isPro ? "Available" : "Requires Pro")
+                                        .accessibilityValue("Available")
                                     }
                                 }
                             }
@@ -219,9 +209,6 @@ struct ToolsView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
-        }
-        .sheet(isPresented: $showProUpgrade) {
-            ProUpgradeView()
         }
         .sheet(isPresented: $showGrowthPicker) {
             GrowthPlantPickerView()

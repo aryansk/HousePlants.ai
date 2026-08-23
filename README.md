@@ -309,7 +309,8 @@ struct UserProfile: Codable {
 - Lazy list rendering — only visible cards are evaluated
 - Filtering and sorting use computed properties to avoid redundant work
 - `HapticManager` pre-calls `.prepare()` to reduce haptic latency
-- No external network calls — fully offline-capable
+- Local-first storage with optional network calls for Pl@ntNet plant identification and
+  WeatherKit climate-aware recommendations
 
 ## 🔒 Security & Privacy
 
@@ -318,7 +319,9 @@ struct UserProfile: Codable {
   - Location — Climate Matcher auto-detect (optional)
   - Camera — Sun Seeker AR (optional)
   - Notifications — watering reminders (optional)
-- No analytics, no tracking, no data transmission
+- No analytics or tracking. If you use plant identification, the selected photo is sent to
+  Pl@ntNet using the API key you provide; if you enable climate-aware recommendations, the
+  app requests weather data for your approximate location through WeatherKit.
 
 ## 🤝 Contributing
 

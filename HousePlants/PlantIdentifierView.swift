@@ -12,11 +12,10 @@ struct PlantIdentifierView: View {
     @State private var errorMessage: String?
     @State private var showCamera = false
     @State private var showKeySheet = false
-    @ObservedObject private var proManager = ProManager.shared
     @State private var hasAPIKey = PlantNetService.shared.apiKey != nil
 
-    /// True when the user has a key OR Pro supplies one automatically.
-    private var effectiveHasAPIKey: Bool { hasAPIKey || proManager.isPro }
+    /// Plant identification requires the user's own Pl@ntNet key.
+    private var effectiveHasAPIKey: Bool { hasAPIKey }
 
     var body: some View {
         ZStack {
@@ -73,7 +72,6 @@ struct PlantIdentifierView: View {
         }
         .sheet(isPresented: $showKeySheet, onDismiss: {
             hasAPIKey = PlantNetService.shared.apiKey != nil
-            // Re-evaluate after key sheet dismissal (covers the Pro inject path too).
         }) {
             PlantNetKeySheet()
         }

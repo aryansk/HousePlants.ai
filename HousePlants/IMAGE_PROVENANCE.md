@@ -24,12 +24,15 @@ hands, or competing plants. Each final asset was converted to a 1024×1024 JPEG.
 The generation originals are development artifacts and are not runtime
 dependencies. The reviewed JPEGs in `Assets.xcassets` are the shipping assets.
 
-## Legacy assets
+## Owner rights statement
 
-Catalog images not listed above predate this provenance record. Their original
-source and licensing evidence are not established in this repository. Treat
-them as `legacy-source-unverified` until they are replaced or documentary
-evidence is added.
+On 2026-08-15, the account holder stated that all catalog images currently used
+by HousePlants.ai, including assets not enumerated in the generation batches
+above, were generated with AI for this project by or for the owner and are
+owned/authorized for use by `indiehouse.io`. No third-party catalog photos are
+intentionally used in this release. This is the owner-provided rights statement
+for Apple review and should remain aligned with Content Rights and App Review
+Notes.
 
 ## Validation
 

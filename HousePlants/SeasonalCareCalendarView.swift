@@ -4,12 +4,10 @@ import EventKit
 struct SeasonalCareCalendarView: View {
     @Environment(DataLoader.self) var dataLoader
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ObservedObject private var proManager = ProManager.shared
 
     @State private var selectedMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var animateLeaf = false
     @State private var showInfoSheet = false
-    @State private var showProUpgrade = false
     @State private var calendarAlertMessage = ""
     @State private var showCalendarAlert = false
     
@@ -190,9 +188,6 @@ struct SeasonalCareCalendarView: View {
         .sheet(isPresented: $showInfoSheet) {
             SeasonalCareInfoSheet()
         }
-        .sheet(isPresented: $showProUpgrade) {
-            ProUpgradeView()
-        }
         .alert("Calendar Export", isPresented: $showCalendarAlert) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -204,34 +199,22 @@ struct SeasonalCareCalendarView: View {
 
     private var calendarExportButton: some View {
         Button(action: {
-            if proManager.isPro {
-                exportToCalendar()
-            } else {
-                showProUpgrade = true
-            }
+            exportToCalendar()
         }) {
             HStack(spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color.blue.opacity(0.12))
                         .frame(width: 40, height: 40)
-                    Image(systemName: proManager.isPro ? "calendar.badge.plus" : "lock.fill")
+                    Image(systemName: "calendar.badge.plus")
                         .font(.system(size: 18))
-                        .foregroundColor(proManager.isPro ? .blue : .orange)
+                        .foregroundColor(.blue)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text("Export to Apple Calendar")
                             .font(.claudeSans(size: 15, weight: .semibold))
                             .foregroundColor(.claudePrimaryText)
-                        if !proManager.isPro {
-                            Text("PRO")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(Color.orange))
-                        }
                     }
                     Text("Repotting, fertilising & bloom events for your jungle.")
                         .font(.claudeSans(size: 12))

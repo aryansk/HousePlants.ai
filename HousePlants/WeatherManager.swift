@@ -18,6 +18,7 @@ struct WateringAdjustment: Equatable {
 @MainActor
 final class WeatherManager: ObservableObject {
     static let shared = WeatherManager()
+    static let weatherKitLegalAttributionURL = URL(string: "https://weatherkit.apple.com/legal-attribution.html")!
 
     @Published private(set) var lastAdjustment: WateringAdjustment?
 
@@ -43,6 +44,13 @@ final class WeatherManager: ObservableObject {
         self.lastAdjustment = fresh
         return fresh
     }
+
+    #if canImport(WeatherKit)
+    /// WeatherKit supplies the current legal attribution URL and text at runtime.
+    func attribution() async -> WeatherAttribution? {
+        try? await WeatherService.shared.attribution
+    }
+    #endif
 
     private func fetch(for coord: CLLocationCoordinate2D) async -> WateringAdjustment {
         #if canImport(WeatherKit)

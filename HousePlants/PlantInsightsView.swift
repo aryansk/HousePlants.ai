@@ -1,15 +1,22 @@
 import SwiftUI
 import CoreLocation
+#if canImport(WeatherKit)
+import WeatherKit
+#endif
 
 struct PlantInsightsView: View {
     let myPlant: MyPlant
     @Environment(DataLoader.self) var dataLoader
+    @Environment(\.colorScheme) private var colorScheme
     @StateObject private var locationManager = LocationManager()
     @StateObject private var homeKit = HomeKitSensorManager.shared
 
     @State private var assessment: HealthAssessment?
     @State private var isOutdoor: Bool
     @State private var potSize: Int
+    #if canImport(WeatherKit)
+    @State private var weatherAttribution: WeatherAttribution?
+    #endif
 
     init(myPlant: MyPlant) {
         self.myPlant = myPlant
@@ -35,6 +42,7 @@ struct PlantInsightsView: View {
             refresh()
             locationManager.requestLocation()
             homeKit.start()
+            Task { await loadWeatherAttribution() }
         }
     }
 
@@ -94,7 +102,56 @@ struct PlantInsightsView: View {
             Button("Refresh forecast") {
                 Task { await syncWeather() }
             }
+            weatherAttributionView
         }
+    }
+
+    @ViewBuilder
+    private var weatherAttributionView: some View {
+        #if canImport(WeatherKit)
+        let legalURL = weatherAttribution?.legalPageURL ?? WeatherManager.weatherKitLegalAttributionURL
+        VStack(alignment: .leading, spacing: 6) {
+            Link(destination: legalURL) {
+                HStack(spacing: 6) {
+                    if let markURL = colorScheme == .dark
+                        ? weatherAttribution?.combinedMarkDarkURL
+                        : weatherAttribution?.combinedMarkLightURL {
+                        AsyncImage(url: markURL) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: 140, maxHeight: 24, alignment: .leading)
+                        } placeholder: {
+                            Text(" Weather")
+                                .font(.caption.weight(.medium))
+                        }
+                        .frame(maxWidth: 140, minHeight: 24, alignment: .leading)
+                    } else {
+                        Text(" Weather")
+                            .font(.caption.weight(.medium))
+                    }
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .accessibilityLabel(" Weather. Open weather data sources and legal attribution.")
+
+            if let attribution = weatherAttribution {
+                Text(attribution.legalAttributionText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.leading)
+            } else {
+                Text("Weather data from Apple. Open the link for data sources and legal attribution.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.leading)
+            }
+        }
+        #else
+        EmptyView()
+        #endif
     }
 
     @ViewBuilder
@@ -197,6 +254,12 @@ struct PlantInsightsView: View {
 
     private func refresh() {
         assessment = dataLoader.healthAssessment(for: myPlant)
+    }
+
+    private func loadWeatherAttribution() async {
+        #if canImport(WeatherKit)
+        weatherAttribution = await WeatherManager.shared.attribution()
+        #endif
     }
 
     private func syncWeather() async {

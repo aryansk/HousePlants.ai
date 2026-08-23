@@ -17,7 +17,6 @@ import ARKit
 //
 // Related flag: AppConfig.features.arPlacement — keep false until real plant models ship.
 
-/// Gate: only reachable when ProManager.shared.isPro == true (enforced in PlantDetailView).
 struct ARPlantPlacementView: View {
     let plant: Plant
 

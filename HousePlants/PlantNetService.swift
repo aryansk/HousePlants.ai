@@ -97,8 +97,7 @@ final class PlantNetService {
         migrateLegacyKeyIfNeeded()
     }
 
-    /// The user's personal Pl@ntNet key, stored in the Keychain. The bundled Pro key is
-    /// resolved per-request in `identify` and is intentionally never persisted here.
+    /// The user's personal Pl@ntNet key, stored in the Keychain.
     var apiKey: String? {
         get {
             let key = KeychainStore.string(for: Self.keychainKey)
@@ -109,19 +108,18 @@ final class PlantNetService {
         }
     }
 
-    /// Earlier builds kept the key in plaintext UserDefaults — move it to the Keychain.
-    /// Builds that injected the bundled Pro key into defaults get it scrubbed instead.
+    /// Earlier builds kept the key in plaintext UserDefaults — move it to the Keychain and
+    /// remove the legacy value after migration.
     private func migrateLegacyKeyIfNeeded() {
         guard let legacy = UserDefaults.standard.string(forKey: Self.legacyDefaultsKey) else { return }
-        if !legacy.isEmpty, legacy != ProConfig.plantNetAPIKey, apiKey == nil {
+        if !legacy.isEmpty, apiKey == nil {
             KeychainStore.setString(legacy, for: Self.keychainKey)
         }
         UserDefaults.standard.removeObject(forKey: Self.legacyDefaultsKey)
     }
 
     func identify(imageData: Data, organ: PlantOrgan) async throws -> [PlantNetResult] {
-        let proKey = ProManager.shared.isPro ? ProConfig.plantNetAPIKey : nil
-        guard let apiKey = apiKey ?? proKey else { throw PlantNetError.missingAPIKey }
+        guard let apiKey else { throw PlantNetError.missingAPIKey }
 
         guard var components = URLComponents(string: endpoint) else {
             throw PlantNetError.server(0)

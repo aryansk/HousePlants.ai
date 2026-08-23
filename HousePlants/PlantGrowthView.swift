@@ -2,12 +2,9 @@ import SwiftUI
 import Charts
 
 /// Per-plant growth analytics — watering history, health score, and journal coverage.
-/// Gated behind Pro. Free users see a paywall prompt.
 struct PlantGrowthView: View {
     let plant: Plant
     @Environment(DataLoader.self) var dataLoader
-    @ObservedObject private var proManager = ProManager.shared
-    @State private var showProUpgrade = false
 
     private var myPlant: MyPlant? { dataLoader.myJungleLookup[plant.id] }
 
@@ -15,11 +12,7 @@ struct PlantGrowthView: View {
         ZStack {
             Color.claudeBackground.ignoresSafeArea()
 
-            if proManager.isPro {
-                analyticsContent
-            } else {
-                proLockedContent
-            }
+            analyticsContent
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -27,44 +20,6 @@ struct PlantGrowthView: View {
                 Text("Growth Analytics")
                     .font(.claudeSans(size: 16, weight: .bold))
             }
-        }
-        .sheet(isPresented: $showProUpgrade) {
-            ProUpgradeView()
-        }
-    }
-
-    // MARK: - Locked state
-
-    private var proLockedContent: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            Image(systemName: "chart.xyaxis.line")
-                .font(.system(size: 52))
-                .foregroundStyle(Color.purple.opacity(0.7))
-
-            VStack(spacing: 8) {
-                Text("Growth Analytics")
-                    .font(.claudeSerif(size: 22, weight: .bold))
-                    .foregroundColor(.claudePrimaryText)
-                Text("Watering adherence, health trends, and journal stats — all in one place. Unlock with Pro.")
-                    .font(.claudeSans(size: 14))
-                    .foregroundColor(.claudeSecondaryText)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
-
-            Button(action: { showProUpgrade = true }) {
-                Text("Upgrade to Pro")
-                    .font(.claudeSans(size: 16, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.claudeAccent)
-                    .cornerRadius(14)
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 40)
-            Spacer()
         }
     }
 

@@ -14,10 +14,8 @@ struct PlantDetailView: View {
     @State private var showOriginCountries = false
     @State private var showGrowthView = false
     @State private var showARPlacement = false
-    @State private var showProUpgrade = false
     @State private var favoriteCelebrating = false
     @State private var jungleCelebrating = false
-    @ObservedObject private var proManager = ProManager.shared
     
     var isInJungle: Bool {
         guard let profile = dataLoader.userProfile else { return false }
@@ -422,20 +420,18 @@ struct PlantDetailView: View {
                                     }
                                     ToolLinkRow(
                                         title: "Growth Analytics",
-                                        subtitle: proManager.isPro ? "Health trends & watering adherence" : "Pro — health trends & watering adherence",
-                                        icon: "chart.xyaxis.line", color: .purple,
-                                        badge: proManager.isPro ? nil : "PRO"
+                                        subtitle: "Health trends & watering adherence",
+                                        icon: "chart.xyaxis.line", color: .purple
                                     ) {
-                                        if proManager.isPro { showGrowthView = true } else { showProUpgrade = true }
+                                        showGrowthView = true
                                     }
                                     if dataLoader.appData?.appConfig.features.arPlacement == true {
                                         ToolLinkRow(
                                             title: "AR Plant Placement",
-                                            subtitle: proManager.isPro ? "Preview plants in your room" : "Pro — preview plants in your room",
-                                            icon: "arkit", color: .teal,
-                                            badge: proManager.isPro ? nil : "PRO"
+                                            subtitle: "Preview plants in your room",
+                                            icon: "arkit", color: .teal
                                         ) {
-                                            if proManager.isPro { showARPlacement = true } else { showProUpgrade = true }
+                                            showARPlacement = true
                                         }
                                     }
                                 }
@@ -490,9 +486,6 @@ struct PlantDetailView: View {
                 OriginCountriesView(region: plant.origin.region, countries: countries)
                     .presentationDetents([.medium, .large])
             }
-        }
-        .sheet(isPresented: $showProUpgrade) {
-            ProUpgradeView()
         }
         .sheet(isPresented: $showGrowthView) {
             NavigationStack {
@@ -595,19 +588,12 @@ struct PlantDetailView: View {
     
     var addToJungleButton: some View {
         Button(action: {
-            let atLimit = !proManager.isPro &&
-                          (dataLoader.userProfile?.myJungle.count ?? 0) >= ProManager.freePlantLimit
-            if !isInJungle && atLimit {
-                HapticManager.shared.playNotification(type: .warning)
-                showProUpgrade = true
-            } else {
-                HapticManager.shared.playNotification(type: .success)
-                let wasIn = isInJungle
-                withMotion(Motion.playful) {
-                    dataLoader.toggleJungle(plant: plant)
-                }
-                if !wasIn { jungleCelebrating = true }
+            HapticManager.shared.playNotification(type: .success)
+            let wasIn = isInJungle
+            withMotion(Motion.playful) {
+                dataLoader.toggleJungle(plant: plant)
             }
+            if !wasIn { jungleCelebrating = true }
         }) {
             HStack(spacing: 12) {
                 Image(systemName: isInJungle ? "checkmark" : "plus")

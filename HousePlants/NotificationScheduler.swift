@@ -5,8 +5,7 @@ import os
 /// Schedules real system notifications for plant care reminders so the in-app notification
 /// list is backed by notifications that actually fire. Respects the user's notification settings.
 ///
-/// Free tier: watering reminders only.
-/// Pro tier: also fertilizer, misting, repotting, and bloom countdown reminders.
+/// Schedules watering, fertilizer, misting, repotting, and bloom countdown reminders.
 final class NotificationScheduler {
     static let shared = NotificationScheduler()
 
@@ -70,7 +69,7 @@ final class NotificationScheduler {
         }
     }
 
-    // MARK: - Watering (free tier)
+    // MARK: - Watering
 
     /// Replaces all pending watering reminders with the supplied set (other notifications untouched).
     func sync(reminders: [Reminder], enabled: Bool, sundaysOnly: Bool, now: Date = Date()) {
@@ -93,10 +92,9 @@ final class NotificationScheduler {
         }
     }
 
-    // MARK: - Fertilizer (Pro)
+    // MARK: - Fertilizer
 
     func syncFertilizerReminders(_ reminders: [FertilizerReminder], enabled: Bool, now: Date = Date()) {
-        guard ProManager.shared.isPro else { return }
         replace(prefix: fertilizerPrefix, enabled: enabled) { [weak self] in
             guard let self else { return }
             for reminder in reminders {
@@ -112,10 +110,9 @@ final class NotificationScheduler {
         }
     }
 
-    // MARK: - Misting (Pro)
+    // MARK: - Misting
 
     func syncMistingReminders(_ reminders: [MistingReminder], enabled: Bool, now: Date = Date()) {
-        guard ProManager.shared.isPro else { return }
         replace(prefix: mistPrefix, enabled: enabled) { [weak self] in
             guard let self else { return }
             for reminder in reminders {
@@ -131,10 +128,9 @@ final class NotificationScheduler {
         }
     }
 
-    // MARK: - Repotting (Pro)
+    // MARK: - Repotting
 
     func syncRepottingReminders(_ reminders: [RepottingReminder], enabled: Bool, now: Date = Date()) {
-        guard ProManager.shared.isPro else { return }
         replace(prefix: repotPrefix, enabled: enabled) { [weak self] in
             guard let self else { return }
             for reminder in reminders {
@@ -150,10 +146,9 @@ final class NotificationScheduler {
         }
     }
 
-    // MARK: - Bloom countdown (Pro)
+    // MARK: - Bloom countdown
 
     func syncBloomReminders(_ reminders: [BloomReminder], enabled: Bool, now: Date = Date()) {
-        guard ProManager.shared.isPro else { return }
         replace(prefix: bloomPrefix, enabled: enabled) { [weak self] in
             guard let self else { return }
             for reminder in reminders {

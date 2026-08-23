@@ -193,12 +193,10 @@
 				926DBDDA2ED890120092E592 /* Sources */,
 				926DBDDB2ED890120092E592 /* Frameworks */,
 				926DBDDC2ED890120092E592 /* Resources */,
-				3A7769E02FAAFF770030FCFD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				3A7769DE2FAAFF770030FCFD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				926DBDE02ED890120092E592 /* HousePlants */,
@@ -577,21 +575,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HousePlants/HousePlants.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = U52UDRMR4A;
+				DEVELOPMENT_TEAM = 9457ZD7597;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Used to export repotting, fertilising and bloom reminders to your calendar.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Used to identify plants from photos and by the Sun Seeker tool to analyze light conditions.";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "Used to read temperature and humidity from your HomeKit sensors so we can alert you when conditions are bad for a plant.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to auto-detect your city for the Climate Matcher tool.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Used to set your profile photo.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to auto-detect your city for Climate Matcher and climate-aware plant-care recommendations.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Used to choose a profile photo or a plant photo for identification and journaling.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -606,7 +604,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -617,21 +615,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HousePlants/HousePlants.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 4;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = U52UDRMR4A;
+				DEVELOPMENT_TEAM = 9457ZD7597;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Used to export repotting, fertilising and bloom reminders to your calendar.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Used to identify plants from photos and by the Sun Seeker tool to analyze light conditions.";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "Used to read temperature and humidity from your HomeKit sensors so we can alert you when conditions are bad for a plant.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to auto-detect your city for the Climate Matcher tool.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Used to set your profile photo.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Used to auto-detect your city for Climate Matcher and climate-aware plant-care recommendations.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Used to choose a profile photo or a plant photo for identification and journaling.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -640,13 +638,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "HousePlants.ai App Store 2026";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};

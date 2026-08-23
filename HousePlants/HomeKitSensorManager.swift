@@ -10,7 +10,7 @@ import HomeKit
 /// for most consumer plant sensors) and surfaces the latest reading per accessory.
 ///
 /// Per-plant binding lives in UserDefaults under "homekit.binding.{plantId}" → accessory UUID.
-/// Pro feature: startThresholdMonitoring() fires local notifications when readings are out of range.
+/// Threshold monitoring can fire local notifications when readings are out of range.
 @MainActor
 final class HomeKitSensorManager: NSObject, ObservableObject {
     static let shared = HomeKitSensorManager()
@@ -70,12 +70,11 @@ final class HomeKitSensorManager: NSObject, ObservableObject {
         return accessories.first(where: { $0.id == id })
     }
 
-    // MARK: - Pro: Threshold monitoring
+    // MARK: - Threshold monitoring
 
     /// Starts a Combine timer that reads all bound sensors every 15 minutes and fires a local
-    /// notification when a reading breaches a plant's threshold. Silently ignored if not Pro.
+    /// notification when a reading breaches a plant's threshold.
     func startThresholdMonitoring(thresholds: [PlantThreshold]) {
-        guard ProManager.shared.isPro else { return }
         self.thresholds = thresholds
         monitoringCancellable?.cancel()
 
@@ -98,7 +97,6 @@ final class HomeKitSensorManager: NSObject, ObservableObject {
     }
 
     private func checkThresholds() {
-        guard ProManager.shared.isPro else { return }
         #if canImport(HomeKit)
         refreshAccessories()
         #endif

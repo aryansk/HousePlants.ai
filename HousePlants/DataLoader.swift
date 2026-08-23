@@ -760,7 +760,7 @@ class DataLoader {
             let sundaysOnly = profile.preferences.notifyOnSundays
             let now = Date()
 
-            // --- Watering (free tier) ---
+            // --- Watering ---
             let waterReminders: [NotificationScheduler.Reminder] = profile.myJungle.compactMap { myPlant in
                 guard let dateString = myPlant.nextWateringDate,
                       let date = DataLoader.isoFormatter.date(from: dateString) else { return nil }
@@ -770,9 +770,7 @@ class DataLoader {
             NotificationScheduler.shared.sync(reminders: waterReminders, enabled: enabled,
                                               sundaysOnly: sundaysOnly, now: now)
 
-            guard ProManager.shared.isPro else { return }
-
-            // --- Fertilizer (Pro) — every 30 days from lastFertilized ---
+            // --- Fertilizer — every 30 days from lastFertilized ---
             let fertReminders: [NotificationScheduler.FertilizerReminder] = profile.myJungle.map { myPlant in
                 let base: Date
                 if let s = myPlant.lastFertilized, let d = DataLoader.isoFormatter.date(from: s) {
@@ -786,7 +784,7 @@ class DataLoader {
             }
             NotificationScheduler.shared.syncFertilizerReminders(fertReminders, enabled: enabled, now: now)
 
-            // --- Misting (Pro) — every 3 days from lastMisted ---
+            // --- Misting — every 3 days from lastMisted ---
             let mistReminders: [NotificationScheduler.MistingReminder] = profile.myJungle.map { myPlant in
                 let base: Date
                 if let s = myPlant.lastMisted, let d = DataLoader.isoFormatter.date(from: s) {
@@ -800,7 +798,7 @@ class DataLoader {
             }
             NotificationScheduler.shared.syncMistingReminders(mistReminders, enabled: enabled, now: now)
 
-            // --- Repotting (Pro) — from nextRepotDate ---
+            // --- Repotting — from nextRepotDate ---
             let repotReminders: [NotificationScheduler.RepottingReminder] = profile.myJungle.compactMap { myPlant in
                 guard let s = myPlant.nextRepotDate,
                       let date = DataLoader.isoFormatter.date(from: s) else { return nil }
@@ -809,7 +807,7 @@ class DataLoader {
             }
             NotificationScheduler.shared.syncRepottingReminders(repotReminders, enabled: enabled, now: now)
 
-            // --- Bloom countdown (Pro) — via BloomPredictor ---
+            // --- Bloom countdown — via BloomPredictor ---
             let hemisphere = BloomPredictor.hemisphere(forCountry: profile.locationSettings.country)
             let bloomReminders: [NotificationScheduler.BloomReminder] = profile.myJungle.compactMap { myPlant in
                 guard let plant = self.plant(for: myPlant.plantId),
@@ -825,22 +823,18 @@ class DataLoader {
             }
             NotificationScheduler.shared.syncBloomReminders(bloomReminders, enabled: enabled, now: now)
 
-            // --- HomeKit threshold monitoring (Pro) ---
-            if ProManager.shared.isPro {
-                let thresholds: [HomeKitSensorManager.PlantThreshold] = profile.myJungle.compactMap { myPlant in
-                    guard let plant = self.plant(for: myPlant.plantId) else { return nil }
-                    let minHumidity = plant.careGuide.humidityMinPct ?? self.parseMinHumidity(from: plant.careGuide.humidity)
-                    let maxTemp = plant.careGuide.temperatureMaxC ?? self.parseMaxTempC(from: plant.careGuide.temperatureRange)
-                    let name = myPlant.nickname
-                    return HomeKitSensorManager.PlantThreshold(
-                        plantId: myPlant.plantId, plantName: name,
-                        minHumidityPct: minHumidity, maxTempC: maxTemp
-                    )
-                }
-                HomeKitSensorManager.shared.startThresholdMonitoring(thresholds: thresholds)
-            } else {
-                HomeKitSensorManager.shared.stopThresholdMonitoring()
+            // --- HomeKit threshold monitoring ---
+            let thresholds: [HomeKitSensorManager.PlantThreshold] = profile.myJungle.compactMap { myPlant in
+                guard let plant = self.plant(for: myPlant.plantId) else { return nil }
+                let minHumidity = plant.careGuide.humidityMinPct ?? self.parseMinHumidity(from: plant.careGuide.humidity)
+                let maxTemp = plant.careGuide.temperatureMaxC ?? self.parseMaxTempC(from: plant.careGuide.temperatureRange)
+                let name = myPlant.nickname
+                return HomeKitSensorManager.PlantThreshold(
+                    plantId: myPlant.plantId, plantName: name,
+                    minHumidityPct: minHumidity, maxTempC: maxTemp
+                )
             }
+            HomeKitSensorManager.shared.startThresholdMonitoring(thresholds: thresholds)
         }
     }
 
