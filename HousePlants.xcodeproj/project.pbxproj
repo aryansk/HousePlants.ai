@@ -263,21 +263,21 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2640;
-				LastUpgradeCheck = 2610;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					3A7769C82FAAFF760030FCFD = {
-						CreatedOnToolsVersion = 26.4.1;
+						CreatedOnToolsVersion = 16.0;
 					};
 					926DBDDD2ED890120092E592 = {
-						CreatedOnToolsVersion = 26.1.1;
+						CreatedOnToolsVersion = 16.0;
 					};
 					926DBDEA2ED890140092E592 = {
-						CreatedOnToolsVersion = 26.1.1;
+						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 926DBDDD2ED890120092E592;
 					};
 					926DBDF42ED890140092E592 = {
-						CreatedOnToolsVersion = 26.1.1;
+						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 926DBDDD2ED890120092E592;
 					};
 				};
@@ -573,6 +573,7 @@
 		926DBE002ED890140092E592 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HousePlants/HousePlants.entitlements;
@@ -612,6 +613,7 @@
 		926DBE012ED890140092E592 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HousePlants/HousePlants.entitlements;
@@ -697,6 +699,7 @@
 		926DBE062ED890140092E592 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -718,6 +721,7 @@
 		926DBE072ED890140092E592 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
