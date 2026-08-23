@@ -148,6 +148,8 @@ struct EnhancedPlantCard: View {
                 }
                 .buttonStyle(BubblingButtonStyle())
                 .paperBurst($celebrating, count: 12, radius: 54)
+                .accessibilityLabel(justWatered ? "Watered \(displayName)" : "Water \(displayName)")
+                .accessibilityHint("Marks \(displayName) as watered")
             }
             .padding(16)
         }
@@ -266,6 +268,8 @@ struct EnhancedJungleListRow: View {
             }
             .buttonStyle(SquishButtonStyle(scale: 0.82, rotation: -8))
             .paperBurst($celebrating, count: 10, radius: 42)
+            .accessibilityLabel("Water \(displayName)")
+            .accessibilityHint("Marks \(displayName) as watered")
         }
         .padding(14)
         .indiePaperCard(

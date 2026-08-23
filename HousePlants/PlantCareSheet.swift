@@ -119,6 +119,8 @@ struct PlantCareSheet: View {
                         
                         Slider(value: $healthScore, in: 0...100, step: 5)
                             .tint(healthColor)
+                            .accessibilityLabel("Health score")
+                            .accessibilityValue("\(Int(healthScore)) percent")
                         
                         HStack {
                             Text("Poor")
@@ -137,6 +139,7 @@ struct PlantCareSheet: View {
                         Text("Notes")
                             .font(.headline)
                         TextEditor(text: $notes)
+                            .accessibilityLabel("Plant notes")
                             .frame(height: 100)
                             .padding(8)
                             .background(Color.gray.opacity(0.1))
