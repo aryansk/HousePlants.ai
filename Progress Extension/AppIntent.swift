@@ -1,6 +1,6 @@
 //
 //  AppIntent.swift
-//  Progress Entention
+//  Progress Extension
 //
 //  Created by Aryan Singh on 06/05/26.
 //

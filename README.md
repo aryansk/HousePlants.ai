@@ -55,7 +55,7 @@ An intelligent iOS plant care companion that helps you nurture your indoor jungl
 
 ### 🔍 Plant Discovery & Catalog
 - **Comprehensive Database**
-  - 178+ houseplants in the main catalog (jason.json)
+  - 178+ houseplants in the main catalog (plants.json)
   - Extended reference library of 727 plants (extensive_plants.json)
   - High-quality plant images
   - Botanical and common names
@@ -199,7 +199,7 @@ graph TD
     B -->|No| C[WelcomeView]
     B -->|Yes| D[TabView]
     D --> E[DataLoader]
-    E --> F[jason.json — 178 plants]
+    E --> F[plants.json — 178 plants]
     E --> G[UserDefaults — profile & jungle]
     E --> H[PlantModels]
 ```
@@ -264,7 +264,7 @@ ClaudeHeader(title:subtitle:showBackButton:)
 ### Storage Strategy
 | Data | Storage |
 |------|---------|
-| Static plant catalog | `jason.json` (bundle) |
+| Static plant catalog | `plants.json` (bundle) |
 | Extended plant reference | `extensive_plants.json` (bundle) |
 | User profile & preferences | `UserDefaults` |
 | My Jungle plant states | `UserDefaults` (Codable JSON) |

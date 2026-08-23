@@ -1,6 +1,6 @@
 //
-//  Progress_EntentionLiveActivity.swift
-//  Progress Entention
+//  Progress_ExtensionLiveActivity.swift
+//  Progress Extension
 //
 //  Created by Aryan Singh on 06/05/26.
 //
@@ -9,7 +9,7 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-struct Progress_EntentionAttributes: ActivityAttributes {
+struct Progress_ExtensionAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         // Dynamic stateful properties about your activity go here!
         var emoji: String
@@ -19,9 +19,9 @@ struct Progress_EntentionAttributes: ActivityAttributes {
     var name: String
 }
 
-struct Progress_EntentionLiveActivity: Widget {
+struct Progress_ExtensionLiveActivity: Widget {
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: Progress_EntentionAttributes.self) { context in
+        ActivityConfiguration(for: Progress_ExtensionAttributes.self) { context in
             // Lock screen/banner UI goes here
             VStack {
                 Text("Hello \(context.state.emoji)")
@@ -55,25 +55,25 @@ struct Progress_EntentionLiveActivity: Widget {
     }
 }
 
-extension Progress_EntentionAttributes {
-    fileprivate static var preview: Progress_EntentionAttributes {
-        Progress_EntentionAttributes(name: "World")
+extension Progress_ExtensionAttributes {
+    fileprivate static var preview: Progress_ExtensionAttributes {
+        Progress_ExtensionAttributes(name: "World")
     }
 }
 
-extension Progress_EntentionAttributes.ContentState {
-    fileprivate static var smiley: Progress_EntentionAttributes.ContentState {
-        Progress_EntentionAttributes.ContentState(emoji: "😀")
+extension Progress_ExtensionAttributes.ContentState {
+    fileprivate static var smiley: Progress_ExtensionAttributes.ContentState {
+        Progress_ExtensionAttributes.ContentState(emoji: "😀")
      }
      
-     fileprivate static var starEyes: Progress_EntentionAttributes.ContentState {
-         Progress_EntentionAttributes.ContentState(emoji: "🤩")
+     fileprivate static var starEyes: Progress_ExtensionAttributes.ContentState {
+         Progress_ExtensionAttributes.ContentState(emoji: "🤩")
      }
 }
 
-#Preview("Notification", as: .content, using: Progress_EntentionAttributes.preview) {
-   Progress_EntentionLiveActivity()
+#Preview("Notification", as: .content, using: Progress_ExtensionAttributes.preview) {
+   Progress_ExtensionLiveActivity()
 } contentStates: {
-    Progress_EntentionAttributes.ContentState.smiley
-    Progress_EntentionAttributes.ContentState.starEyes
+    Progress_ExtensionAttributes.ContentState.smiley
+    Progress_ExtensionAttributes.ContentState.starEyes
 }

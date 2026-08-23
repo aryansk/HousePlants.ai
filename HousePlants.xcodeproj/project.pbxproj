@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		3A7769CC2FAAFF760030FCFD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A7769CB2FAAFF760030FCFD /* WidgetKit.framework */; };
 		3A7769CE2FAAFF760030FCFD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A7769CD2FAAFF760030FCFD /* SwiftUI.framework */; };
-		3A7769DF2FAAFF770030FCFD /* Progress EntentionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3A7769DF2FAAFF770030FCFD /* ProgressExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A7769C92FAAFF760030FCFD /* ProgressExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -18,7 +18,7 @@
 			containerPortal = 926DBDD62ED890120092E592 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 3A7769C82FAAFF760030FCFD;
-			remoteInfo = "Progress EntentionExtension";
+			remoteInfo = "ProgressExtension";
 		};
 		926DBDEC2ED890140092E592 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -43,7 +43,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				3A7769DF2FAAFF770030FCFD /* Progress EntentionExtension.appex in Embed Foundation Extensions */,
+				3A7769DF2FAAFF770030FCFD /* ProgressExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -51,7 +51,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Progress EntentionExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A7769C92FAAFF760030FCFD /* ProgressExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ProgressExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A7769CB2FAAFF760030FCFD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		3A7769CD2FAAFF760030FCFD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		926DBDDE2ED890120092E592 /* HousePlants.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HousePlants.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -60,22 +60,22 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3A7769E32FAAFF770030FCFD /* Exceptions for "Progress Entention" folder in "Progress EntentionExtension" target */ = {
+		3A7769E32FAAFF770030FCFD /* Exceptions for "Progress Extension" folder in "ProgressExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */;
+			target = 3A7769C82FAAFF760030FCFD /* ProgressExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3A7769CF2FAAFF760030FCFD /* Progress Entention */ = {
+		3A7769CF2FAAFF760030FCFD /* Progress Extension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3A7769E32FAAFF770030FCFD /* Exceptions for "Progress Entention" folder in "Progress EntentionExtension" target */,
+				3A7769E32FAAFF770030FCFD /* Exceptions for "Progress Extension" folder in "ProgressExtension" target */,
 			);
-			path = "Progress Entention";
+			path = "Progress Extension";
 			sourceTree = "<group>";
 		};
 		926DBDE02ED890120092E592 /* HousePlants */ = {
@@ -144,7 +144,7 @@
 				926DBDE02ED890120092E592 /* HousePlants */,
 				926DBDEE2ED890140092E592 /* HousePlantsTests */,
 				926DBDF82ED890140092E592 /* HousePlantsUITests */,
-				3A7769CF2FAAFF760030FCFD /* Progress Entention */,
+				3A7769CF2FAAFF760030FCFD /* Progress Extension */,
 				3A7769CA2FAAFF760030FCFD /* Frameworks */,
 				926DBDDF2ED890120092E592 /* Products */,
 			);
@@ -156,7 +156,7 @@
 				926DBDDE2ED890120092E592 /* HousePlants.app */,
 				926DBDEB2ED890140092E592 /* HousePlantsTests.xctest */,
 				926DBDF52ED890140092E592 /* HousePlantsUITests.xctest */,
-				3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */,
+				3A7769C92FAAFF760030FCFD /* ProgressExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -164,9 +164,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */ = {
+		3A7769C82FAAFF760030FCFD /* ProgressExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3A7769E42FAAFF770030FCFD /* Build configuration list for PBXNativeTarget "Progress EntentionExtension" */;
+			buildConfigurationList = 3A7769E42FAAFF770030FCFD /* Build configuration list for PBXNativeTarget "ProgressExtension" */;
 			buildPhases = (
 				3A7769C52FAAFF760030FCFD /* Sources */,
 				3A7769C62FAAFF760030FCFD /* Frameworks */,
@@ -177,13 +177,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				3A7769CF2FAAFF760030FCFD /* Progress Entention */,
+				3A7769CF2FAAFF760030FCFD /* Progress Extension */,
 			);
-			name = "Progress EntentionExtension";
+			name = "ProgressExtension";
 			packageProductDependencies = (
 			);
-			productName = "Progress EntentionExtension";
-			productReference = 3A7769C92FAAFF760030FCFD /* Progress EntentionExtension.appex */;
+			productName = "ProgressExtension";
+			productReference = 3A7769C92FAAFF760030FCFD /* ProgressExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		926DBDDD2ED890120092E592 /* HousePlants */ = {
@@ -263,21 +263,21 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2640;
-				LastUpgradeCheck = 2610;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					3A7769C82FAAFF760030FCFD = {
-						CreatedOnToolsVersion = 26.4.1;
+						CreatedOnToolsVersion = 16.0;
 					};
 					926DBDDD2ED890120092E592 = {
-						CreatedOnToolsVersion = 26.1.1;
+						CreatedOnToolsVersion = 16.0;
 					};
 					926DBDEA2ED890140092E592 = {
-						CreatedOnToolsVersion = 26.1.1;
+						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 926DBDDD2ED890120092E592;
 					};
 					926DBDF42ED890140092E592 = {
-						CreatedOnToolsVersion = 26.1.1;
+						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 926DBDDD2ED890120092E592;
 					};
 				};
@@ -299,7 +299,7 @@
 				926DBDDD2ED890120092E592 /* HousePlants */,
 				926DBDEA2ED890140092E592 /* HousePlantsTests */,
 				926DBDF42ED890140092E592 /* HousePlantsUITests */,
-				3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */,
+				3A7769C82FAAFF760030FCFD /* ProgressExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -369,7 +369,7 @@
 /* Begin PBXTargetDependency section */
 		3A7769DE2FAAFF770030FCFD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3A7769C82FAAFF760030FCFD /* Progress EntentionExtension */;
+			target = 3A7769C82FAAFF760030FCFD /* ProgressExtension */;
 			targetProxy = 3A7769DD2FAAFF770030FCFD /* PBXContainerItemProxy */;
 		};
 		926DBDED2ED890140092E592 /* PBXTargetDependency */ = {
@@ -394,17 +394,17 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Progress Entention/Info.plist";
+				INFOPLIST_FILE = "Progress Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "HousePlants Progress";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants.Progress-Entention";
+				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants.Progress-Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -425,17 +425,17 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Progress Entention/Info.plist";
+				INFOPLIST_FILE = "Progress Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "HousePlants Progress";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants.Progress-Entention";
+				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlants.Progress-Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -501,7 +501,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -560,7 +560,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -573,6 +573,7 @@
 		926DBE002ED890140092E592 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HousePlants/HousePlants.entitlements;
@@ -612,6 +613,7 @@
 		926DBE012ED890140092E592 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HousePlants/HousePlants.entitlements;
@@ -657,7 +659,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlantsTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -680,7 +682,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = U52UDRMR4A;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Rocket-Games.HousePlantsTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -697,6 +699,7 @@
 		926DBE062ED890140092E592 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -718,6 +721,7 @@
 		926DBE072ED890140092E592 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -739,7 +743,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3A7769E42FAAFF770030FCFD /* Build configuration list for PBXNativeTarget "Progress EntentionExtension" */ = {
+		3A7769E42FAAFF770030FCFD /* Build configuration list for PBXNativeTarget "ProgressExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3A7769E12FAAFF770030FCFD /* Debug */,

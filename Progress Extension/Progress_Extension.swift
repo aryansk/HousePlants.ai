@@ -1,6 +1,6 @@
 //
-//  Progress_Entention.swift
-//  Progress Entention
+//  Progress_Extension.swift
+//  Progress Extension
 //
 //  Created by Aryan Singh on 06/05/26.
 //
@@ -41,7 +41,7 @@ struct SimpleEntry: TimelineEntry {
     let configuration: ConfigurationAppIntent
 }
 
-struct Progress_EntentionEntryView : View {
+struct Progress_ExtensionEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
@@ -55,12 +55,12 @@ struct Progress_EntentionEntryView : View {
     }
 }
 
-struct Progress_Entention: Widget {
-    let kind: String = "Progress_Entention"
+struct Progress_Extension: Widget {
+    let kind: String = "Progress_Extension"
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            Progress_EntentionEntryView(entry: entry)
+            Progress_ExtensionEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
     }
@@ -81,7 +81,7 @@ extension ConfigurationAppIntent {
 }
 
 #Preview(as: .systemSmall) {
-    Progress_Entention()
+    Progress_Extension()
 } timeline: {
     SimpleEntry(date: .now, configuration: .smiley)
     SimpleEntry(date: .now, configuration: .starEyes)

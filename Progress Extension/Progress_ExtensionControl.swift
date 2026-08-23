@@ -1,6 +1,6 @@
 //
-//  Progress_EntentionControl.swift
-//  Progress Entention
+//  Progress_ExtensionControl.swift
+//  Progress Extension
 //
 //  Created by Aryan Singh on 06/05/26.
 //
@@ -10,8 +10,8 @@ import SwiftUI
 import WidgetKit
 
 @available(iOS 18.0, *)
-struct Progress_EntentionControl: ControlWidget {
-    static let kind: String = "Rocket-Games.HousePlants.Progress Entention"
+struct Progress_ExtensionControl: ControlWidget {
+    static let kind: String = "Rocket-Games.HousePlants.Progress Extension"
 
     var body: some ControlWidgetConfiguration {
         AppIntentControlConfiguration(
@@ -32,7 +32,7 @@ struct Progress_EntentionControl: ControlWidget {
 }
 
 @available(iOS 18.0, *)
-extension Progress_EntentionControl {
+extension Progress_ExtensionControl {
     struct Value {
         var isRunning: Bool
         var name: String
@@ -40,12 +40,12 @@ extension Progress_EntentionControl {
 
     struct Provider: AppIntentControlValueProvider {
         func previewValue(configuration: TimerConfiguration) -> Value {
-            Progress_EntentionControl.Value(isRunning: false, name: configuration.timerName)
+            Progress_ExtensionControl.Value(isRunning: false, name: configuration.timerName)
         }
 
         func currentValue(configuration: TimerConfiguration) async throws -> Value {
             let isRunning = true // Check if the timer is running
-            return Progress_EntentionControl.Value(isRunning: isRunning, name: configuration.timerName)
+            return Progress_ExtensionControl.Value(isRunning: isRunning, name: configuration.timerName)
         }
     }
 }
