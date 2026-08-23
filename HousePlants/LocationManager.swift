@@ -42,6 +42,25 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         Logger.location.error("Location manager error: \(error.localizedDescription)")
         DispatchQueue.main.async {
             self.isUpdating = false
+            if self.cityName == nil {
+                self.cityName = "San Francisco"
+                self.countryName = "United States"
+            }
+        }
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .denied, .restricted:
+            DispatchQueue.main.async {
+                self.isUpdating = false
+                if self.cityName == nil {
+                    self.cityName = "San Francisco"
+                    self.countryName = "United States"
+                }
+            }
+        default:
+            break
         }
     }
 }

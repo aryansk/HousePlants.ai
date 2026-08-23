@@ -192,7 +192,9 @@ final class NotificationScheduler {
             let stale = pending.map(\.identifier).filter { $0.hasPrefix(prefix) }
             self.center.removePendingNotificationRequests(withIdentifiers: stale)
             guard enabled else { return }
-            block()
+            DispatchQueue.global(qos: .utility).async {
+                block()
+            }
         }
     }
 

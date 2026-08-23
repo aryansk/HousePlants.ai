@@ -375,3 +375,104 @@ struct CareExperienceStoreTests {
         #expect(recap.mostCaredPlantID == "p2")
     }
 }
+
+// MARK: - DataLoader Transactions & JungleStore
+
+struct DataLoaderTransactionTests {
+    @Test @MainActor func testWaterPlantTransactionAndUndo() {
+        let loader = DataLoader.shared
+        let plant = makePlant()
+        loader.plants = [plant]
+        loader.plantsById = [plant.id: plant]
+
+        let initialMyPlant = makeMyPlant(nextWateringDate: iso(daysFromNow: -1, from: Date()))
+        loader.userProfile = UserProfile(
+            userId: "test", username: "Tester",
+            locationSettings: LocationSettings(city: "SF", country: "US", climateZoneDetected: "", coordinates: Coordinates(lat: 0, lng: 0)),
+            preferences: Preferences(difficultyLevel: "Beginner", petSafeOnly: false, notifyOnSundays: false),
+            favorites: [], myJungle: [initialMyPlant]
+        )
+        loader.updateLookup()
+
+        let tx = loader.waterPlantTransaction(plantId: plant.id)
+        #expect(tx != nil)
+        #expect(loader.userProfile?.myJungle.first?.wateringHistory?.isEmpty == false)
+
+        if let tx {
+            let undoSuccess = loader.undoWatering(tx)
+            #expect(undoSuccess == true)
+            #expect(loader.userProfile?.myJungle.first?.lastWatered == initialMyPlant.lastWatered)
+        }
+    }
+
+    @Test @MainActor func testToggleJungleAddAndRemove() {
+        let loader = DataLoader.shared
+        let plant = makePlant()
+        loader.plants = [plant]
+        loader.plantsById = [plant.id: plant]
+        loader.userProfile = UserProfile(
+            userId: "test", username: "Tester",
+            locationSettings: LocationSettings(city: "SF", country: "US", climateZoneDetected: "", coordinates: Coordinates(lat: 0, lng: 0)),
+            preferences: Preferences(difficultyLevel: "Beginner", petSafeOnly: false, notifyOnSundays: false),
+            favorites: [], myJungle: []
+        )
+        loader.updateLookup()
+
+        loader.toggleJungle(plant: plant)
+        #expect(loader.userProfile?.myJungle.count == 1)
+        #expect(loader.userProfile?.myJungle.first?.plantId == plant.id)
+
+        loader.toggleJungle(plant: plant)
+        #expect(loader.userProfile?.myJungle.isEmpty == true)
+    }
+
+    @Test @MainActor func testReorderJungle() {
+        let loader = DataLoader.shared
+        let plant1 = makeMyPlant(nextWateringDate: nil)
+        var plant2 = makeMyPlant(nextWateringDate: nil)
+        plant2.plantId = "p2"
+        var plant3 = makeMyPlant(nextWateringDate: nil)
+        plant3.plantId = "p3"
+
+        loader.userProfile = UserProfile(
+            userId: "test", username: "Tester",
+            locationSettings: LocationSettings(city: "SF", country: "US", climateZoneDetected: "", coordinates: Coordinates(lat: 0, lng: 0)),
+            preferences: Preferences(difficultyLevel: "Beginner", petSafeOnly: false, notifyOnSundays: false),
+            favorites: [], myJungle: [plant1, plant2, plant3]
+        )
+        loader.updateLookup()
+
+        loader.reorderJungle(to: ["p3", "p1"])
+        let ids = loader.userProfile?.myJungle.map(\.plantId)
+        #expect(ids == ["p3", "p1", "p2"]) // p2 remains at the end
+    }
+
+    @Test @MainActor func testUpdateProfileInfo() {
+        let loader = DataLoader.shared
+        loader.userProfile = UserProfile(
+            userId: "test", username: "OldName",
+            locationSettings: LocationSettings(city: "OldCity", country: "OldCountry", climateZoneDetected: "", coordinates: Coordinates(lat: 0, lng: 0)),
+            preferences: Preferences(difficultyLevel: "Beginner", petSafeOnly: false, notifyOnSundays: false),
+            favorites: [], myJungle: []
+        )
+
+        loader.updateProfile(username: "NewName", city: "NewCity", country: "NewCountry")
+        #expect(loader.userProfile?.username == "NewName")
+        #expect(loader.userProfile?.locationSettings.city == "NewCity")
+        #expect(loader.userProfile?.locationSettings.country == "NewCountry")
+    }
+}
+
+struct JungleStoreTests {
+    @Test func testJungleStoreMigrationAndReplace() {
+        let store = JungleStore(inMemory: true, defaults: UserDefaults(suiteName: "JungleStoreTests")!)
+        let p1 = makeMyPlant(nextWateringDate: nil)
+
+        let didMigrate = store.performMigrationIfNeeded(legacy: [p1])
+        #expect(didMigrate == true)
+
+        let fetched = store.fetchAll()
+        #expect(fetched.count == 1)
+        #expect(fetched.first?.plantId == "p1")
+    }
+}
