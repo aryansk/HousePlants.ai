@@ -122,6 +122,7 @@ extension View {
 
 // MARK: - Tab roles
 
+@available(iOS 18.0, *)
 extension TabRole {
     /// `.prominent` where supported, `nil` otherwise.
     ///
